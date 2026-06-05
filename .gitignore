@@ -1,0 +1,19 @@
+# FCG 런타임 상태 (active-goal 포인터 + gate 캐시) — 절대 커밋 금지
+.state/
+
+# FCG 자동생성 보고 (update-state.sh 가 재생성)
+docs/state/progress.md
+docs/state/next-task.md
+
+# Roadmap dashboard generated output.
+dashboard/roadmap.html
+
+# OS / 에디터
+.DS_Store
+Thumbs.db
+
+# 비밀/자격증명 — 절대 커밋 금지
+.Ubuntu_id.md
+
+# Claude Code machine-local settings (do not ship)
+.claude/settings.local.json
