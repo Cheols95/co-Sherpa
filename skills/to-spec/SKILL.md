@@ -1,6 +1,6 @@
 ---
 name: to-spec
-description: "Phase 1 마무리(계약 고정) 산출물인 계약 스펙(docs/spec/) 생성기. accepted ADR + PRD + CONTEXT 용어를 읽어, 구현이 단일 진실원천으로 최우선 참조하는 계약문서(data-schema·api-contract·domain-types 등)와 docs/spec/INDEX.md를 처음 만든다. '/to-spec', '스펙 만들어줘', '계약문서 생성', 'docs/spec 초기화', 'PRD/ADR을 계약 스펙으로', '스펙 문서 작성' 요청 시 활성화. 이미 있는 스펙의 드리프트 정합은 spec-sync 영역 — 이 스킬은 '생성'을 담당한다."
+description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처음 만드는(0→1 생성) 생성기 — 이미 docs/spec/가 있고 드리프트만 맞추는 건 spec-sync 영역(이건 생성 전용). Phase 1 마무리(계약 고정) 산출물로, accepted ADR + PRD + CONTEXT 용어를 읽어 구현이 단일 진실원천으로 최우선 참조하는 계약문서(data-schema·api-contract·domain-types 등)와 docs/spec/INDEX.md를 만든다. '/to-spec', '스펙 만들어줘', '계약문서 생성', 'docs/spec 초기화', 'PRD/ADR을 계약 스펙으로', '스펙 문서 작성' 요청 시 활성화."
 ---
 
 # to-spec — 계약 스펙 생성기 (Phase 1 마무리 · 계약 고정)
