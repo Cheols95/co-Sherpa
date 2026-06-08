@@ -1,0 +1,5 @@
+# Shell scripts must stay LF. On Windows, `git config core.autocrlf true`
+# would otherwise rewrite them to CRLF on checkout/clone, and bash then
+# fails on the trailing \r ("$'\r': command not found"). This template is
+# distributed by clone/copy, so pin every .sh to LF regardless of platform.
+*.sh text eol=lf

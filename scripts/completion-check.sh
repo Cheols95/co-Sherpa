@@ -44,7 +44,7 @@ fi
 
 CONCURRENCY="${GATES_CONCURRENCY:-4}"
 case "$CONCURRENCY" in
-  ''|*[!0-9]*) CONCURRENCY=2 ;;
+  ''|*[!0-9]*) CONCURRENCY=4 ;;   # non-numeric → documented default (4), not 2
   0) CONCURRENCY=1 ;;
 esac
 
