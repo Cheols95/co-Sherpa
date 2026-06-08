@@ -1,7 +1,6 @@
 # CLAUDE.md — Claude entry point
 
-**Read `AGENTS.md`** for this project's architecture, coding rules, and the load-bearing
-Agent-skills configuration (issue-tracker paths, triage roles, FCG bridge). Don't duplicate it here.
+**Read `AGENTS.md`** for this project's architecture, context, and the load-bearing Agent-skills configuration (issue-tracker paths, triage roles, FCG bridge). Don't duplicate it here.
 
 Claude-specific notes:
 

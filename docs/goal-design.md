@@ -174,10 +174,17 @@ gates.sh 가 _유일하게_ 책임지는 건 세 종류만 남는다:
    (`check-gate-rigor.sh`).
 2. **Negative universal invariant** — "codebase 어디에도 패턴 X 가 없다"
    같은 single grep. 행위 테스트는 한 경로만 검증하므로 이건 못 잡음.
-3. **구조 앵커** — 후속 goal 이 routing 신호로 쓰는 문서/파일의 존재.
+3. **구조 앵커** — 후속 goal 이 routing 신호로 쓰는 문서/파일의 존재. (이건 *빌드 하네스가 다음
+   goal 을 고를 때* 읽는 파일이다. *제품이 런타임에 참조하는* 자산[아이콘·인증서·시드·정적 자산·빌드
+   출력물]의 실존은 여기가 아니라 `guidelines/품질점검.md` §5 가 본다.)
 
 회의적 휴리스틱: **"이 invariant 가 깨지면 어떤 테스트가 빨갛게 되는가?"**
 답이 있으면 gates 에서 빼라. 답이 없을 때만 gate 가 적절하다.
+
+역방향 사각지대도 있다: 테스트·빌드가 모두 green 이어도 **선언된 산출물의 실존·경계 계약·런타임 부팅**은
+*좁은 per-goal grep gate* 로는 못 본다. 이건 좁은 grep gate 로 끌어오지 말고 — 테스트·스모크
+스크립트·deep gate(별도 cadence)·`guidelines/품질점검.md` §5 로 검증한다 (exit 0 ≠ 작동). deep
+gate 도 엄연히 gate 다 (아래 § Deep gate split).
 
 ### 2. 첫 실패 goal = 작업 대상
 

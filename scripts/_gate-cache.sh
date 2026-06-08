@@ -1,4 +1,4 @@
-# scripts/_gate-cache.sh ??Source-only helper for goal gate memoization.
+# scripts/_gate-cache.sh — Source-only helper for goal gate memoization.
 #
 # Each goal's <n>-<name>.gates.sh declares its inputs and wraps its work:
 #
@@ -33,12 +33,12 @@
 #   - Uncommitted edits to in-scope files still invalidate (correctly).
 #
 # INPUTS entries may be:
-#   - file paths        ??contributes file content + path
-#   - directories       ??recursively hashed; node_modules/dist/.git/.state/
+#   - file paths        — contributes file content + path
+#   - directories       — recursively hashed; node_modules/dist/.git/.state/
 #                         .next/.turbo/coverage/.astro/target/__pycache__/
 #                         .venv are pruned
-#   - glob patterns     ??expanded; each match contributes as above
-#   - absent paths      ??contribute a stable "absent" sentinel, so adding
+#   - glob patterns     — expanded; each match contributes as above
+#   - absent paths      — contribute a stable "absent" sentinel, so adding
 #                         or removing a referenced file invalidates
 #
 # Manual override:
@@ -57,7 +57,7 @@ _gate_cache_dir() {
 # Pick a portable sha256 command once. macOS lacks `sha256sum` by default;
 # `shasum -a 256` exists on both macOS and Linux. We use this name as a
 # literal string with xargs below, so it must resolve to an external
-# program ??not a shell function.
+# program — not a shell function.
 if command -v shasum >/dev/null 2>&1; then
   _GATE_CACHE_SHA_CMD="shasum -a 256"
 elif command -v sha256sum >/dev/null 2>&1; then

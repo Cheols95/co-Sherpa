@@ -1,7 +1,7 @@
 # AGENTS.md — Project context & rules
 
 Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-model flow
-(**Claude = planning / GPT = implementation**) on the **FCG** harness.
+(**Claude = planning+implementation / GPT = implementation**) on the **FCG** harness.
 
 - The **user drives** the slash-command sequence; skills self-trigger from their own descriptions.
 - Full workflow (human reference): `README.md`. FCG mechanics: `docs/fcg-system.md`.
@@ -11,17 +11,11 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 
 ---
 
-## Architecture & Context
-<!-- Key modules, data model, external services/APIs, directory map, domain terms.
-     What a new engineer must know before touching the code. -->
+## Architecture
+- 
 
-- _(describe this project's system here)_
-
-## Coding rules
-<!-- Conventions a generic model would get wrong: naming, error handling, test strategy,
-     framework idioms, dependency choices, do / don't. -->
-
-- _(list this project's rules here)_
+## Context
+- 
 
 ---
 
@@ -47,6 +41,18 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 - **ADR (`docs/adr/`) = decision history, one decision per file.** A `superseded by ADR-NNNN`
   (frontmatter + top banner) ADR is history, not a basis for implementation. ADRs stay in
   place — don't archive to read them out of context.
+
+## Phase 1 elicitation (planning gate)
+
+- **Surface load-bearing choices before freezing the spec.** Persistence, delivery shape
+  (service / library / CLI / UI), and stack are decisions the whole plan rests on — state them to
+  the user **explicitly, with the trade-off**, never silently default. A silently-defaulted
+  load-bearing choice traps a user who didn't know to object; they discover the wrong one only at
+  build time. `to-spec` will not freeze a contract while such a choice is unresolved.
+- **Ask in plain words, encode in precise rules.** With a non-developer, translate jargon into the
+  decision behind it: not "is this an invariant?" but "if this changes, must something else change
+  too?"; not "what's the authorization model?" but "who may do this, and who must be blocked?" Then
+  translate the plain answer back into the precise contract term.
 
 ## Project-specific skills
 

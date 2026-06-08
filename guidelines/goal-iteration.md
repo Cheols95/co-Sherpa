@@ -63,6 +63,13 @@ cat docs/state/next-task.md
 프로젝트의 테스트 러너 + 린트/타입체크를 돌린다 (이들은 보통 `_meta`
 gate 가 enforce 한다). 실패하면 진행 전에 고친다.
 
+> **런타임 스모크·산출물 실존·경계 계약은 여기(Phase 5)서 돌리지 않는다.** 서버 부팅 health-check,
+> 선언된 산출물(아이콘·시드·정적 자산 등)의 실존, 서비스 간 경계 계약은 매 iteration 이 아니라
+> `guidelines/품질점검.md` §5 의 cadence(finding 2개마다/주요 변경 후)로 점검한다 — 좁은 per-goal
+> 검사로 끌어오지 않는다(`docs/goal-design.md` §1.5). 자동화 가능하면 별도 cadence 의 deep
+> gate(`GATES_SKIP_DEEP=0`)로 돌리되, 그 검사 라벨은 `goals/_meta.gates.sh` 의 `DEEP_LABELS_RE` 에
+> 매치하도록 달아 빠른 반복(inner-loop)에서 skip 되게 한다.
+
 ### Phase 6: Record (5%)
 
 ```

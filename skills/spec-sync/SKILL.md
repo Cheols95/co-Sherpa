@@ -28,6 +28,7 @@ description: "현재 계약 스펙(docs/spec/)의 정합성 관리기. 계약 �
 | accepted ADR의 결정이 계약 문서에 아직 반영 안 됨 | **직접 반영** (delta만, 전면 재작성 X) |
 | **코드를** 고쳐야 함 (코드가 계약과 어긋나고 코드 쪽이 틀림) | 직접 안 고침 → `docs/findings/`에 큐잉 (이후 `/fcg-goal`이 테스트와 함께 처리) |
 | 코드·문서 중 어느 쪽이 맞는지 모호 | **사용자에게 질문.** 임의 결정 금지 |
+| 계약 문서가 hollow shell(칸만 있고 내용 빔)이거나 품질 floor(검증가능·반례·구체엣지, `to-spec` §품질 floor 참조) 위반 | 채울 근거(우선순위: ①코드 → ②최신 accepted ADR → ③①②가 대체(supersede) 안 한 PRD 결정, 충돌 시 상위 우선)가 있으면 **직접 보강**, 없으면 **finding 또는 사용자 질문**. 단, 칸 내용이 `TODO(미결정)`이면 보강 대상이 아니다(to-spec이 사용자 결정 대기로 비운 칸) — 그대로 두고 finding/질문으로만 처리 |
 
 > 서비스 흐름 계약(`docs/spec/service-flow.md`)도 같은 규칙: Groups·Components 표가 실제 배포 토폴로지·
 > 최신 ADR과 어긋나면 — 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (스키마는
@@ -44,6 +45,8 @@ description: "현재 계약 스펙(docs/spec/)의 정합성 관리기. 계약 �
 
 ## `docs/spec/INDEX.md` 형식
 현재 유효한 계약 문서의 목록 — 구현 에이전트가 진실원천으로 최우선하는 인덱스.
+> `TODO(미결정)` 칸이 남은 스펙은 Covers에 `(미결정 칸 있음)` 표기 + frontmatter `resolved:false`를
+> 유지하고, 동결되면 그 표기를 제거한다. (형식·표기를 to-spec과 일치시킨다.)
 ```markdown
 # Current contract specs (single source of truth)
 
