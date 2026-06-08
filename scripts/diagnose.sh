@@ -29,40 +29,61 @@ echo ""
 
 echo "=== Active Goal ==="
 ACTIVE_FILE="$ROOT/.state/active-goal"
-if [ -f "$ACTIVE_FILE" ]; then
-  ACTIVE=$(cat "$ACTIVE_FILE")
+ptr=""
+[ -f "$ACTIVE_FILE" ] && ptr=$(cat "$ACTIVE_FILE" 2>/dev/null || true)
+
+if [ -n "$ptr" ]; then
+  echo "  $ptr"
 else
-  ACTIVE="(unknown — run scripts/completion-check.sh first)"
+  echo "  (unknown — run scripts/completion-check.sh first)"
 fi
-echo "  $ACTIVE"
+
+# A pointer only certifies goal status when it is ALL_DONE or an existing
+# goal file. Empty / (none) / NEEDS_FIRST_GOAL / a deleted path means the
+# chain was never successfully checked — show every goal as "(not yet
+# checked)" rather than falsely green.
+verified=false
+if [ "$ptr" = "ALL_DONE" ] || { [ -n "$ptr" ] && [ -f "$ptr" ]; }; then
+  verified=true
+fi
+
 if [ -d goals ]; then
   echo "  All goals:"
+  # Mirror completion-check.sh run order: _meta is launched first, so it
+  # must lead the display too. Raw sort -V pushes _meta last, which would
+  # mislabel it "(deferred)" or hide a _meta failure behind green numbers.
+  goal_list=()
+  meta_md=""
+  while IFS= read -r f; do
+    if [ "$(basename "$f")" = "_meta.md" ]; then
+      meta_md="$f"
+    else
+      goal_list+=("$f")
+    fi
+  done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V)
+  [ -n "$meta_md" ] && goal_list=("$meta_md" ${goal_list[@]+"${goal_list[@]}"})
+
   seen_active=false
-  for f in $(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V); do
+  for f in ${goal_list[@]+"${goal_list[@]}"}; do
     name=$(basename "$f" .md)
     gate="goals/${name}.gates.sh"
-    if [ -f "$gate" ]; then
-      status="(not yet checked)"
-      if [ -f "$ACTIVE_FILE" ]; then
-        if [ "$(cat "$ACTIVE_FILE")" = "ALL_DONE" ]; then
-          status="✓ passed"
-        elif [ "$ACTIVE" = "$f" ]; then
-          status="⚙ active (failing)"
-          seen_active=true
-        else
-          # A goal preceding the active one was confirmed passing by
-          # the last completion-check run.
-          if [ "$seen_active" = false ]; then
-            status="✓ passed"
-          else
-            status="(deferred — earlier goal is active)"
-          fi
-        fi
-      fi
-      echo "    - $f $status"
-    else
+    if [ ! -f "$gate" ]; then
       echo "    - $f (no gate script)"
+      continue
     fi
+    if [ "$verified" = false ]; then
+      status="(not yet checked)"
+    elif [ "$ptr" = "ALL_DONE" ]; then
+      status="✓ passed (as of last check)"
+    elif [ "$ptr" = "$f" ]; then
+      status="⚙ active (failing)"
+      seen_active=true
+    elif [ "$seen_active" = false ]; then
+      status="✓ passed (as of last check)"
+    else
+      status="(deferred — earlier goal is active)"
+    fi
+    echo "    - $f $status"
   done
 fi
 echo ""
@@ -94,8 +115,13 @@ echo ""
 # Keep it read-only.
 
 echo "=== Blockers ==="
-if [ -s docs/state/blockers.md ]; then
-  grep -vE '^(#|$)' docs/state/blockers.md | head -10 | sed 's/^/  /'
+# Filter comment headers, blank lines, and the italic boilerplate the
+# template seeds (e.g. "_Append-only..._") so guidance never prints as a
+# real blocker. Decide emptiness AFTER filtering.
+real_blockers=""
+[ -f docs/state/blockers.md ] && real_blockers=$(grep -vE '^#|^[[:space:]]*$|^_Append-only' docs/state/blockers.md 2>/dev/null || true)
+if [ -n "$real_blockers" ]; then
+  printf '%s\n' "$real_blockers" | head -10 | sed 's/^/  /'
 else
   echo "  (none)"
 fi

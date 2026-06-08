@@ -29,6 +29,16 @@ goal only when its name starts with a digit (`<n>-<name>.md`) or is exactly
 notes — is ignored by `completion-check.sh` / `check-gate-rigor.sh` /
 `diagnose.sh`, so it never shows up as a "missing gate" failure.
 
+**Bootstrap rule — the first conversion replaces `0-example`.**
+`goals/0-example.*` is a **teaching placeholder**, not part of the real
+chain. The **first** `fcg-goal` mode-B conversion (issues/PRD → goals)
+MUST delete the `goals/0-example.{md,gates.sh,next-task.sh}` triplet as it
+writes your first real numbered goal — otherwise the throwaway example
+(name starts with `0`, so it is a live goal) lingers as a permanent
+passing member of the chain. A fresh template keeps it so you can watch
+the chain go green, and `scripts/reset-for-new-project.sh` preserves it
+on copy; it is removed only at the first real conversion.
+
 ---
 
 ## `.md` conventions

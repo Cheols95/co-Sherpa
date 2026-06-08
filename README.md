@@ -28,15 +28,18 @@
 - **이 템플릿 전용(bespoke)**: `to-spec` · `spec-sync` — `docs/spec` 계약 규약 전용으로 만든 것이라 **공개 install 출처가 없다.** 소스는 레포 `skills/`에 백업돼 있고, `scripts/install-skills.sh`가 전역(`~/.claude/skills/`)으로 설치한다.
 
 > 확인: Claude는 `~/.claude/skills/`, Codex는 `~/.codex/skills/`에 위 스킬 폴더가 있는지 본다.
-> 이 폴더의 `.claude/skills/`는 **프로젝트 전용** 슬롯(기본 비어 있음)이며 전역 스킬과 구분된다.
+> 이 폴더의 `.claude/skills/`는 **프로젝트 전용** 슬롯이며 전역 스킬과 구분된다. 현재 `roadmap/`
+> (로컬 로드맵 대시보드) 하나가 들어 있다 — 이 워크플로우 시스템이 갖춰져야만 동작하므로
+> 전역이 아닌 프로젝트 전용으로 둔다(`scripts/template-clean-check.sh`가 필수 산출물로 강제).
 
 ## 빠른 시작
 
 1. 이 폴더를 새 프로젝트 경로로 복사한다.
-2. `git init` (선택) 후 작업 시작.
-3. **Claude**로 기획: `/grill-with-docs` → `/to-prd` → `/to-issues` → `/to-spec` → `/handoff`
-4. **GPT(Codex)**로 구현: `/fcg-goal` 로 게이트를 green으로, `/fcg-findings`·`/fcg-cycles`로 부채 관리.
-5. 첫 미션은 `goals/0-example.*`를 참고해 `goals/0-init.*`로 교체한다(예제는 삭제).
+2. `bash scripts/reset-for-new-project.sh` — 복사로 따라온 머신-로컬/생성 상태(`.state/`·자동생성 state·이전 사용자의 `.claude/settings.local.json`)를 비운다. (`git clone`으로 받았다면 불필요.)
+3. `git init` (선택) 후 작업 시작.
+4. **Claude**로 기획: `/grill-with-docs` → `/to-prd` → `/to-issues` → `/to-spec` → `/handoff`
+5. **GPT(Codex)**로 구현: 첫 `/fcg-goal`(변환 모드 B)이 이슈/PRD를 `goals/<n>-*` 실행계약으로 바꾸며, `goals/AGENTS.md` 부트스트랩 규약에 따라 `goals/0-example.*`를 제거하고 실제 goal로 교체한다 → 이후 `/fcg-goal`로 게이트를 green으로, `/fcg-findings`·`/fcg-cycles`로 부채 관리.
+6. `goals/0-example.*`는 워크플로우를 이해하기 위한 **교육용 예제**다 — 위 첫 변환이 규약대로 제거·교체하므로 손으로 지울 필요는 없다(원하면 직접 지워도 됨).
 
 ## 워크플로우 (상세)
 
@@ -184,11 +187,12 @@ bash scripts/diagnose.sh                              # 매 시작: active-goal�
 | `docs/goal-design.md` | goal 설계 노트 |
 | `goals/` | FCG 미션 스택 (`<n>-*.{md,gates.sh,next-task.sh}`) |
 | `cycles/` | FCG loop-driver 프롬프트 |
-| `scripts/` | FCG 오케스트레이터 셸스크립트 + `install-skills.sh`(스킬 설치) |
+| `scripts/` | FCG 오케스트레이터 셸스크립트 + `install-skills.sh`(스킬 설치) + `reset-for-new-project.sh`(복사 후 머신-로컬 상태 초기화) |
+| `dashboard/` | 로컬 로드맵 대시보드. `engines/roadmap.sh`(이슈·active goal·goal 계약 → self-contained `roadmap.html` emit, gitignore) + `engines/roadmap-selftest.sh` + `README.md`. `/roadmap` 스킬로 호출 |
 | `guidelines/` | iteration 운영 매뉴얼 + 품질점검 체크리스트 |
 | `prompts/` | 메타 프롬프트 — `cycle-generate.md`(사이클 문서 생성) + `check-test-codes/`(테스트코드 점검 지침) |
 | `skills/` | 배포용 **bespoke 스킬 소스**(to-spec·spec-sync). `scripts/install-skills.sh`가 `~/.claude/skills/`로 설치(전역 실행 유지 + 레포 백업) |
-| `.claude/skills/` | 이 프로젝트 **전용** 스킬만(전역 스킬과 구분). 현재 비어 있음 — 기획·구현·계약 스킬은 모두 전역(`~/.claude`·`~/.codex`). 프로젝트 한정 패턴이 반복 증명되면 그때 추가 |
+| `.claude/skills/` | 이 프로젝트 **전용** 스킬(전역 스킬과 구분). 현재 `roadmap/` 하나 — 워크플로우 시스템 의존이라 전역 아닌 프로젝트 전용이며 `template-clean-check.sh`가 필수로 강제. 기획·구현·계약 스킬은 모두 전역(`~/.claude`·`~/.codex`). 프로젝트 한정 패턴이 반복 증명되면 추가 |
 ## Worktree Safety
 
 Generated dashboard output is not proof that the current worktree is clean or

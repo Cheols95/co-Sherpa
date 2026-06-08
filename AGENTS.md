@@ -26,7 +26,11 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 - **Triage roles:** `needs-triage` / `needs-info` / `ready-for-agent` / `ready-for-human` / `wontfix`.
 - **Domain docs = single-context:** one `CONTEXT.md` at repo root + `docs/adr/`.
 - **Phase 1→2 bridge:** `/fcg-goal` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
-  `goals/<n>-<name>.{md,gates.sh,next-task.sh}` contracts.
+  `goals/<n>-<name>.{md,gates.sh,next-task.sh}` contracts. On the **first** conversion it
+  **replaces the `goals/0-example.*` placeholder triplet** (a teaching example, not a real
+  goal; see the Bootstrap rule in `goals/AGENTS.md`) rather than leaving it beside the real
+  goals. Goal `<n>` is an ordering label, not a 1:1 map to issue `NNN`; link a goal to its
+  issue by slug (`goals/<n>-<slug>`).
 - **FCG invariants:** gates are immutable (fix code, not gates); `.state/` is gitignored;
   in loop mode never terminate early (log to `blockers.md` after 3 stalled rounds).
 

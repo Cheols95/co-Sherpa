@@ -9,7 +9,8 @@
 #      regression at the goal boundary),
 #   2. before push when scripts/hooks/pre-push is installed or a manual
 #      full verify is run, and
-#   3. in CI on every PR.
+#   3. in CI on every PR — only where you wire a workflow (none ships by
+#      default).
 #
 # Cost: ~5–30 s depending on which goal is active, vs. 1–3 min for the
 # full sweep. Use this for the inner TDD loop; let completion-check
@@ -96,9 +97,10 @@ fi
 echo
 cat <<EOF
     ✗ active goal $goal_name still has failing gates.
-      Prior-goal regression is NOT checked at the iteration level —
-      staged impact is caught at commit time; the full sweep is caught
-      at pre-push/CI/manual verify. To verify the full chain right now:
+      Prior-goal regression is NOT checked at the iteration level. The
+      full chain is verified only where you wire it: a manual
+      completion-check, a project-provided commit/pre-push hook, or CI —
+      none of those ship by default. To verify the full chain right now:
         bash scripts/completion-check.sh
 EOF
 exit 1

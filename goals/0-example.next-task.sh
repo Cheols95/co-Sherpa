@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# goals/0-example.next-task.sh ??advisory hint for the example goal.
+# goals/0-example.next-task.sh -- advisory hint for the example goal.
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -8,9 +8,11 @@ cd "$ROOT"
 if bash "$ROOT/goals/0-example.gates.sh" >/dev/null 2>&1; then
   cat <<'MSG'
 TASK: Goal 0-example is green.
-  - This is a teaching example. Replace it with your real goal 0:
-    author goals/0-<name>.{md,gates.sh,next-task.sh} from your spec,
-    then delete the 0-example triplet.
+  - This is a teaching example, not a real goal. The normal path is to
+    run fcg-goal on your issues/PRD (mode B): it converts them into
+    goals/<n>-<name>.{md,gates.sh,next-task.sh} and removes this
+    0-example triplet as it does so (goals/AGENTS.md bootstrap rule;
+    you can also delete it by hand).
   - Run: bash scripts/completion-check.sh
 MSG
 else

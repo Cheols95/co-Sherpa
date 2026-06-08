@@ -64,6 +64,13 @@ while IFS= read -r f; do
   fi
 done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V)
 
+# Numbered-goal count BEFORE _meta is folded in below. A stack of only
+# _meta (zero numbered goals) is NOT "done": _meta passes vacuously on a
+# fresh template, which would otherwise mint a false ALL_DONE. The L80
+# empty-guard tests the COMBINED array, so it never fires once _meta is
+# present — this count is the real guard (see below).
+NUM_NUMBERED=${#GOALS[@]}
+
 # Meta is launched first so its slot in the parallel pool starts at t=0.
 # When GATES_CONCURRENCY is low and _meta dominates wall-clock (lint+tsc+
 # test+builds), this overlaps meta work with the lightest numeric goals
@@ -75,6 +82,21 @@ done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md'
 # — by the workflow itself.
 if [ -n "$META_MD" ] && [ "${GATES_SKIP_META:-}" != "1" ]; then
   GOALS=("$META_MD" "${GOALS[@]}")
+fi
+
+# False-completion guard. With zero numbered goals but a _meta present,
+# the chain would otherwise pass vacuously and write ALL_DONE — an
+# autonomous agent would believe a build with nothing in it is finished.
+# ASCII-only message (no glyphs) so a cp949 re-save can't corrupt it.
+if [ "$NUM_NUMBERED" -eq 0 ] && [ -n "$META_MD" ]; then
+  echo "[completion-check] No numbered goal authored yet (only _meta)."
+  echo "  _meta passes vacuously on a fresh template, so this is NOT done."
+  echo "  Convert your spec into the first goal: run fcg-goal on"
+  echo "  docs/issues/*.md (or docs/prd/PRD.md). Mode B writes"
+  echo "  goals/<n>-<name>.{md,gates.sh,next-task.sh} and replaces the"
+  echo "  goals/0-example.* placeholder."
+  echo "NEEDS_FIRST_GOAL" > "$ACTIVE_FILE"
+  exit 1
 fi
 
 if [ "${#GOALS[@]}" -eq 0 ]; then
@@ -132,6 +154,7 @@ echo
 
 OVERALL_PASS=true
 FIRST_FAIL_MD=""
+FAILED=()
 
 # Meta: orchestrator-owned rigor sweep. Closes the leak where a prior
 # goal's .md is not in its own GATE_INPUTS — direct edits to those .md
@@ -191,10 +214,13 @@ else
   else
     echo "    ✗ rigor mismatch — fix .md or its gate before continuing"
     OVERALL_PASS=false
+    # Collect ALL rigor-failing goals; do not pick a winner here. The
+    # active-goal pointer is chosen after the runtime sweep (below) so a
+    # higher-numbered goal's rigor failure can't mask a lower-numbered
+    # goal's runtime failure.
     while IFS= read -r md; do
       if ! bash "$ROOT/scripts/check-gate-rigor.sh" "$md" >/dev/null 2>&1; then
-        FIRST_FAIL_MD="$md"
-        break
+        FAILED+=("$md")
       fi
     done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) | sort -V)
   fi
@@ -238,14 +264,41 @@ for goal_md in "${GOALS[@]}"; do
   else
     printf '    ✗ goal %s has failing gates.\n' "$goal_name"
     OVERALL_PASS=false
-    if [ -z "$FIRST_FAIL_MD" ]; then
-      FIRST_FAIL_MD="$goal_md"
-    fi
+    FAILED+=("$goal_md")
   fi
   printf '\n'
 
   idx=$((idx + 1))
 done
+
+# Active goal = the lowest-numbered failing goal across BOTH the rigor
+# sweep and the runtime suites (the docstring contract). _meta is
+# cross-cutting and is checked first, so it wins when it is among the
+# failures; otherwise the numerically-lowest goal wins (_meta sorts last
+# under -V, so the explicit check is required).
+if [ "${#FAILED[@]}" -gt 0 ]; then
+  FIRST_FAIL_MD=""
+  for cand in "${FAILED[@]}"; do
+    if [ "$(basename "$cand")" = "_meta.md" ]; then
+      FIRST_FAIL_MD="$cand"
+      break
+    fi
+  done
+  if [ -z "$FIRST_FAIL_MD" ]; then
+    FIRST_FAIL_MD=$(printf '%s\n' "${FAILED[@]}" | sort -V | head -1)
+  fi
+fi
+
+# Defensive: if something set OVERALL_PASS=false without populating FAILED
+# (e.g. the rigor self-test failed — neither sweep), still write a
+# non-empty pointer so downstream readers don't see a blank active-goal.
+if [ "$OVERALL_PASS" != true ] && [ -z "$FIRST_FAIL_MD" ]; then
+  if [ -n "$META_MD" ]; then
+    FIRST_FAIL_MD="$META_MD"
+  else
+    FIRST_FAIL_MD=$(find goals -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V | head -1)
+  fi
+fi
 
 if [ "$OVERALL_PASS" = true ]; then
   echo "ALL_DONE" > "$ACTIVE_FILE"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# goals/_meta.gates.sh ??Cross-cutting gate suite (lint / typecheck / test / build).
+# goals/_meta.gates.sh -- Cross-cutting gate suite (lint / typecheck / test / build).
 #
 # Captures invariants that span the whole repo rather than a single goal.
 # Centralizing here eliminates duplicate execution across goals and CI,
@@ -19,7 +19,7 @@ cd "$ROOT"
 # shellcheck source=../scripts/_gate-cache.sh
 source "$ROOT/scripts/_gate-cache.sh"
 
-# ??? CONFIGURE: your cross-cutting checks ???????????????????????????????
+# --- CONFIGURE: your cross-cutting checks --------------------------------
 # Each entry is "Label::shell command". The command runs from the repo
 # root and must exit non-zero on failure. Examples (uncomment + edit):
 #   "typecheck::pnpm exec tsc --noEmit"
@@ -40,7 +40,7 @@ META_CHECKS=(
   # "build::<command>"
 )
 
-# ??? CONFIGURE: files whose change should bust this gate's cache ????????
+# --- CONFIGURE: files whose change should bust this gate's cache ---------
 # Broaden to cover your source + config so any code change re-runs the
 # suite. Keep the three self-references at the end.
 GATE_INPUTS=(
@@ -55,12 +55,12 @@ GATE_INPUTS=(
   scripts/_gate-cache.sh
 )
 
-# Labels matching this (case-insensitive) are "deep" ??skipped under
+# Labels matching this (case-insensitive) are "deep" -- skipped under
 # GATES_SKIP_DEEP=1 for fast inner-loop iteration.
 DEEP_LABELS_RE='test|build|e2e|coverage|integration'
 
-# ??? Cache key: shallow runs never satisfy the full `_meta` key, so a
-# full check is always forced after an input change until one runs. ?????
+# --- Cache key: shallow runs never satisfy the full `_meta` key, so a
+# full check is always forced after an input change until one runs. ------
 if [ "${GATES_SKIP_DEEP:-}" = "1" ]; then
   CACHE_KEY="_meta-shallow"
 else
@@ -74,7 +74,7 @@ fi
 
 if [ "${#META_CHECKS[@]}" -eq 0 ]; then
   echo "[_meta] no checks configured."
-  echo "    ??passing vacuously ??edit META_CHECKS in goals/_meta.gates.sh to"
+  echo "    -- passing vacuously -- edit META_CHECKS in goals/_meta.gates.sh to"
   echo "      wire your lint / typecheck / test / build commands."
   gate_cache_save "$CACHE_KEY" "${GATE_INPUTS[@]}"
   [ "$CACHE_KEY" = "_meta" ] && gate_cache_save "_meta-shallow" "${GATE_INPUTS[@]}"
@@ -92,7 +92,7 @@ cleanup_meta_logs() {
 }
 trap cleanup_meta_logs EXIT
 
-# Enumerate every configured check ??universal claim ??universal gate.
+# Enumerate every configured check -- a universal claim demands a universal gate.
 i=0
 for entry in "${META_CHECKS[@]}"; do
   i=$((i + 1))
@@ -101,15 +101,15 @@ for entry in "${META_CHECKS[@]}"; do
   is_deep=false
   printf '%s' "$label" | grep -iqE "$DEEP_LABELS_RE" && is_deep=true
   if [ "$is_deep" = true ] && [ "${GATES_SKIP_DEEP:-}" = "1" ]; then
-    echo "[M.$i $label] ??skipped (GATES_SKIP_DEEP=1)"
+    echo "[M.$i $label] -- skipped (GATES_SKIP_DEEP=1)"
     continue
   fi
   echo "[M.$i $label] $cmd"
   log="$LOG_DIR/m$i.log"
   if bash -c "$cmd" >"$log" 2>&1; then
-    echo "    ??pass"
+    echo "    [PASS]"
   else
-    echo "    ??fail ??see $log"
+    echo "    [FAIL] -- see $log"
     PASS=false
   fi
 done

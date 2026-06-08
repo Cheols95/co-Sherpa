@@ -80,7 +80,9 @@ bash scripts/active-check.sh
 `active-check.sh` 는 **active goal** 의 gate (~5–30 s) 와 rigor sweep 만
 돌린다. active goal 이 green 이 되면 `completion-check.sh` 로 exec 해
 포인터를 자동 전진시킨다. prior-goal 회귀는 iteration 레벨에서 검사하지
-않는다 — staged impact 는 commit 훅이, 전체 sweep 은 pre-push/CI 가 잡는다.
+않는다. 전체 체인은 **직접 wire 한 곳에서만** 검증된다 — 수동
+`completion-check.sh`, 프로젝트가 제공하는 commit/pre-push 훅, 또는 CI.
+셋 다 이 번들엔 기본 미포함이다.
 
 중요한 걸 발견했으면 `docs/state/learnings.md` 에 한 줄 append.
 

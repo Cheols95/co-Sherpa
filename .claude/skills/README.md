@@ -6,4 +6,6 @@
 - 프로젝트에서 같은 전문 작업이 **반복적으로 증명됐을 때만** 집중된 스킬 하나를 추가한다(자동 생성 무더기는 컨텍스트를 비대하게 만들어 성능을 떨어뜨린다).
 - 형식: `<skill-name>/SKILL.md` (frontmatter `name` + `description`).
 
-기본은 비어 있다.
+현재 들어 있는 것: **`roadmap/`** — 로컬 로드맵 대시보드 생성·열기 스킬. 이 워크플로우
+시스템(`dashboard/engines/`·`goals/`·`scripts/`)이 갖춰져야만 동작하므로 전역이 아닌
+프로젝트 전용으로 둔다. `scripts/template-clean-check.sh`가 필수 산출물로 강제한다.

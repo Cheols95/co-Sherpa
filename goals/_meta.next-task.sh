@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# goals/_meta.next-task.sh ??invoked when _meta is the active failing goal.
+# goals/_meta.next-task.sh -- invoked when _meta is the active failing goal.
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

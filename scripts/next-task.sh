@@ -28,6 +28,17 @@ EOF
   exit 0
 fi
 
+if [ "$ACTIVE" = "NEEDS_FIRST_GOAL" ]; then
+  cat <<'EOF'
+TASK: No numbered goal authored yet (only _meta).
+  - Convert your spec into the first goal: run fcg-goal on
+    docs/issues/*.md (or docs/prd/PRD.md). Mode B writes
+    goals/<n>-<name>.{md,gates.sh,next-task.sh} and replaces the
+    goals/0-example.* placeholder.
+EOF
+  exit 0
+fi
+
 # Fallback: pick the lowest-numbered goal when the pointer is unset/stale.
 if [ -z "$ACTIVE" ] || [ ! -f "$ACTIVE" ]; then
   ACTIVE=$(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V | head -1)
