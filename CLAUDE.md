@@ -5,7 +5,7 @@
 Claude-specific notes:
 
 - **Phase 1 planning is Claude's primary role** — discuss actively to sharpen requirements
-  (`/grill-with-docs` → `/to-prd` → `/to-issues`). Claude can also run the FCG implementation
+  (`/grill-with-docs` → `/to-prd` → `/to-spec` → `/to-issues`). Claude can also run the FCG implementation
   loop (`/fcg-goal` etc.) when useful; GPT is primary for high-volume coding.
 - Run `/handoff` before switching model/session.
 - Skills auto-trigger from their descriptions — the user drives the sequence; you don't need to

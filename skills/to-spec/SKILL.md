@@ -5,8 +5,9 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 
 # to-spec — 계약 스펙 생성기 (Phase 1 마무리 · 계약 고정)
 
-`grill-with-docs`(ADR) → `to-prd`(PRD) → `to-issues`(슬라이스 목록)로 **결정이 또렷해진 시점**에,
+`grill-with-docs`(ADR) → `to-prd`(PRD)로 **결정이 또렷해진 시점**에,
 그 결정을 구현이 따라야 할 **계약문서**로 굳혀 `docs/spec/`에 처음 생성한다.
+(이 계약을 먼저 고정한 뒤 `to-issues`가 그 위에서 작업 슬라이스를 자른다.)
 `AGENTS.md`의 "Spec authority" 규약상 `docs/spec/INDEX.md`가 가리키는 문서가 **PRD·ADR보다 우선하는
 단일 진실원천**이므로, 이 산출물은 `/fcg-goal` 변환·`/handoff` 전에 존재해야 한다.
 
@@ -14,8 +15,8 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 > 권위·읽기순서 규칙은 `AGENTS.md` "Spec authority"를 따른다(여기 복붙하지 않음).
 
 ## 언제 도나
-- **Phase 1 마무리(계약 고정 단계).** `to-prd`·`to-issues` 직후, 설계 결정(아래 7항목)이 굳었을 때 사용자가 수동 실행.
-- `/fcg-goal` 변환·`/handoff` **직전**이 정위치. 구현 모델이 `docs/spec/INDEX.md`를 최우선으로 읽기 때문.
+- **계약 고정 단계.** `to-prd` 직후(설계 결정 아래 7항목이 굳었을 때), **`to-issues` 전**에 사용자가 수동 실행 — 계약을 먼저 고정해야 issues가 그 인터페이스 위에서 슬라이스된다.
+- `/to-issues`·`/fcg-goal` 변환·`/handoff` **전**이 정위치. 구현 모델이 `docs/spec/INDEX.md`를 최우선으로 읽기 때문.
 - 이미 `docs/spec/`가 있고 코드와 어긋난 걸 맞추는 거라면 → 이 스킬이 아니라 `spec-sync`.
 
 ## 계약 vs 설계 — 무엇을 docs/spec/에 넣나 (핵심 경계)
@@ -29,7 +30,7 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 | 공개 타입/도메인 모델 | `docs/spec/domain-types.md` | 공유 인터페이스, enum, value object, DTO |
 | (이벤트 기반이면) 이벤트 계약 | `docs/spec/events.md` | 큐·웹훅·토픽 메시지 스키마 |
 | (필요시) 설정 계약 | `docs/spec/config.md` | env var, feature flag 키·타입·기본값 |
-| (대시보드 쓰면) 서비스 흐름 | `docs/spec/service-flow.md` | 로드맵 대시보드 「서비스 흐름」 탭이 파싱하는 Groups·Components 표(배포 경계·구성요소·`depends_on`·phase). 스키마=`docs/spec/data-schema.md` §서비스 흐름 입력 계약 |
+| (대시보드 쓰면) 서비스 흐름 | `docs/spec/service-flow.md` | 로드맵 대시보드 「서비스 흐름」 탭이 파싱하는 Groups·Components 표(배포 경계·구성요소·`depends_on`·phase). 표 형식의 권위 출처는 `dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`이며, to-spec이 `docs/spec/data-schema.md` §서비스 흐름 입력 계약으로 옮긴다(없으면 생성) |
 
 **설계(design) = 모양·근거 설명. 강제력 약하고 변동 잦음 → `docs/spec/`에 넣지 말 것.**
 
@@ -48,8 +49,8 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 > 흐름)는 기계가 의존하는 안정 인터페이스라 **계약** → `docs/spec/service-flow.md`. 같은 듯 다른 문서다.
 
 ## 절차
-1. **입력 수집.** `docs/adr/`의 **accepted** ADR(superseded 제외), `docs/prd/PRD.md`, `docs/issues/*.md`,
-   `CONTEXT.md` 용어, 있으면 `docs/design/*`를 읽는다.
+1. **입력 수집.** `docs/adr/`의 **accepted** ADR(superseded 제외), `docs/prd/PRD.md`, `CONTEXT.md` 용어,
+   있으면 `docs/design/*`(및 재실행이라 이미 있으면 `docs/issues/*`)를 읽는다. **계약의 출처는 ADR·PRD이지 issues가 아니다**(to-spec은 to-issues보다 먼저 돈다).
 2. **계약 항목 추출.** 위 "계약" 표 기준으로 굳은 인터페이스만 골라낸다. 흐름·화면·아키텍처 근거는 spec에 넣지 않는다.
 3. **계약문서 작성.** 해당되는 `docs/spec/*.md`만 만든다(불필요한 파일 생성 금지). 각 결정은 **출처 ADR 번호를
    인용**한다. 용어는 `CONTEXT.md`와 일치시킨다.

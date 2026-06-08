@@ -31,8 +31,9 @@ description: "docs/spec/가 이미 있을 때 계약 문서 ↔ 코드 ↔ 최�
 | 계약 문서가 hollow shell(칸만 있고 내용 빔)이거나 품질 floor(검증가능·반례·구체엣지, `to-spec` §품질 floor 참조) 위반 | 채울 근거(우선순위: ①코드 → ②최신 accepted ADR → ③①②가 대체(supersede) 안 한 PRD 결정, 충돌 시 상위 우선)가 있으면 **직접 보강**, 없으면 **finding 또는 사용자 질문**. 단, 칸 내용이 `TODO(미결정)`이면 보강 대상이 아니다(to-spec이 사용자 결정 대기로 비운 칸) — 그대로 두고 finding/질문으로만 처리 |
 
 > 서비스 흐름 계약(`docs/spec/service-flow.md`)도 같은 규칙: Groups·Components 표가 실제 배포 토폴로지·
-> 최신 ADR과 어긋나면 — 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (스키마는
-> `docs/spec/data-schema.md` §서비스 흐름 입력 계약.)
+> 최신 ADR과 어긋나면 — 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (표 형식 권위 출처는
+> `dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`; `docs/spec/data-schema.md`
+> §서비스 흐름 입력 계약은 to-spec이 옮겨 둔 사본.)
 
 ## 가드레일
 - **코드를 직접 고치지 않는다.** 테스트 없는 코드 변경은 TDD 엔진(`/fcg-goal`)의 영역 — 여기선 finding으로 넘긴다.

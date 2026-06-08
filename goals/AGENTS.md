@@ -68,8 +68,8 @@ goals/<n>-<name>.next-task.sh  # next-action hint (chmod +x)
 ```
 
 The next `completion-check.sh` run picks the lowest failing goal as active.
-Before writing it, run the **self-audit** in `docs/goal-design.md §"Adding
-a goal"`: does this goal merely retarget a prior gate's path (case a),
+Before writing it, run the **self-audit** in `docs/goal-design.md`
+(§"새 goal 추가하기" → "작성 전 self-audit"): does this goal merely retarget a prior gate's path (case a),
 require loosening a prior gate's logic (case b), or supersede a prior gate
 (case c)? Prior gates are immutable unless one of those is explicitly
 declared.

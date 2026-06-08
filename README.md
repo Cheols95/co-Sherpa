@@ -16,7 +16,7 @@
 
 | 단계 | 스킬 | 설치 위치 |
 |---|---|---|
-| Phase 1 (기획·계약) | `grill-with-docs` · `prototype` · `to-prd` · `to-issues` · `to-spec` · `handoff` | `~/.claude/skills/` |
+| Phase 1 (기획·계약) | `grill-with-docs` · `prototype` · `to-prd` · `to-spec` · `to-issues` · `handoff` | `~/.claude/skills/` |
 | Phase 2 (구현) | `fcg-goal` · `fcg-findings` · `fcg-cycles` | `~/.claude/skills/`(Claude) · `~/.codex/skills/`(Codex) |
 | Phase 2·2.5 (보조·정비) | `tdd` · `improve-codebase-architecture` · `spec-sync` | `~/.claude/skills/` |
 
@@ -37,7 +37,7 @@
 1. 이 폴더를 새 프로젝트 경로로 복사한다.
 2. `bash scripts/reset-for-new-project.sh` — 복사로 따라온 머신-로컬/생성 상태(`.state/`·자동생성 state·이전 사용자의 `.claude/settings.local.json`)를 비운다. (`git clone`으로 받았다면 불필요.)
 3. `git init` (선택) 후 작업 시작.
-4. **Claude**로 기획: `/grill-with-docs` → `/to-prd` → `/to-issues` → `/to-spec` → `/handoff`
+4. **Claude**로 기획: `/grill-with-docs` → `/to-prd` → `/to-spec` → `/to-issues` → `/handoff` (계약 먼저 고정 → 그 위에서 이슈 슬라이스)
 5. **GPT(Codex)**로 구현: 첫 `/fcg-goal`(변환 모드 B)이 이슈/PRD를 `goals/<n>-*` 실행계약으로 바꾸며, `goals/AGENTS.md` 부트스트랩 규약에 따라 `goals/0-example.*`를 제거하고 실제 goal로 교체한다 → 이후 `/fcg-goal`로 게이트를 green으로, `/fcg-findings`·`/fcg-cycles`로 부채 관리.
 6. `goals/0-example.*`는 워크플로우를 이해하기 위한 **교육용 예제**다 — 위 첫 변환이 규약대로 제거·교체하므로 손으로 지울 필요는 없다(원하면 직접 지워도 됨).
 
@@ -61,9 +61,9 @@
 /grill-with-docs   → CONTEXT.md, docs/adr/        (도메인 모델·용어·결정)
 /prototype         → (필요시) 데이터모델/UI 스파이크
 /to-prd            → docs/prd/PRD.md
-/to-issues         → docs/issues/NNN-*.md          (PRD를 수직 슬라이스 "목록"으로)
 /to-spec           → docs/spec/*.md + INDEX.md     (계약 고정 — 구현의 단일 진실원천)
-/handoff           → 구현 모델로 인계 (계약 고정 후 Phase 1 마무리)
+/to-issues         → docs/issues/NNN-*.md          (PRD+계약을 수직 슬라이스 "목록"으로)
+/handoff           → 구현 모델로 인계 (Phase 1 마무리)
 ```
 
 > ⚠️ `grill-with-docs`에만 의존하지 말고, 아래 항목이 구체화되었는지 확인할 것:
@@ -78,22 +78,23 @@
 위 항목이 결정되면 문서를 **성격에 따라 갈라 둔다**:
 
 - **계약문서(`docs/spec/`)** = 코드가 반드시 따르는 안정 인터페이스 → 5)API·6)데이터 스키마·공개 타입.
-  `/to-spec`이 accepted ADR+PRD에서 추출해 생성한다(이 Phase 1 끝의 `/to-spec` 단계 — 아래). PRD·ADR보다 우선하는 단일 진실원천.
+  `/to-spec`이 accepted ADR+PRD에서 추출해 생성한다(이 Phase 1의 `/to-spec` 단계 — `/to-prd` 직후·`/to-issues` 전, 아래). PRD·ADR보다 우선하는 단일 진실원천.
 - **설계문서(`docs/design/`)** = 강제력 약한 산출물 → 3)흐름(flow.md)·4)화면(screens.md)·7)아키텍처(architecture.md).
 - **결정 이력(`docs/adr/`)** = 기획/구현 중 기술적 결정이 바뀔 때마다 한 결정 한 파일로 기록.
 
-#### `/to-spec` — 계약 고정 (Phase 1 마무리 산출)
+#### `/to-spec` — 계약 고정 (`/to-issues` 전)
 
 - **무엇을:** accepted ADR + PRD + CONTEXT 용어를 읽어 `docs/spec/`에 data-schema·api-contract·domain-types
   등 **계약문서**와 `docs/spec/INDEX.md`를 **처음 생성**한다.
 - **왜:** 구현 모델이 단일 진실원천으로 **최우선 참조**하는 안정 인터페이스를 한 곳에 모은다. PRD·ADR보다 우선한다.
-- **언제:** `/to-issues` 직후, **`/handoff` 직전**. 구현 모델이 인계받자마자 `docs/spec/INDEX.md`를
-  최우선으로 읽으므로, 계약은 handoff 전에 고정돼야 한다.
+- **언제:** `/to-prd` 직후, **`/to-issues`·`/handoff` 전**. 계약을 먼저 고정해야 `/to-issues`가 그 계약
+  인터페이스 위에서 슬라이스를 자르고(이슈가 `api-contract.md`·`data-schema.md`의 구체 항목을 참조),
+  구현 모델이 인계받자마자 `docs/spec/INDEX.md`를 최우선으로 읽을 수 있다.
 - **생성 vs 유지:** to-spec은 "생성"만. 생성된 계약은 이후 Phase 2.5의 `/spec-sync`가 코드·ADR과 정합 유지한다.
 
 ### Phase 1 → 2 경계 — 변환
 
-> Phase 1 끝에서 `/to-spec`으로 계약을 이미 고정했다. 경계에서 남은 일은 **변환** 하나다.
+> Phase 1에서 `/to-spec`으로 계약을 고정하고 `/to-issues`로 작업 슬라이스를 만들었다. 경계에서 남은 일은 **변환** 하나다.
 
 **스킬 흐름**
 
@@ -101,7 +102,10 @@
 /fcg-goal   # docs/issues/*.md(또는 PRD)를 goals/<n>-*.{md,gates.sh,next-task.sh} 실행계약으로
 ```
 
-> `/fcg-goal`(변환 모드 B)이 이슈/PRD를 **3파일 실행계약**으로 만든다. handoff 이후 구현 모델이 직접 돌려도 된다.
+> `/fcg-goal`(변환 모드 B)이 이슈/PRD를 **3파일 실행계약**으로 만든다. **변환은 경계에서 정확히 한 번** —
+> 기획(Claude)이 `/handoff` 전에 돌리거나, 구현(Codex)이 `/handoff` 후 돌리거나 **둘 중 하나**다. 누가 했는지
+> 모호하면 빈 `goals/`에 모드 A를 돌리거나(거짓완료 가드가 멈춤) 이중 변환할 수 있으니, **`/handoff` 문서에
+> `goals/` 변환 상태(미변환|변환완료)를 명시**한다.
 > to-issues 슬라이스 "목록" ≠ FCG goal "3파일 실행계약" ≠ spec "계약 인터페이스" — 셋은 층위가 다르다.
 
 ### Phase 2 — 구현 (GPT 주력)

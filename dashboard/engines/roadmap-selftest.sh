@@ -216,8 +216,8 @@ test_service() {
 # a broken file → blank dashboard" class that the DATA-only groups cannot see:
 # the HTML must embed DATA, close cleanly, and its <script> must be valid JS.
 # Presentation-agnostic — any renderer passes. Verifying that the *promised UI
-# elements actually draw* needs a headless DOM and stays open:
-# docs/findings/2026-06-05T0226-dashboard-render-gate-gap.md (item b).
+# elements actually draw* needs a headless DOM and stays an open gap (no
+# finding file is tracked in the cleaned template).
 test_render() {
   local tmp out
   tmp="$(mktemp -d)"
