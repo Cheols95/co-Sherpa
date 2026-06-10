@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Workflow 비교 분석 — MPFCG 템플릿 vs dryforge</title>
+<style>
+:root{
+  --bg:#f6f7f9; --card:#ffffff; --ink:#1c2330; --sub:#5b6678; --line:#e3e7ee;
+  --a:#2563eb; --a-soft:#eaf1fe;           /* 현재 워크플로우(파랑) */
+  --b:#d97706; --b-soft:#fdf3e3;           /* dryforge(주황) */
+  --win:#0e9f6e; --win-soft:#e6f7f0;
+  --tie:#8b5cf6; --tie-soft:#f1ecfe;
+  --warn:#dc2626; --code:#eef1f6;
+}
+[data-theme="dark"]{
+  --bg:#0f1420; --card:#171e2e; --ink:#e8ecf4; --sub:#9aa6ba; --line:#27304a;
+  --a:#5b94f5; --a-soft:#1b2a4a; --b:#f2a93b; --b-soft:#3a2c12;
+  --win:#34d399; --win-soft:#11352a; --tie:#a78bfa; --tie-soft:#2a2348;
+  --warn:#f87171; --code:#1f2840;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI","Malgun Gothic","Apple SD Gothic Neo",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;font-size:15px}
+.wrap{max-width:1080px;margin:0 auto;padding:28px 20px 80px}
+header.hero{padding:34px 0 10px}
+.hero h1{font-size:26px;letter-spacing:-.3px}
+.hero .meta{color:var(--sub);font-size:13px;margin-top:6px}
+.hero .meta code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:12px}
+.legend{display:flex;gap:14px;margin-top:14px;font-size:13px;flex-wrap:wrap}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.dot.a{background:var(--a)} .dot.b{background:var(--b)}
+.theme-btn{position:fixed;top:14px;right:16px;z-index:50;background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:20px;padding:6px 14px;cursor:pointer;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+/* verdict banner */
+.verdict{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--win);border-radius:12px;padding:18px 22px;margin:18px 0}
+.verdict h2{font-size:17px;margin-bottom:8px}
+.verdict p{color:var(--ink)}
+.verdict .small{color:var(--sub);font-size:13px;margin-top:8px}
+/* tabs */
+nav.tabs{position:sticky;top:0;z-index:40;background:var(--bg);display:flex;gap:6px;overflow-x:auto;padding:12px 0;border-bottom:1px solid var(--line)}
+nav.tabs button{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--sub);border-radius:20px;padding:7px 16px;cursor:pointer;font-size:13.5px;font-weight:600}
+nav.tabs button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+section.tab{display:none;padding-top:22px}
+section.tab.on{display:block}
+h3.sec{font-size:19px;margin:26px 0 12px;letter-spacing:-.2px}
+h4{font-size:15.5px;margin:18px 0 8px}
+p.lead{color:var(--sub);margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:12px 0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.sysA{border-top:4px solid var(--a)} .sysB{border-top:4px solid var(--b)}
+.tag{display:inline-block;font-size:11.5px;font-weight:700;border-radius:5px;padding:2px 8px;margin-right:6px}
+.tag.a{background:var(--a-soft);color:var(--a)} .tag.b{background:var(--b-soft);color:var(--b)}
+.tag.win{background:var(--win-soft);color:var(--win)} .tag.tie{background:var(--tie-soft);color:var(--tie)}
+.tag.warn{background:#fde8e8;color:var(--warn)}
+[data-theme="dark"] .tag.warn{background:#3d1a1a}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.8px}
+th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}
+th{background:var(--code);font-size:12.8px}
+td .gl{display:block;color:var(--sub);font-size:12.3px;margin-top:2px}
+code{background:var(--code);padding:1px 6px;border-radius:5px;font-size:12.5px;font-family:Consolas,"D2Coding",monospace}
+.flow{display:flex;flex-direction:column;gap:8px;margin:10px 0}
+.fstep{display:flex;align-items:stretch;gap:10px}
+.fbox{flex:1;border:1.5px solid var(--line);border-radius:9px;padding:9px 12px;background:var(--card);font-size:13.3px}
+.fbox b{display:block;font-size:13.5px}
+.fbox span{color:var(--sub);font-size:12.3px}
+.fbox.a{border-color:var(--a);background:var(--a-soft)}
+.fbox.b{border-color:var(--b);background:var(--b-soft)}
+.fbox.gate{border-style:dashed;border-color:var(--win)}
+.arrow{align-self:center;color:var(--sub);font-weight:700}
+/* bars */
+.bar-row{display:flex;align-items:center;gap:10px;margin:7px 0}
+.bar-label{flex:0 0 270px;font-size:13px}
+.bar-track{flex:1;background:var(--code);border-radius:6px;height:22px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;padding-left:8px;font-size:11.5px;font-weight:700;color:#fff;white-space:nowrap}
+.bar-fill.a{background:var(--a)} .bar-fill.b{background:var(--b)}
+.note{font-size:12.5px;color:var(--sub);margin-top:8px}
+/* axis cards */
+.axis{border:1px solid var(--line);border-radius:12px;background:var(--card);margin:12px 0;overflow:hidden}
+.axis>summary{cursor:pointer;list-style:none;padding:14px 18px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14.5px}
+.axis>summary::-webkit-details-marker{display:none}
+.axis>summary .chev{margin-left:auto;color:var(--sub);transition:transform .15s}
+.axis[open]>summary .chev{transform:rotate(90deg)}
+.axis .body{padding:0 18px 16px;border-top:1px solid var(--line)}
+.axis .body p{margin:10px 0}
+.scoreband{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:8px;margin:14px 0}
+.score-chip{border:1px solid var(--line);border-radius:9px;padding:9px 11px;background:var(--card);font-size:12.5px}
+.score-chip b{display:block;font-size:12.8px;margin-bottom:3px}
+.score-chip.wa{border-left:4px solid var(--a)} .score-chip.wb{border-left:4px solid var(--b)} .score-chip.wt{border-left:4px solid var(--tie)}
+ul.tight{margin:6px 0 6px 20px} ul.tight li{margin:4px 0}
+ol.tight{margin:6px 0 6px 22px} ol.tight li{margin:6px 0}
+.callout{border-left:4px solid var(--tie);background:var(--tie-soft);border-radius:0 9px 9px 0;padding:12px 16px;margin:14px 0;font-size:13.8px}
+.callout.warn{border-color:var(--warn);background:#fdeeee}
+[data-theme="dark"] .callout.warn{background:#34191c}
+footer{margin-top:48px;color:var(--sub);font-size:12.5px;border-top:1px solid var(--line);padding-top:16px}
+.kbd{font-size:11px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--card)}
+</style>
+</head>
+<body>
+<button class="theme-btn" onclick="toggleTheme()">🌓 다크/라이트</button>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Workflow 비교 분석 보고서<br>현재 MPFCG 템플릿 워크플로우 vs <b>dryforge</b></h1>
+  <div class="meta">
+    작성일 2026-06-10 · 분석 대상:
+    현재 워크플로우 = 이 템플릿 레포(<code>main@b956fa6</code>, Matt Pocock skills + greatsumini cc-system(FCG) + bespoke to-spec/spec-sync 조합) ·
+    dryforge = <code>github.com/fn-opt/dryforge</code> (<code>d9c2bde</code>, v1.1.0 / 2026-06-09) 소스 전수 분석
+  </div>
+  <div class="legend">
+    <span><span class="dot a"></span><b>현재 워크플로우</b> — "조립형 스킬 + 영속 게이트 하네스"</span>
+    <span><span class="dot b"></span><b>dryforge</b> — "2-커맨드 일체형 파이프라인"</span>
+  </div>
+</header>
+
+<div class="verdict">
+  <h2>한 줄 결론 — 전면 우위는 없다. 12개 축에서 6 : 6. 단, <u>승철님의 사용 맥락</u>에서는 현재 시스템이 백본(등뼈)으로 우위</h2>
+  <p>
+    두 시스템은 같은 문제("AI 에이전트가 멋대로 결정하고, 결정이 휘발되는 것")를 <b>다른 지점에서</b> 푼다.
+    dryforge는 <b>코드를 쓰기 전</b>(기획 단계의 빈틈 열거·강제 질문)에 가장 강하고,
+    현재 워크플로우는 <b>코드를 쓴 후</b>(영속 기계 게이트로 회귀를 영구 감시, 부채를 무인 루프로 소진)에 가장 강하다.
+    토큰 비용은 사이클당 현재 시스템이 약 <b>4~6배 저렴</b>(추정), 병렬 처리량(wall-clock)은 dryforge가 우위.
+  </p>
+  <p class="small">
+    권고: 현재 시스템을 유지하되, dryforge에서 검증된 5가지 장치(결정표면 열거, 의존성 그래프, 사이클-말 문서동기화 후크, 독립 리뷰, 런타임 스모크)를 이식한다. → <b>「판정 &amp; 권고」 탭</b>
+  </p>
+</div>
+
+<nav class="tabs" id="tabs">
+  <button data-t="t1" class="on">① 요약</button>
+  <button data-t="t2">② 두 시스템 해부</button>
+  <button data-t="t3">③ 단계별 흐름</button>
+  <button data-t="t4">④ 스킬·기능 매핑</button>
+  <button data-t="t5">⑤ 토큰 효율</button>
+  <button data-t="t6">⑥ 12축 심층 비교</button>
+  <button data-t="t7">⑦ 판정 &amp; 권고</button>
+  <button data-t="t8">⑧ 방법론·한계</button>
+</nav>
+
+<!-- ════════════════ ① 요약 ════════════════ -->
+<section class="tab on" id="t1">
+  <h3 class="sec">스코어카드 — 12개 비교 축, 누가 어디서 이기나</h3>
+  <p class="lead">각 칩의 색 막대: <span style="color:var(--a);font-weight:700">파랑=현재 우위</span> · <span style="color:var(--b);font-weight:700">주황=dryforge 우위</span>. 상세 근거는 ⑥ 탭.</p>
+  <div class="scoreband">
+    <div class="score-chip wb"><b>기획 엘리시테이션 깊이</b>dryforge — 결정표면 강제 열거 + 독립 감사 2회</div>
+    <div class="score-chip wa"><b>계약의 영속성·회귀 감시</b>현재 — .gates.sh가 영구 기계 계약으로 잔존</div>
+    <div class="score-chip wa"><b>토큰 효율</b>현재 — 사이클당 약 4~6배 저렴(추정)</div>
+    <div class="score-chip wb"><b>병렬 처리량(wall-clock)</b>dryforge — 워크트리 wave ≤8 동시</div>
+    <div class="score-chip wa"><b>부채 관리·무인 야간 운영</b>현재 — findings→cycles 소진 루프</div>
+    <div class="score-chip wb"><b>문서-코드 동기화 자동성</b>dryforge — 매 사이클 harness delta 갱신</div>
+    <div class="score-chip wb"><b>진입 단순성(비개발자)</b>dryforge — 커맨드 2개, 승인 2회</div>
+    <div class="score-chip wa"><b>제어 세분성·모델 혼용</b>현재 — 단계별 개입 + Claude기획/GPT구현 분업</div>
+    <div class="score-chip wb"><b>리뷰 독립성</b>dryforge — 비저자 서브에이전트 검증 내장</div>
+    <div class="score-chip wa"><b>진행 가시화</b>현재 — /roadmap HTML 대시보드</div>
+    <div class="score-chip wa"><b>성숙도·검증 이력</b>현재 — v1.1, 3라운드 자체 정비 vs 출시 1주</div>
+    <div class="score-chip wb"><b>기존 코드베이스 온보딩</b>dryforge — /migration 1회 변환</div>
+  </div>
+
+  <h3 class="sec">두 시스템의 철학 차이 — 한눈에</h3>
+  <div class="grid2">
+    <div class="card sysA">
+      <span class="tag a">현재 워크플로우</span>
+      <h4>"검증을 코드(bash)로 영속화한다"</h4>
+      <ul class="tight">
+        <li><b>형태:</b> 12개의 독립 스킬을 사용자가 단계별로 조립 — 라이브러리 방식</li>
+        <li><b>핵심 자산:</b> <code>goals/*.gates.sh</code> = 한 번 만들면 영구히 도는 <b>기계 검증 게이트</b> <span class="gl">(게이트: "완료"의 정의를 셸 스크립트로 박제한 불변 계약)</span></li>
+        <li><b>완료 판정:</b> LLM의 자기 보고가 아니라 bash 실행 결과(exit code) — 토큰 0원</li>
+        <li><b>부채:</b> findings 큐 → cycles 묶음 → 무인 야간 루프로 소진</li>
+        <li><b>사람의 역할:</b> 지휘자 — 각 스킬 호출 시점과 순서를 직접 결정</li>
+      </ul>
+    </div>
+    <div class="card sysB">
+      <span class="tag b">dryforge</span>
+      <h4>"결정을 코드 작성 전에 전부 캐낸다"</h4>
+      <ul class="tight">
+        <li><b>형태:</b> <code>/ready → /go</code> 2개 커맨드의 일체형 파이프라인 + <code>/migration</code>(기존 코드 1회 온보딩)</li>
+        <li><b>핵심 자산:</b> 3-doc 계약(handoff·spec·plan) + 프로젝트 harness <span class="gl">(harness: CLAUDE.md/AGENTS.md + docs/ 8종 — 세션이 죽어도 살아남는 프로젝트 기억)</span></li>
+        <li><b>완료 판정:</b> 검증 명령 exit 0 캡처 + 런타임 스모크 + 비저자 리뷰 — 단, 그 사이클 안에서만</li>
+        <li><b>부채:</b> findings.md 기록 후 다음 /ready 사이클로 이월(소진 루프 없음)</li>
+        <li><b>사람의 역할:</b> 승인자 — 질문에 답하고 2개 관문에서 승인만</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>본질 요약:</b> dryforge는 "<b>기능 1개를 정확히 뽑는 사이클</b>"을 최적화한 도구이고,
+    현재 워크플로우는 "<b>프로젝트 수명 전체</b>(여러 사이클 + 회귀 + 부채 + 문서 노화)"를 최적화한 하네스다.
+    경쟁 관계라기보다 최적화 구간이 다르다 — 그래서 부분 이식이 정답이 된다.
+  </div>
+</section>
+
+<!-- ════════════════ ② 두 시스템 해부 ════════════════ -->
+<section class="tab" id="t2">
+  <h3 class="sec">현재 워크플로우 — 3계층 구조</h3>
+  <div class="card sysA">
+    <p><b>계층 1 · 기획 스킬(전역, Matt Pocock + bespoke):</b>
+    <code>grill-with-docs</code>(인터뷰로 용어·결정 벼리기 → CONTEXT.md/ADR) → <code>prototype</code>(스파이크) → <code>to-prd</code>(PRD) → <b><code>to-spec</code></b>(계약 고정 — data-schema·api-contract·domain-types를 docs/spec/에 0→1 생성, 자체 제작) → <code>to-issues</code>(수직 슬라이스 이슈) → <code>handoff</code>(모델 전환 인계).</p>
+    <p style="margin-top:8px"><b>계층 2 · FCG 구현 하네스(greatsumini cc-system):</b>
+    <code>fcg-goal</code>이 단일 엔진으로 3개 모드를 자동 판별 — <b>B 변환</b>(이슈/PRD → goal 3파일 계약: <code>.md</code> 미션 + <code>.gates.sh</code> 기계검증 + <code>.next-task.sh</code> 힌트), <b>A 게이트 루프</b>(TDD RED→GREEN→REFACTOR로 active goal을 green화, green이면 자동 전진), <b>C 사이클 실행</b>(cycle 문서를 받아 findings 소진까지 무인 루프, 3회 무진전 시 blockers.md 기록·조기종료 금지). 보조로 <code>fcg-findings</code>(범위 밖 발견 큐잉)·<code>fcg-cycles</code>(findings를 한 세션 작업서로 묶기).</p>
+    <p style="margin-top:8px"><b>계층 3 · 정비(Phase 2.5):</b>
+    <code>spec-sync</code>(계약↔코드↔ADR 드리프트 정합, 자체 제작) · <code>improve-codebase-architecture</code>(얕은 모듈 발굴→finding 큐잉) · <code>/roadmap</code>(이슈·게이트·서비스흐름 HTML 대시보드).</p>
+    <p style="margin-top:8px"><b>토대:</b> bash 오케스트레이터 7종(<code>diagnose / active-check / completion-check / check-gate-rigor / next-task / update-state / _gate-cache</code>) — 게이트 병렬 실행·캐시·rigor 메타검증("every X"를 주장하면 게이트가 X를 열거하는지 검사)을 LLM 토큰 없이 수행.</p>
+  </div>
+
+  <h3 class="sec">dryforge — 3개 스킬, 31개 레퍼런스 문서의 일체형 설계</h3>
+  <div class="card sysB">
+    <p><b><code>/ready</code> (기획·계약):</b> 어떤 입력이든(한 줄 아이디어~타 도구가 뱉은 장문 문서) "도전 가능한 재료"로 강등하고 7단계를 돈다 —
+    ORIENT(코드·하네스 접지) → DECOMPOSE(입력 해체, 출처 간 충돌은 해소 않고 플래그만) → <b>ELICIT</b>(심장부: 엔티티마다 4개 렌즈(구조/행위/기술/계약)로 <u>설계가 답해야 할 결정을 전부 열거</u>하고, 각 결정을 "사용자 의도에서 도출됨" 또는 "질문함" 둘 중 하나의 종착 상태로 강제 — <b>조용한 기본값 채택은 종착 상태가 아님</b>) → intent-completeness(비저자 서브에이전트가 "제작자의 몰래 추측"을 사냥) → SPEC+충실도리뷰 → PLAN(태스크 계약 + <b>의존성 DAG</b>를 YAML로) → HANDOFF → 3-doc-gate(대화를 못 본 서브에이전트가 산출물만 보고 실행가능성 감사) → 사용자 승인(G7).</p>
+    <p style="margin-top:8px"><b><code>/go</code> (실행):</b> DAG를 위상정렬해 wave(파동) 단위 실행. 병렬 wave는 git worktree(작업 사본 폴더)로 격리해 ≤8 동시 구현 → merge-gate(브랜치가 실제 전진했고 diff가 선언된 파일만 건드렸는지 — <b>자기 보고는 증거로 안 침</b>) → 통합 게이트(머지 결과에 검증 명령 실행, exit 0 캡처) → 완료 게이트 + <b>런타임 스모크</b>(서비스 스펙이면 부팅해 실제 요청 1회) → harness 생성/delta 갱신 → 비저자 final review → 사용자 승인 → 3-doc 아카이브. 리스크 등급(RISKY/MECHANICAL/NONE)으로 검증 강도를 차등.</p>
+    <p style="margin-top:8px"><b><code>/migration</code> (1회 온보딩):</b> 기존 코드베이스를 SCAN→ELICIT(코드가 증언 못 하는 것 — 도메인 불변식·보안 경계·비즈니스 모델 — 만 위험가중 질문)→harness 생성→비저자 리뷰→승인.</p>
+    <p style="margin-top:8px"><b>설계 사상:</b> "Floor, not ceiling"(절차는 바닥만 고정, 결론은 모델에 위임 — 모델이 좋아지면 결과도 좋아짐) · "Ask, don't guess" · 보고는 결과만(과정 내레이션 금지 = 출력 토큰 절약) · 사용자 언어로 비전문가 어휘 출력 · 산출 문서에 dryforge 어휘 0(락인 없음).</p>
+  </div>
+
+  <h3 class="sec">자산 규모 실측 (md/sh 파일, 단어 수)</h3>
+  <div class="card">
+    <div class="bar-row"><div class="bar-label">dryforge 스킬+레퍼런스 (31파일, 영문)</div><div class="bar-track"><div class="bar-fill b" style="width:100%">45,637 단어</div></div></div>
+    <div class="bar-row"><div class="bar-label">현재 전역 스킬 12종 (25파일, 국문 혼합)</div><div class="bar-track"><div class="bar-fill a" style="width:28%">12,769</div></div></div>
+    <div class="bar-row"><div class="bar-label">현재 프로젝트 규약·가이드(docs/goals/cycles/guidelines/prompts)</div><div class="bar-track"><div class="bar-fill a" style="width:23%">10,447</div></div></div>
+    <div class="bar-row"><div class="bar-label">현재 bash 스크립트+대시보드 (LLM 컨텍스트에 비주입)</div><div class="bar-track"><div class="bar-fill a" style="width:23%;opacity:.45">10,351 (실행만)</div></div></div>
+    <p class="note">dryforge의 인스트럭션 양이 현재 시스템 전체(스킬+규약)의 약 2배. 단 양 자체가 좋고 나쁨은 아니다 — 문제는 그중 얼마가 <b>매 사이클 컨텍스트에 로드되는가</b>(→ ⑤ 탭)와, 현재 시스템의 10.4k 단어 bash는 <b>토큰을 전혀 쓰지 않는 검증 자산</b>이라는 점.</p>
+  </div>
+</section>
+
+<!-- ════════════════ ③ 단계별 흐름 ════════════════ -->
+<section class="tab" id="t3">
+  <h3 class="sec">생애주기 단계별 대응 관계</h3>
+  <p class="lead">기획 → 계약 → 분할 → 구현 → 검증 → 유지관리의 각 단계에서 두 시스템이 무엇으로 답하는지.</p>
+  <table>
+    <tr><th style="width:17%">단계</th><th style="width:41%"><span class="dot a"></span>현재 워크플로우</th><th style="width:42%"><span class="dot b"></span>dryforge</th></tr>
+    <tr><td><b>아이디어 구체화</b></td>
+      <td><code>/grill-with-docs</code> — 1문1답 인터뷰, 용어를 CONTEXT.md에, 결정을 ADR로 즉시 기록. 필요시 <code>/prototype</code> 스파이크<span class="gl">강도는 모델·사용자 재량. AGENTS.md의 "Phase 1 elicitation 게이트"가 load-bearing 선택의 침묵-기본값을 금지(v1.1에서 보강)</span></td>
+      <td><code>/ready</code> ELICIT — 엔티티×4렌즈로 결정표면을 <b>강제 열거</b>, 미접지 결정은 전부 질문/도출로 종결. 첫 사이클이면 도메인 모델·스택 설계 대화를 추가 강제<span class="gl">"열거는 빠짐없이, 질문은 최소로"(파생 가능하면 안 물음, 질문엔 추천안 선행)</span></td></tr>
+    <tr><td><b>요구 문서화</b></td>
+      <td><code>/to-prd</code> → <code>docs/prd/PRD.md</code> (유저스토리 장대 목록 + 구현·테스트 결정)</td>
+      <td><code>/ready</code> SPEC → <code>.dryforge/spec.md</code> (행위 규칙·불변식·엣지의 명시 처분·검증 요구)</td></tr>
+    <tr><td><b>계약 고정</b></td>
+      <td><b><code>/to-spec</code></b> → <code>docs/spec/</code> + INDEX.md — PRD·ADR보다 우선하는 단일 진실원천. 품질 floor(검증가능·반례·메커니즘·엣지 구체화) 강제, 미결정은 TODO로 정직하게 노출</td>
+      <td>spec.md가 그 사이클의 ground truth. 사이클 종료 시 <b>아카이브</b>되고, 살아있는 계약 역할은 harness 문서(contracts.md·business-rules.md)로 이관</td></tr>
+    <tr><td><b>작업 분할</b></td>
+      <td><code>/to-issues</code> — 수직 슬라이스(tracer bullet) 이슈 "목록", Blocked-by는 산문</td>
+      <td><code>/ready</code> PLAN — 태스크별 행위 계약 + <b>기계가독 의존성 DAG</b>(YAML: depends/regen_barriers/risk)</td></tr>
+    <tr><td><b>인계/경계</b></td>
+      <td><code>/handoff</code> 문서로 모델 전환(Claude→Codex). 경계에서 <code>/fcg-goal</code> 모드B가 이슈→goal 3파일 실행계약으로 <b>변환 1회</b></td>
+      <td>변환 단계 없음 — plan이 이미 실행계약. ready→go는 같은 세션(컨텍스트 연속), 단 권위는 대화가 아닌 3-doc</td></tr>
+    <tr><td><b>구현</b></td>
+      <td><code>/fcg-goal</code> 모드A — <b>단일 에이전트 직렬</b> TDD 루프(RED→GREEN→REFACTOR 커밋 규율), 게이트 green이면 자동 다음 goal. 병렬은 /branch 세션 복제로 수동</td>
+      <td><code>/go</code> — DAG 기반 <b>병렬 wave</b>(워크트리 ≤8), 리스크 차등 검증(test-first where it fits), merge-gate·통합 게이트·완료 게이트·런타임 스모크</td></tr>
+    <tr><td><b>완료 판정</b></td>
+      <td><code>.gates.sh</code> exit 0 — <b>영속</b>(이후 어느 시점이든 재실행하면 회귀 검출). 거짓완료 가드 + check-gate-rigor 메타검증</td>
+      <td>검증 명령 exit 0 캡처 + 스모크 + 비저자 리뷰 — <b>그 사이클 1회성</b>. 이후 회귀 감시는 프로젝트 자체 테스트의 몫</td></tr>
+    <tr><td><b>리뷰</b></td>
+      <td>사람 리뷰 → 통찰을 finding으로 큐잉(리뷰=소통·학습, 검증은 게이트 몫). 독립 AI 리뷰는 워크플로우 외부(/code-review 등)</td>
+      <td>비저자 서브에이전트 리뷰가 파이프라인에 <b>내장</b> — ready 2회(intent-completeness·3-doc-gate), go 1회+(final review, 조건부 spec-review)</td></tr>
+    <tr><td><b>부채 관리</b></td>
+      <td><code>/fcg-findings</code>(file:line 증거 강제, 정직성 규칙) → <code>/fcg-cycles</code>(우선순위·의존성으로 묶기) → 모드C <b>무인 야간 소진</b></td>
+      <td><code>docs/tracking/findings.md</code>에 기록·이월. 소진은 다음 <code>/ready</code> 사이클(사람 개시) — 전용 배치 루프 없음</td></tr>
+    <tr><td><b>문서-코드 동기화</b></td>
+      <td><code>/spec-sync</code> — <b>사용자가 주기적으로</b> 호출. 문서 드리프트는 직접 정합, 코드 수정 필요분은 finding 큐잉</td>
+      <td><code>/go</code> 9단계가 <b>매 사이클 자동</b> — harness를 양방향 delta 갱신(이번 변경이 기존 서술을 무효화했는지도 검사), 스코프 밖 불일치는 findings.md로</td></tr>
+    <tr><td><b>아키텍처 정비</b></td>
+      <td><code>/improve-codebase-architecture</code> — deepening 후보 발굴 → finding → cycle → goal 파이프라인</td>
+      <td>전용 장치 없음(모델 판단과 리뷰에 위임)</td></tr>
+    <tr><td><b>현황 가시화</b></td>
+      <td><code>/roadmap</code> — 이슈·게이트 3색·▶active·서비스흐름 2탭 HTML 대시보드 + self-test 5종</td>
+      <td><code>docs/tracking/status.md</code> — 전체 스코프 대비 위치를 텍스트로</td></tr>
+    <tr><td><b>기존 코드 온보딩</b></td>
+      <td>없음(신규 프로젝트 템플릿 복제가 전제)</td>
+      <td><code>/migration</code> — 위험가중 질문으로 코드가 말 못 하는 정책을 캐내 harness 생성</td></tr>
+  </table>
+
+  <h3 class="sec">한 사이클의 모양 — 사용자 개입 지점 비교</h3>
+  <div class="grid2">
+    <div class="card sysA">
+      <span class="tag a">현재</span> <b>호출 7~9회 + 인터뷰 응답 다수</b>
+      <div class="flow">
+        <div class="fstep"><div class="fbox a"><b>/grill-with-docs</b><span>1문1답 인터뷰 (사용자 응답 N회)</span></div></div>
+        <div class="fstep"><div class="fbox a"><b>/to-prd → /to-spec → /to-issues</b><span>각 단계 사용자 호출·검토 (이슈 분할안 승인)</span></div></div>
+        <div class="fstep"><div class="fbox a"><b>/handoff → Codex로 전환</b><span>모델 교대</span></div></div>
+        <div class="fstep"><div class="fbox a"><b>fcg-goal 변환 → 게이트 루프</b><span>이후 자율 — 게이트가 멈출 때만 개입</span></div></div>
+        <div class="fstep"><div class="fbox gate"><b>완료 = completion-check green</b><span>기계 판정, 사람 승인 불요</span></div></div>
+      </div>
+      <p class="note">개입 지점이 많다 = 번거롭지만, 매 단계가 독립 스킬이라 <b>어디서든 끼어들고 되돌릴 수 있다</b>.</p>
+    </div>
+    <div class="card sysB">
+      <span class="tag b">dryforge</span> <b>호출 2회 + 질문 응답 + 승인 2회</b>
+      <div class="flow">
+        <div class="fstep"><div class="fbox b"><b>/ready</b><span>질문 라운드(추천안 선행, 1키 수락) → 3-doc</span></div></div>
+        <div class="fstep"><div class="fbox gate"><b>승인 G7</b><span>사람 관문 ①</span></div></div>
+        <div class="fstep"><div class="fbox b"><b>/go</b><span>병렬 wave 자율 실행 (막히면 동기 에스컬레이션 — 답할 때까지 대기)</span></div></div>
+        <div class="fstep"><div class="fbox gate"><b>승인 (결과+harness)</b><span>사람 관문 ② → 아카이브</span></div></div>
+      </div>
+      <p class="note">개입 지점이 적다 = 편하지만, 파이프라인 중간 단계만 따로 돌리거나 모델을 중간에 갈아끼우는 식의 <b>세분 제어는 불가</b>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ ④ 스킬·기능 매핑 ════════════════ -->
+<section class="tab" id="t4">
+  <h3 class="sec">스킬 인벤토리 — 기능 단위 대응표</h3>
+  <table>
+    <tr><th>기능</th><th><span class="dot a"></span>현재 (스킬/자산 · 단어수)</th><th><span class="dot b"></span>dryforge (스킬/레퍼런스 · 단어수)</th><th style="width:90px">대응 수준</th></tr>
+    <tr><td>요구 인터뷰·결정 기록</td><td>grill-with-docs (581+포맷 999)</td><td>ready의 ELICIT 스테이지 (elicitation 2,884 + 렌즈·갭 분석 등 ~4,200)</td><td><span class="tag b">dryforge 깊음</span></td></tr>
+    <tr><td>프로토타이핑</td><td>prototype (542+2,063)</td><td>없음 (스파이크 단계 부재)</td><td><span class="tag a">현재만</span></td></tr>
+    <tr><td>PRD/스펙 산출</td><td>to-prd (488) + to-spec (992)</td><td>ready의 SPEC (output-format 1,513 등)</td><td><span class="tag tie">동급·형태 상이</span></td></tr>
+    <tr><td>작업 분할</td><td>to-issues (589)</td><td>ready의 PLAN (dependency-calc 935 + 예제 1,134)</td><td><span class="tag b">dryforge: DAG</span></td></tr>
+    <tr><td>실행 계약</td><td>fcg-goal 모드B + goals/AGENTS.md (3파일 계약·게이트 영속)</td><td>plan.md 태스크 계약 (사이클 후 아카이브)</td><td><span class="tag a">현재: 영속</span></td></tr>
+    <tr><td>구현 루프</td><td>fcg-goal 모드A (505) + goal-iteration.md (1,526) — 직렬 TDD</td><td>go (4,168) + orchestration (3,532) — 병렬 wave</td><td><span class="tag b">dryforge: 병렬</span></td></tr>
+    <tr><td>TDD 심화</td><td>tdd 스킬 별도 (674+1,331: 인터페이스 설계·mocking 가이드)</td><td>implementer-prompt에 내장(885, right-sized test-first)</td><td><span class="tag tie">동급</span></td></tr>
+    <tr><td>부채 큐</td><td>fcg-findings (333) + 규약(AGENTS.md) — 증거·정직성 규칙</td><td>tracking/findings.md (harness-format 내 일부)</td><td><span class="tag a">현재 깊음</span></td></tr>
+    <tr><td>부채 배치 소진</td><td>fcg-cycles (360) + 모드C 무인 루프</td><td>없음</td><td><span class="tag a">현재만</span></td></tr>
+    <tr><td>독립 리뷰</td><td>워크플로우 외부 (/code-review 등 별도 호출)</td><td>intent-completeness (964) · 3-doc-gate (974) · reviewer/spec-review (914) 내장</td><td><span class="tag b">dryforge 내장</span></td></tr>
+    <tr><td>문서 동기화</td><td>spec-sync (597) — 수동 주기 실행</td><td>harness-lifecycle (991) — go에 자동 내장</td><td><span class="tag b">dryforge 자동</span></td></tr>
+    <tr><td>아키텍처 발굴</td><td>improve-codebase-architecture (951+3,253)</td><td>없음</td><td><span class="tag a">현재만</span></td></tr>
+    <tr><td>세션 인계</td><td>handoff (133)</td><td>불필요(같은 세션) + harness가 세션 간 기억 담당</td><td><span class="tag tie">접근 상이</span></td></tr>
+    <tr><td>기존 코드 온보딩</td><td>없음</td><td>migration (1,843+레퍼런스)</td><td><span class="tag b">dryforge만</span></td></tr>
+    <tr><td>대시보드</td><td>/roadmap + dashboard/engines (5,114 단어 bash, self-test 5종)</td><td>없음 (status.md 텍스트)</td><td><span class="tag a">현재만</span></td></tr>
+    <tr><td>멀티플랫폼</td><td>Claude(전역 스킬) + Codex(~/.codex/skills) — <b>역할 분업</b>(기획/구현)</td><td>Claude·Codex 플러그인 양쪽 배포(단일 소스 빌드) — <b>동일 역할</b></td><td><span class="tag tie">철학 상이</span></td></tr>
+  </table>
+  <p class="note">단어수는 실측(공백 분리). dryforge 레퍼런스는 스테이지 진입 시 강제 로드(force-load)되므로 대부분 실제 컨텍스트 비용이 된다.</p>
+
+  <div class="callout">
+    <b>구조적 관찰:</b> 현재 시스템에서 "없음"인 것(독립 리뷰 내장, DAG 병렬, 자동 문서동기화, 온보딩)은 대부분 <b>장치를 추가하면 되는 것</b>이고,
+    dryforge에서 "없음"인 것(영속 게이트, 부채 소진 루프, 대시보드, 아키텍처 발굴)은 대부분 <b>설계 철학상 자리가 없는 것</b>(사이클 단위 세계관)이다.
+    이식 방향이 dryforge→현재 쪽으로 자연스러운 이유.
+  </div>
+</section>
+
+<!-- ════════════════ ⑤ 토큰 효율 ════════════════ -->
+<section class="tab" id="t5">
+  <h3 class="sec">토큰 효율 — 인스트럭션 로드 실측 기반 추정</h3>
+  <p class="lead">기준: 각 스킬이 강제 로드하는 인스트럭션(스킬 본문+레퍼런스)의 실측 단어수 → 토큰 환산(영문 ≈1.3 tok/단어, 국문 혼합 ≈1.8~2.2 tok/단어). 대화·코드·산출물 토큰은 양쪽 모두 제외(공통 비용). <b>±표시된 모든 수치는 추정치</b>이며 실 계측이 아니다(⑧ 탭 참조).</p>
+
+  <h4>본세션 인스트럭션 로드 / 1 사이클</h4>
+  <div class="card">
+    <div class="bar-row"><div class="bar-label">dryforge 첫 사이클 (/ready first + /go)</div><div class="bar-track"><div class="bar-fill b" style="width:100%">~31,700 단어 ≈ 42k tok</div></div></div>
+    <div class="bar-row"><div class="bar-label">dryforge 이후 사이클 (/ready delta + /go)</div><div class="bar-track"><div class="bar-fill b" style="width:90%">~28,500 단어 ≈ 38k tok</div></div></div>
+    <div class="bar-row"><div class="bar-label">현재: 기획 Phase 1 전체 (grill~handoff 5스킬)</div><div class="bar-track"><div class="bar-fill a" style="width:17%">~4,300 ≈ 7k</div></div></div>
+    <div class="bar-row"><div class="bar-label">현재: 구현 세션 (fcg-goal + 규약 3종)</div><div class="bar-track"><div class="bar-fill a" style="width:16%">~4,000 ≈ 7~8k</div></div></div>
+    <p class="note">
+      dryforge 산출 근거: ready SKILL 3,986 + 스테이지별 force-load 레퍼런스(첫 사이클 14개 ~14,000 / delta 9개 ~10,900) · go SKILL 4,168 + orchestration 3,532 + graph-contract·harness-lifecycle·harness-format 등 ~9,500.
+      현재 산출 근거: 각 SKILL.md(133~992 단어) + 구현 시 goals/AGENTS.md·goal-iteration.md·goal-design.md 참조분.
+    </p>
+  </div>
+
+  <h4>서브에이전트 비용 (본세션 외 추가분)</h4>
+  <div class="card">
+    <ul class="tight">
+      <li><span class="tag b">dryforge</span> /ready 2회 디스패치(intent-completeness는 <b>대화 전체</b>+결정표면을 읽음, 3-doc-gate는 3-doc+코드) + /go에서 병렬 implementer N개(각각 스펙 슬라이스+프롬프트 885단어를 fresh 컨텍스트로 수신) + reviewer 1~2회(<b>전체 diff</b>를 읽음). 태스크 수에 비례해 토큰이 곱으로 증가 — 그 대가로 wall-clock 단축과 검증 독립성을 산다.</li>
+      <li><span class="tag a">현재</span> 서브에이전트 0 — 단일 에이전트가 순차 진행. 검증(게이트 스윕, 1~3분)은 <b>bash 실행이라 토큰 0</b>. 캐시(<code>_gate-cache.sh</code>)로 반복 비용도 CPU에서 절감.</li>
+    </ul>
+  </div>
+
+  <h4>상시 기저 부하 (매 세션 자동 로드되는 프로젝트 컨텍스트)</h4>
+  <div class="card">
+    <div class="bar-row"><div class="bar-label">현재: AGENTS.md/CLAUDE.md (의도적으로 압축 유지)</div><div class="bar-track"><div class="bar-fill a" style="width:18%">~0.9k 단어</div></div></div>
+    <div class="bar-row"><div class="bar-label">dryforge: harness 진입점+docs 참조 유도 (8문서+모듈별 AGENTS.md)</div><div class="bar-track"><div class="bar-fill b" style="width:75%">생성물 의존 (수천 단어 규모)</div></div></div>
+    <p class="note">dryforge harness는 "밀도가 목적"(hollow 문서 금지)이라 잘 쓰이면 재설명 비용을 크게 줄인다 — 기저 부하 증가와 세션 간 기억의 트레이드. 현재 시스템은 같은 역할을 docs/spec/INDEX 우선 읽기 순서(필요분만 로드)로 푼다.</p>
+  </div>
+
+  <div class="callout">
+    <b>판정:</b> 사이클당 인스트럭션·디스패치 비용은 <b>현재 시스템이 약 4~6배 저렴</b>(본세션 기준, 서브에이전트 포함 시 격차 더 벌어짐).
+    dryforge의 비용은 낭비가 아니라 <u>의도된 선불</u>(엘리시테이션·독립검증·병렬화에 투자해 재작업을 없앰)이다 — README 스스로 "front-loads cost"라 명시.
+    따라서 올바른 질문은 "누가 싸냐"가 아니라 <b>"그 선불이 회수되는 프로젝트인가"</b>다: 요구가 모호하고 재작업 위험이 큰 신규 기능 → 회수됨. 요구가 이미 또렷하고(현재 템플릿의 Phase 1 산출물처럼) 사이클이 잦은 장기 프로젝트 → 매 사이클 ~40k tok의 고정 세리머니가 부담.
+    참고로 dryforge의 "결과만 보고(과정 내레이션 금지)" 규율은 출력 토큰을 실제로 아끼는 좋은 장치 — 이건 비용이 아니라 절감 항목.
+  </div>
+</section>
+
+<!-- ════════════════ ⑥ 12축 심층 비교 ════════════════ -->
+<section class="tab" id="t6">
+  <h3 class="sec">12개 축 심층 분석</h3>
+  <p class="lead">각 항목을 펼치면 근거가 나온다. 배지 = 우위 판정.</p>
+
+  <details class="axis" open>
+    <summary><span class="tag b">dryforge 우위</span> 1. 기획 엘리시테이션 깊이 <span class="chev">▶</span></summary>
+    <div class="body">
+      <p>dryforge ELICIT는 "물어볼 것을 생각해내는" 게 아니라 <b>설계가 답해야 할 결정의 전수 목록을 먼저 만들고</b>(엔티티 명세 → 구조/행위/기술/계약 4렌즈 × 엔티티·충돌쌍) 각 결정을 ①사용자 의도에서 도출 ②질문 둘 중 하나로만 종결시킨다. "조용한 기본값"은 종결 상태가 아니다. 그 위에 <b>비저자 감사 2중</b>(intent-completeness가 대화를 읽고 제작자의 몰래 추측을 사냥, 3-doc-gate가 대화를 못 본 채 산출물만 감사). "다운스트림 게이트를 믿고 윗단을 얕게 하는 것은 reward-hacking"이라고 명시적으로 금지하는 등 LLM 실패 모드를 정조준한 문구가 인상적.</p>
+      <p>현재의 grill-with-docs는 1문1답·코드 대조·시나리오 스트레스 테스트로 방향은 같지만, <b>완결성을 보장하는 열거 장치가 없다</b> — README가 직접 "grill에만 의존하지 말고 7항목을 확인하라"고 사용자에게 경고할 정도. v1.1에서 AGENTS.md에 "Phase 1 elicitation 게이트"(load-bearing 선택의 침묵-기본값 금지, 평어 질문→정밀 규칙 번역)를 넣어 일부를 흡수했지만, 구조적 열거+독립 감사는 아직 없다. <b>이식 1순위.</b></p>
+    </div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 2. 계약의 영속성·회귀 감시 <span class="chev">▶</span></summary>
+    <div class="body">
+      <p>FCG의 <code>.gates.sh</code>는 사이클이 끝나도 <b>영구히 남는 기계 검증 계약</b>이다. 6개월 뒤 어떤 변경이 goal 3의 불변식을 깨면 <code>completion-check.sh</code>(전 게이트 병렬 스윕)가 잡아낸다. 게이트 불변 원칙(코드를 고치지 게이트를 고치지 않는다) + <code>check-gate-rigor.sh</code>(메타검증: "every X" 주장 ↔ 열거 게이트 일치) + 거짓완료 가드까지, "완료 선언"을 LLM의 자기보고에서 분리하는 장치가 겹겹이다.</p>
+      <p>dryforge의 검증은 강력하지만 <b>그 /go 런 안에서만 존재</b>한다. 사이클이 끝나면 spec은 아카이브되고, 이후 회귀 감시는 프로젝트의 일반 테스트 스위트 몫. "spec이 코드와 다르면 spec이 이긴다"는 권위 규칙은 harness 산문에 남지만, 산문은 기계가 강제하지 못한다. 장기 프로젝트일수록 이 차이가 누적된다.</p>
+    </div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 3. 토큰 효율 <span class="chev">▶</span></summary>
+    <div class="body"><p>⑤ 탭 상세. 사이클당 본세션 인스트럭션 ~7-8k vs ~38-42k tok(추정), 서브에이전트 디스패치 0 vs N+3회, 검증 비용 토큰 0(bash) vs 리뷰 토큰. 현재 시스템의 README 운영 팁(병렬은 /branch로 세션 복제 — "토큰 효율적")까지 포함해 일관되게 토큰-보수적 설계.</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag b">dryforge 우위</span> 4. 병렬 처리량 (wall-clock) <span class="chev">▶</span></summary>
+    <div class="body">
+      <p>dryforge /go는 DAG 위상정렬 → 독립 태스크를 git worktree로 격리해 ≤8 동시 구현, 워크트리 풀 재활용, 게이트와 다음 wave 프로비저닝 오버랩, 의존성 공유(심링크) 등 병렬 실행 공학이 정교하다. merge-gate가 "브랜치가 실제 전진 + diff가 선언 표면만"을 기계 확인해 병렬의 위험(자기보고·표면 이탈)을 차단.</p>
+      <p>현재는 단일 에이전트 직렬이 기본. goal 스택 자체가 "가장 낮은 실패 goal = active" 단선 구조라 병렬 실행 개념이 없고, 병렬은 /branch 수동 운용. 처리량이 중요한 대형 슬라이스 묶음에서는 명백히 dryforge가 빠르다(토큰↑ ↔ 시간↓ 트레이드).</p>
+    </div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 5. 부채 관리·무인 운영 <span class="chev">▶</span></summary>
+    <div class="body">
+      <p>FCG의 차별 자산: finding은 frontmatter(resolved/priority/related)와 <b>file:line 증거 강제</b>("못 짚으면 hunch"), 종결 시 코드 대조 검증·증거 인용이라는 정직성 규칙을 가진 1급 문서다. 쌓이면 <code>/fcg-cycles</code>가 우선순위·의존성으로 묶어 <b>야간 무인 루프</b>(조기종료 금지, 3회 무진전 시 blockers 기록 후 다음 타깃)로 소진한다. "자는 동안 부채가 줄어드는" 운영이 시스템으로 성립.</p>
+      <p>dryforge는 findings.md에 기록·이월하고 에스컬레이션이 <b>동기식</b>(사용자 답변까지 런 정지)이라 설계상 유인(attended) 운영이다 — 정확성엔 좋지만 무인 배치는 불가.</p>
+    </div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag b">dryforge 우위</span> 6. 문서-코드 동기화 자동성 <span class="chev">▶</span></summary>
+    <div class="body">
+      <p>dryforge는 /go 9단계에서 <b>매 사이클</b> harness를 delta 갱신한다 — 그 전에 3-doc을 재독(세션이 코드 편향된 상태를 교정)하고, <b>양방향</b>(이번 변경이 기존 서술을 무효화했는지)으로 정합하며, 스코프 밖 불일치는 findings로 이월. 문서 노화가 구조적으로 억제된다.</p>
+      <p>현재 spec-sync는 분류 규칙(직접 갱신/finding/질문)이 잘 다듬어져 있지만 <b>사용자가 기억해서 돌려야</b> 한다 — README 스스로 "의식적으로 할 필요"라고 쓴 약점. 단, 동기화 대상의 권위는 현재 쪽이 강하다(docs/spec은 기계가 우선 참조하는 단일 진실원천, harness는 산문 기억). <b>자동 트리거만 이식하면 되는 축.</b></p>
+    </div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag b">dryforge 우위</span> 7. 진입 단순성 <span class="chev">▶</span></summary>
+    <div class="body"><p>커맨드 2개·승인 2회·질문엔 추천안 선행(1키 수락)·비전문가 어휘 출력·플러그인 마켓플레이스 설치. 비개발자 바이브코더의 인지 부하가 확연히 낮다. 현재 시스템은 스킬 12개의 호출 시점·순서를 사용자가 알아야 하고(README 워크플로우 표가 그 증거), Codex 쪽은 자연어 트리거 규약까지 숙지해야 한다. 숙련된 운영자(승철님)에게는 비용이 아니지만, 전파·온보딩에는 불리.</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 8. 제어 세분성·모델 혼용 <span class="chev">▶</span></summary>
+    <div class="body"><p>현재는 단계가 모두 분리돼 있어 "오늘은 grill만", "spec만 다시", "이 cycle만 야간 실행" 같은 부분 구동이 자유롭고, Claude(기획)/GPT(구현) <b>역할 분업</b>이 handoff로 공식 지원된다(구독 토큰 예산 분산 효과 포함). dryforge는 ready→go가 한 세션 한 모델의 일체형이라 중간 개입 지점이 G7과 동기 에스컬레이션뿐이고, 플랫폼은 양쪽 지원하되 한 런은 한 모델이다.</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag b">dryforge 우위</span> 9. 리뷰 독립성 <span class="chev">▶</span></summary>
+    <div class="body"><p>"자기 산출물을 자기가 판정하는 것(A=A)이 가장 약하다"는 원칙이 시스템 전반에 박혀 있고, 비저자 서브에이전트 검증이 ready 2회·go 1회+로 <b>파이프라인에 내장</b>돼 있다. 리뷰어에게 구현자의 요약이 아닌 <b>raw diff</b>를 주는 것(앵커링 방지), 리스크 비례 검증, "평가 불능 검사는 실패로 친다" 같은 디테일이 좋다. 현재 시스템의 독립 검증은 게이트(기계)가 맡고 AI 리뷰는 외부 도구(/code-review) 호출에 의존 — goal 닫기 전 독립 리뷰가 규약에 없다.</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 10. 진행 가시화 <span class="chev">▶</span></summary>
+    <div class="body"><p>/roadmap 대시보드(이슈·게이트 3색·▶active 깃발·개발로드맵 DAG + 서비스흐름 2탭, 다크/라이트, self-test 5종)는 비개발자가 "지금 어디까지 왔나"를 보는 데 특화된 자산으로, dryforge의 status.md 텍스트와 체급이 다르다. 특히 비개발 이해관계자 공유용으로 유효.</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag a">현재 우위</span> 11. 성숙도·검증 이력 <span class="chev">▶</span></summary>
+    <div class="body"><p>현재 시스템: 출처 3곳(Matt Pocock·cc-system·자체 제작)의 검증된 부품 + 승철님이 실제 프로젝트(roadmap 대시보드 v2→v3)로 풀사이클 검증 + 3라운드 자체 리뷰 정비(거짓완료 가드·라우팅·복사위생 등) 완료. dryforge: 첫 릴리스 2026-06-01, v1.1.0이 06-09 — <b>출시 1주차</b>에 9개 릴리스(빠른 개선은 장점이자 불안정 신호). 카카오 오픈채팅(~2천명) 바이럴은 사용성 방증이지만 장기 프로젝트에서의 검증 사례는 아직 없다. 다만 코드 품질 자체는 1주차답지 않게 치밀하다(실패 모드 명시, git 안전 규칙, 플랫폼 패리티 빌드).</p></div>
+  </details>
+
+  <details class="axis">
+    <summary><span class="tag b">dryforge 우위</span> 12. 기존 코드베이스 온보딩 <span class="chev">▶</span></summary>
+    <div class="body"><p>/migration은 "코드가 보여주는 것(auth 체크가 뭘 하는지)과 코드가 증언 못 하는 것(그게 정책의 전부인지)"을 구분해 후자만 위험가중으로 질문하고 harness를 1회 생성한다. 현재 템플릿은 신규 프로젝트 복제 전제라 이 시나리오가 비어 있다 — 기존 프로젝트에 FCG를 얹으려면 수작업.</p></div>
+  </details>
+</section>
+
+<!-- ════════════════ ⑦ 판정 & 권고 ════════════════ -->
+<section class="tab" id="t7">
+  <h3 class="sec">종합 판정</h3>
+  <div class="card">
+    <p><b>① 절대 평가: 무승부(6:6), 최적화 구간이 다르다.</b>
+    dryforge는 "기능 1개 사이클"(요구 모호 → 정확한 산출)의 완성도가 높고, 현재 시스템은 "프로젝트 수명 전체"(여러 사이클·회귀·부채·문서 노화·무인 운영)의 완성도가 높다.</p>
+    <p style="margin-top:10px"><b>② 맥락 평가(승철님 기준): 현재 시스템이 백본으로 우위.</b> 근거 —</p>
+    <ul class="tight">
+      <li>템플릿 복제 기반 <b>신규·장기 프로젝트</b> 운영: dryforge의 강점인 /migration이 불필요하고, 현재의 강점인 영속 게이트·부채 루프가 직격으로 유효</li>
+      <li><b>Claude 기획 / GPT 구현 분업</b>이 이미 자리잡음: dryforge 일체형은 이 운영 모델과 충돌</li>
+      <li><b>토큰 예산 의식</b>: 사이클당 4~6배 격차는 사이클이 잦을수록 복리로 벌어짐</li>
+      <li>무인 야간 운영·roadmap 대시보드 등 이미 체화된 자산을 dryforge는 대체 못 함</li>
+    </ul>
+    <p style="margin-top:10px"><b>③ 단, dryforge가 명백히 나은 4개 축(엘리시테이션·병렬·자동 동기화·독립 리뷰)은 실재하는 격차다.</b> 아래 이식안으로 흡수하는 것이 "갈아타기"보다 이득이 크고 위험이 작다.</p>
+  </div>
+
+  <h3 class="sec">권고 — dryforge에서 이식할 5가지 (우선순위순)</h3>
+  <ol class="tight">
+    <li><b>결정표면 열거 + 독립 의도-감사 (기획 게이트 강화)</b> — grill-with-docs 종료 조건 또는 to-spec 전 단계에 "엔티티 명세 → 구조/행위/기술/계약 4렌즈로 미결정 슬롯 열거 → 전부 도출/질문으로 종결" 체크를 넣고, to-spec 직전에 <b>대화를 읽는 비저자 서브에이전트 1회</b>(intent-completeness 상당)로 몰래 추측을 사냥. 기존 AGENTS.md 'Phase 1 elicitation' 게이트의 구조화 완성판. <span class="gl">비용: 서브에이전트 1회/기능. 효과: to-spec의 TODO(미결정) 누락 — 가장 비싼 실패 — 차단.</span></li>
+    <li><b>to-issues에 기계가독 의존성 그래프</b> — 산문 "Blocked by"를 dryforge처럼 YAML <code>depends</code> 블록으로 병기. 즉시 효용 둘: roadmap 대시보드 deps 렌더의 공급원이 정식 계약이 되고, /branch 병렬 세션에 "무엇이 진짜 독립인가"의 근거 데이터가 생긴다. 장기적으로 fcg-goal 병렬 wave 실험의 토대.</li>
+    <li><b>사이클-말 문서 동기화 후크</b> — fcg-goal 모드C 종료 절차와 completion-check ALL_DONE 시점에 "spec-sync 실행 권고"를 명시(또는 diagnose.sh가 마지막 spec-sync 이후 커밋 수를 세어 경고). dryforge의 '매 사이클 delta 갱신' 효과를 수동 호출 부담 없이 흡수.</li>
+    <li><b>goal 닫기 전 독립 리뷰 옵션</b> — RISKY한 goal(스키마·결제·보안 등)에 한해 merge/green 선언 전 비저자 서브에이전트가 <b>raw diff vs goal.md 미션</b>을 대조(구현자 요약 금지 — 앵커링 방지). 거짓완료 가드의 의미론 버전.</li>
+    <li><b>런타임 스모크의 게이트 표준화</b> — "서비스 스펙이면 부팅+요청 1회 2xx"를 <code>_meta</code> deep gate 패턴(DEEP_LABELS_RE)으로 템플릿에 표준 탑재. 이미 finding으로 OPEN인 'UI 렌더 검증(헤드리스)' 항목과 같은 계열 — dryforge는 이를 완료 게이트 필수로 박았다("compiles와 works는 다른 주장").</li>
+  </ol>
+  <p class="note">보너스: dryforge의 출력 규율("결과만 보고, 과정 내레이션 금지·내부 용어 비노출")은 Codex fcg 스킬에 한 단락 추가로 이식 가능한 토큰 절감책이다.</p>
+
+  <h3 class="sec">언제 dryforge를 그대로 쓰는 게 나은가</h3>
+  <div class="card">
+    <ul class="tight">
+      <li>FCG 템플릿이 안 깔린 <b>기존 코드베이스</b>에 빠르게 규율을 얹어야 할 때 (/migration)</li>
+      <li>요구가 매우 모호한 <b>1회성 신규 기능</b>을 한 세션에 정확히 뽑고 싶을 때 (엘리시테이션 선불이 즉시 회수)</li>
+      <li>독립 태스크가 많은 대형 슬라이스를 <b>시간 우선</b>(토큰 불문)으로 처리할 때 (병렬 wave)</li>
+      <li>워크플로우를 모르는 <b>협업자/비개발자</b>에게 에이전트 운영을 맡길 때 (커맨드 2개)</li>
+    </ul>
+    <p class="note">두 시스템은 같은 레포에서 공존 가능하다(겹치는 파일 규약 없음 — dryforge는 .dryforge/와 docs/ 8종, 현재는 docs/spec·goals·cycles). 단 진실원천이 2벌이 되므로(spec vs harness) 상시 병용은 비권장 — 실험은 별도 프로젝트에서.</p>
+  </div>
+</section>
+
+<!-- ════════════════ ⑧ 방법론·한계 ════════════════ -->
+<section class="tab" id="t8">
+  <h3 class="sec">방법론</h3>
+  <div class="card">
+    <ul class="tight">
+      <li><b>dryforge:</b> <code>github.com/fn-opt/dryforge</code>를 임시폴더에 클론(<code>%TEMP%\dryforge</code>, HEAD=<code>d9c2bde</code>, v1.1.0/2026-06-09). 단일 소스(<code>src/skills/</code>) 31개 md 전수 목록화, 3개 SKILL.md 전문 + 핵심 레퍼런스 4종(orchestration·output-format·dependency-calc·harness-lifecycle) 전문 정독, 나머지는 SKILL.md 내 요약·상호참조로 파악. 파일별 단어수 실측.</li>
+      <li><b>현재 워크플로우:</b> 이 레포(README·AGENTS·CLAUDE·docs/fcg-system·goals/AGENTS·guidelines/goal-iteration) + 전역 스킬 12종 SKILL.md(<code>~/.claude/skills/</code>) 전문 정독, 파일별 단어수 실측, bash 오케스트레이터 역할은 문서·기존 운영 이력으로 확인.</li>
+      <li><b>토큰 추정:</b> 단어수 실측 × 환산계수(영문 ≈1.3, 국문 혼합 ≈1.8~2.2 tok/단어) + 각 스킬의 force-load 규약을 따라 "한 사이클에 로드되는 인스트럭션"을 합산.</li>
+    </ul>
+  </div>
+  <h3 class="sec">한계 — 읽을 때 유의</h3>
+  <div class="card">
+    <ul class="tight">
+      <li><b>토큰 수치는 전부 추정치다.</b> 실 API 계측이 아니라 인스트럭션 텍스트 측정 기반. 대화·코드 컨텍스트·캐시 효과에 따라 실제 격차는 달라질 수 있다(다만 4~6배라는 차수 자체가 뒤집힐 가능성은 낮다 — 서브에이전트 디스패치 구조 차이가 지배적이므로).</li>
+      <li><b>dryforge를 실제로 구동해 보지 않았다.</b> 소스 분석상 설계는 치밀하나, 엘리시테이션의 체감 품질(질문이 정말 적절한가, 과잉 질문은 없는가)과 병렬 실행의 안정성은 실사용 검증이 필요하다. 본 보고서의 dryforge 평가는 "설계 의도가 문서대로 작동한다"는 가정 위에 있다.</li>
+      <li><b>현재 워크플로우 평가에는 운영자 숙련 프리미엄이 들어 있다.</b> "제어 세분성 우위" 등은 시스템을 만든 본인이 운영할 때의 이야기이고, 제3자에게는 학습 비용이 페널티로 작동한다(축 7에서 반영).</li>
+      <li>dryforge는 릴리스 주기가 빠르다(1주 9릴리스). 본 분석은 v1.1.0 스냅샷 기준 — 수 주 뒤에는 격차 항목이 달라질 수 있다.</li>
+    </ul>
+  </div>
+  <footer>
+    분석·작성: Claude (Fable 5) · 2026-06-10 · 원자료: 이 레포 <code>main@b956fa6</code> + dryforge <code>d9c2bde</code>(임시폴더 클론) ·
+    본 문서는 자체 완결형 단일 HTML(외부 의존성 0)이며 <span class="kbd">🌓</span> 버튼으로 다크/라이트 전환.
+  </footer>
+</section>
+
+</div>
+<script>
+const tabs=document.querySelectorAll('#tabs button');
+tabs.forEach(b=>b.addEventListener('click',()=>{
+  tabs.forEach(x=>x.classList.remove('on'));
+  document.querySelectorAll('section.tab').forEach(s=>s.classList.remove('on'));
+  b.classList.add('on');
+  document.getElementById(b.dataset.t).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+}));
+function toggleTheme(){
+  const r=document.documentElement;
+  r.dataset.theme = r.dataset.theme==='dark' ? '' : 'dark';
+}
+if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.dataset.theme='dark';}
+</script>
+</body>
+</html>

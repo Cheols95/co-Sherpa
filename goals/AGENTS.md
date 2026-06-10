@@ -76,6 +76,27 @@ declared.
 
 ---
 
+## Risk tier & RISKY close-out review
+
+- A numbered goal's `.md` MAY open with frontmatter `risk: RISKY | MECHANICAL | NONE`,
+  **carried from the source issue's frontmatter** at conversion (fcg-goal mode B) or judged
+  there by the heuristic in `AGENTS.md` §"Agent-skills configuration". An omitted `risk` is
+  **unclassified, NOT mechanical**.
+- **Runtime upgrade-only.** If mid-loop the goal proves more behavioral / multi-file /
+  ambiguous than declared (e.g. you feel the urge to touch a test or a prior invariant),
+  upgrade to `RISKY` on the spot. Downgrading requires the user — never silent.
+- **RISKY close-out review.** When a `RISKY` goal's gates go green, **before advancing**:
+  dispatch one subagent that did **not** author the code. Give it the goal `.md` mission +
+  the **raw diff** of this goal's labeled commits (`git log --oneline --grep='(<id>)'` —
+  the `red/green/refactor/chore(<id>)` set) — never the implementer's summary (anchoring).
+  Findings go to `docs/findings/` (fcg-findings 규약, file:line evidence) — they do **NOT**
+  block the gate verdict: gates stay the only "done" authority; the review is semantic
+  insurance for what gates can't see (proxy-gap, out-of-surface edits, weakened tests).
+  No subagent tooling (e.g. a Codex solo loop) → queue the review request itself as a
+  finding for the next session.
+
+---
+
 ## Designing gates (summary — full rules in goal-design.md §1, §1.5)
 
 - **Universal claim ⇒ enumerate from a source of truth** (filesystem,

@@ -107,6 +107,29 @@ else
 fi
 echo ""
 
+echo "=== Spec drift (docs/spec/ vs commits) ==="
+# Advisory only -- never gates. Counts commits since docs/spec/ last
+# changed; past the threshold, recommend a /spec-sync pass (Phase 2.5
+# cadence) so the user doesn't have to remember it. ASCII-only output.
+REMIND_AFTER="${SPEC_SYNC_REMIND_AFTER:-20}"
+if [ -f docs/spec/INDEX.md ] && git rev-parse --git-dir >/dev/null 2>&1; then
+  last_spec=$(git log -1 --format=%H -- docs/spec 2>/dev/null || true)
+  if [ -n "$last_spec" ]; then
+    drift=$(git rev-list --count "${last_spec}..HEAD" 2>/dev/null || echo 0)
+    if [ "$drift" -ge "$REMIND_AFTER" ]; then
+      echo "  $drift commits since docs/spec/ last changed (threshold $REMIND_AFTER)"
+      echo "  -> recommend: run /spec-sync (contract <-> code drift check)"
+    else
+      echo "  $drift commits since docs/spec/ last changed (ok, threshold $REMIND_AFTER)"
+    fi
+  else
+    echo "  (docs/spec/ not committed yet)"
+  fi
+else
+  echo "  (no docs/spec/INDEX.md yet -- /to-spec creates the contract layer)"
+fi
+echo ""
+
 # ─── Project signals (add stack-specific sections here) ─────────────────
 # Examples you might add:
 #   - test pass/fail summary from your runner

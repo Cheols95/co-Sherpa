@@ -23,6 +23,16 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 
 - **Issue tracker = local markdown.** PRDs in `docs/prd/PRD.md`; issues in `docs/issues/<NNN>-<slug>.md`
   (numbered from `001`); triage state = a `Status:` line near the top of each issue file.
+- **Issue frontmatter = machine-readable contract.** Each issue opens with YAML frontmatter carrying
+  `depends: [NNN, ...]` (inline list of blocking issue ids — mirrors the prose "Blocked by" section;
+  on disagreement frontmatter wins) and `risk: RISKY | MECHANICAL | NONE`. `/to-issues` emits both;
+  the roadmap dashboard reads `depends:`; `/fcg-goal` mode B carries `risk:` into the goal contract.
+  - **Risk heuristic (a floor, judged per slice):** `RISKY` if the slice names an explicit edge case,
+    invariant, state-coordination or validation rule, **or** touches data integrity (schema/
+    migration), auth/security boundaries, money, irreversible external effects, or the `docs/spec/`
+    contract surface. `NONE` if it has no behavioral surface (docs/config/pure scaffold).
+    `MECHANICAL` otherwise. An **omitted `risk` is unclassified, NOT mechanical** — judge at
+    conversion time and bias toward stronger verification (degrade-don't-corrupt).
 - **Triage roles:** `needs-triage` / `needs-info` / `ready-for-agent` / `ready-for-human` / `wontfix`.
 - **Domain docs = single-context:** one `CONTEXT.md` at repo root + `docs/adr/`.
 - **Phase 1→2 bridge:** `/fcg-goal` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
@@ -57,6 +67,22 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
   decision behind it: not "is this an invariant?" but "if this changes, must something else change
   too?"; not "what's the authorization model?" but "who may do this, and who must be blocked?" Then
   translate the plain answer back into the precise contract term.
+- **Account the decision surface — the observable exit bar for grilling.** Before freezing, name the
+  entities (a manifest), then walk four lenses over each entity and colliding pair to enumerate the
+  load-bearing decisions the design is *obligated* to answer: **STRUCTURAL** (cardinality/
+  composition/identity), **BEHAVIORAL** (lifecycle/concurrency/policy/edges), **TECHNICAL**
+  (persistence/interface/consistency), **CONTRACT** (status·enum *sets*/uniqueness/output keys).
+  Every slot must end **grounded** (the user said it, or it follows from what they said),
+  **asked-and-answered**, or **deferred-tunable** (a default inside a settled mechanism, marked
+  tunable). Enumerate exhaustively, ask minimally — never ask what is derivable. Grilling ends when
+  no `assumed` slot survives — not when it "feels like enough".
+- **Pre-freeze intent-audit (independent).** Right before `/to-spec` freezes the contract, dispatch
+  one subagent that did **not** author the plan; it reads the dialogue + the decision surface and
+  hunts un-grounded guesses (a slot settled silently, a disposition rubber-stamped). Each finding is
+  closed by asking the user — never patched silently into a document. No subagent tooling available
+  (e.g. a Codex session) → run the audit as an explicit self-review pass and surface the list to the
+  user. The downstream existence of this audit is **no license for shallow grilling** — a finding
+  here means the dialogue was closed too early.
 
 ## Project-specific skills
 

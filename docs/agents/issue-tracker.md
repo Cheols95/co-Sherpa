@@ -9,5 +9,8 @@
 - **PRDs:** `docs/prd/PRD.md`
 - **Issues:** `docs/issues/<NNN>-<slug>.md` (numbered from `001`)
 - **Triage state:** a `Status:` line near the top of each issue file (see `triage-labels.md`).
+- **Issue frontmatter:** `depends: [NNN, ...]` (machine-readable dependency contract; beats the
+  prose "Blocked by" on disagreement) + `risk: RISKY | MECHANICAL | NONE` (heuristic + carry rules
+  in `AGENTS.md`; omitted = unclassified, not MECHANICAL).
 - **Phase 1→2 bridge:** `/fcg-goal` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
   `goals/<n>-<name>.{md,gates.sh,next-task.sh}` execution contracts.

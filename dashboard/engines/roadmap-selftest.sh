@@ -81,6 +81,20 @@ Goal: goals/6-multidep.md
 - 001
 - 002
 EOF
+  cat > "$dir/docs/issues/007-fm.md" <<'EOF'
+---
+depends: [002]
+risk: MECHANICAL
+---
+# Fm
+Status: ready-for-agent
+
+## Acceptance criteria
+- [ ] fm work
+
+## Blocked by
+- 001
+EOF
   touch "$dir/goals/1-base.md" "$dir/goals/2-active.md" "$dir/goals/3-ready.md" "$dir/goals/4-blocked.md" "$dir/goals/6-multidep.md"
   printf 'goals/2-active.md\n' > "$dir/.state/active-goal"
   cat > "$dir/scripts/next-task.sh" <<'EOF'
@@ -147,6 +161,9 @@ test_deps() {
   # A node with 2+ "Blocked by" ids must stay a SINGLE record carrying both
   # deps — guards the row-split bug (finding 2026-06-06T0100).
   assert_has "$data" '"id":"006","title":"Multidep","issueStatus":"ready-for-agent","gate":"deferred","goal":"6-multidep","accDone":0,"accTotal":1,"deps":["001","002"],"ready":false,"danglingDeps":[]'
+  # Frontmatter `depends:` is the machine contract and beats the prose
+  # "Blocked by" fallback (007 declares [002] in frontmatter, 001 in prose).
+  assert_has "$data" '"id":"007","title":"Fm","issueStatus":"ready-for-agent","gate":"none","goal":"","accDone":0,"accTotal":1,"deps":["002"],"ready":false,"danglingDeps":[]'
 }
 
 test_ready() {

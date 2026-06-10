@@ -102,7 +102,10 @@ Generator meta-prompt: `prompts/cycle-generate.md`. Minimum structure:
 5. **Forbidden actions** — HARD STOP rules.
 6. **Commit / push protocol**.
 7. **Termination / verification** — the commands that confirm it's
-   actually done.
+   actually done. The termination report MUST also carry the cycle-end
+   doc-sync advisory: recommend one `/spec-sync` pass (contract ↔ code
+   drift) as the next action — the chain just changed the most, so this
+   is the cheapest moment to reconcile `docs/spec/`.
 
 ---
 
@@ -125,6 +128,11 @@ Read before authoring: `docs/goal-design.md` (especially §1.5, §5),
   out-of-scope. After 3 TDD cycles with no progress, write a blocker and
   move to the next target — **never terminate early**. Terminate only when
   every in-scope target is resolved/partial and the chain is green.
+- **Output discipline (loop mode).** The agent speaks only at (a) a real
+  question, (b) a target/cycle result, (c) a blocker. No transition
+  narration ("now I'll read X", "이제 ~를 하겠습니다") — the tool calls are
+  already visible. No internal jargon in user-facing lines. Output tokens
+  are direct cost; narrating routine steps is waste.
 
 ---
 

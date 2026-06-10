@@ -53,6 +53,10 @@
 10. **종료 / 검증** — 진짜 끝났는지 확인하는 명령들 (target finding 상태
     점검 + `bash scripts/completion-check.sh` exit 0 + `git status` clean +
     push 완료). 종료 시 frontmatter `completed_at`/`status` 갱신 +
-    `learnings.md` 한 줄.
+    `learnings.md` 한 줄 + **종료 보고에 `/spec-sync` 1회 권고**(사이클이
+    코드를 가장 많이 바꾼 직후가 계약 정합의 최적 시점 — Phase 2.5 cadence).
+11. **출력 규율** — 말하는 순간은 (a) 질문 (b) target/사이클 결과 (c)
+    blocker 뿐. 과정 내레이션("이제 ~를 읽겠습니다") 금지 — 도구 호출은
+    이미 화면에 보인다. 출력 토큰은 직접 비용이다.
 
 모호하거나 논의할 점 있으면 작성 전에 제안해라.

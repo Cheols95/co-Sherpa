@@ -6,7 +6,8 @@
 - 터미널 깨졌을때 : ctrl+shift+P -> reload window 로 새로고침 (세션 유지됨)
 - 문서관리 팁 : Frontmatter 활용 (title / created at / resolved (true/false) / status_notes(상태요약) / related(관련문서) ). 단, 문서 유형별 정확한 스키마는 각 폴더의 `AGENTS.md`가 단일 출처 — findings·spec은 `resolved:`, issues는 `Status:` 라벨, cycles는 `status:` 단계값을 쓴다.
 - 병렬 작업 : 세션 컨텍스트 유지하면서 병렬 처리할게 있으면, /branch 기능으로 해당 세션 복제 후 병렬로 일 시키는게 빠르고 토큰 효율적
-- 주기적 Spec 문서 관리 : 코드가 수정되었는데 스펙이 구버전이면 나중에 ai가 이걸 읽고 엉뚱한 코드를 짤 수 있음. 의식적으로 /spec-sync 스킬을 통해 계약문서(spec)을 업데이트 할 필요가 있음.
+- 주기적 Spec 문서 관리 : 코드가 수정되었는데 스펙이 구버전이면 나중에 ai가 이걸 읽고 엉뚱한 코드를 짤 수 있음. 의식적으로 /spec-sync 스킬을 통해 계약문서(spec)을 업데이트 할 필요가 있음. **잊어도 시스템이 알려준다** — `diagnose.sh`가 docs/spec 마지막 변경 후 커밋 수가 임계(기본 20, `SPEC_SYNC_REMIND_AFTER`)를 넘으면 권고를 출력하고, `completion-check.sh`도 ALL_DONE 시점에 1회 권고한다(둘 다 advisory — 게이트 아님).
+- 런타임 스모크 : 프로젝트에 실행 가능한 서비스가 생기면 `scripts/smoke.sh`(부팅→요청 1회→2xx 확인→종료)를 만들 것. `_meta` 게이트가 자동 감지해 deep check로 돌린다("컴파일된다"≠"작동한다" — `goals/_meta.md` §Runtime smoke).
 
 ## 필수 전역 스킬 (먼저 설치)
 
@@ -74,6 +75,10 @@
 > 5. API 설계
 > 6. 데이터 스키마 설계
 > 7. 코드 아키텍쳐 설계
+>
+> **grill 종료 판정은 감이 아니라 회계다**: 엔티티×4렌즈(구조/행위/기술/계약)로 결정표면을 열거해
+> 모든 load-bearing 슬롯이 `결정됨/질문해 답받음/튜닝값 보류` 중 하나면 멈춘다. `/to-spec` 직전에
+> **비저자 의도-감사 1회**(조용히 채워진 추측 사냥)를 거친다 — 규약은 `AGENTS.md` §Phase 1 elicitation.
 
 위 항목이 결정되면 문서를 **성격에 따라 갈라 둔다**:
 
@@ -136,6 +141,11 @@ bash scripts/diagnose.sh                              # 매 시작: active-goal�
 
 > 입력이 곧 모드 선택이다. 변환을 원하면 이슈/PRD 경로를 명시하고, 구현을 원하면 그냥 부른다.
 > (변환 모드 B는 개념적으로 [Phase 1 → 2 경계](#phase-1--2-경계--변환)에서 쓰지만, 같은 엔진이라 여기 함께 정리한다.)
+
+> **risk 계층 + RISKY 마감 리뷰.** 이슈 frontmatter의 `risk: RISKY|MECHANICAL|NONE`을 모드 B가 goal로
+> 운반한다(미지정=미판정, MECHANICAL 아님). `RISKY` goal은 게이트 green 후 전진 전에 **비저자 서브에이전트
+> 1회**가 goal 미션 ↔ raw diff를 대조한다 — 발견은 finding 큐로 가고 게이트 판정은 막지 않는다(게이트가
+> 유일한 "done" 권위). 작업 중 행위 표면이 커지면 RISKY로 상향만 허용. 상세: `goals/AGENTS.md` §Risk tier.
 
 #### `/tdd` — `/fcg-goal`과의 관계 (택일 아님, 층위 다름)
 

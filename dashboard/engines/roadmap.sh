@@ -84,12 +84,20 @@ if [ -d "$SOURCE_ROOT/docs/issues" ]; then
       END{ print body }
     ' "$f" 2>/dev/null)"
 
+    # Dependency source of truth: frontmatter `depends: [NNN, ...]` (inline
+    # list, first frontmatter block) is the machine-readable contract and
+    # wins; the prose "## Blocked by" section is the human-readable fallback
+    # for issues authored before the frontmatter convention.
     # `tr '\n' ' '` flattens multi-id "Blocked by" blocks to one line BEFORE
     # the value enters the pipe-delimited FEATURE_ROWS record. Without it, 2+
     # deps embed a newline that splits the record on read-back (finding
     # 2026-06-06T0100). Downstream `for d in $deps` handles space separation.
-    deps="$(awk 'tolower($0) ~ /^##[[:space:]]+blocked by/{flag=1; next} /^##[[:space:]]/{if(flag) exit} flag' "$f" 2>/dev/null |
+    deps="$(awk '/^---[[:space:]]*$/{c++; next} c==1 && /^depends:/{sub(/^depends:[[:space:]]*/,""); print; exit}' "$f" 2>/dev/null |
       grep -oE '\b[0-9]{3}\b' | sort -u | grep -v "^$id$" | tr '\n' ' ' || true)"
+    if [ -z "$deps" ]; then
+      deps="$(awk 'tolower($0) ~ /^##[[:space:]]+blocked by/{flag=1; next} /^##[[:space:]]/{if(flag) exit} flag' "$f" 2>/dev/null |
+        grep -oE '\b[0-9]{3}\b' | sort -u | grep -v "^$id$" | tr '\n' ' ' || true)"
+    fi
     deps_js=""
     for d in $deps; do
       [ -n "$deps_js" ] && deps_js="$deps_js,"

@@ -35,6 +35,20 @@ eslint config / test config / the set of packages), not sampled. That is
 why `_meta.gates.sh` iterates over the configured checks with a `for` loop
 — a universal claim demands a universal gate (`check-gate-rigor.sh`).
 
+## Runtime smoke (deep, auto-detected)
+
+"Compiles" and "works" are different claims — unit-green code can still
+die on boot (missing env var, port/config error, unapplied migration).
+When the project grows a runnable service, create **`scripts/smoke.sh`**:
+boot the service → send one health-check/minimal request → assert a 2xx
+(exit non-zero on failure) → tear down. `_meta.gates.sh` detects the file
+and wires it in as a **deep** check automatically (label `smoke-runtime`
+matches `DEEP_LABELS_RE`), so fast inner-loop runs (`GATES_SKIP_DEEP=1`)
+skip it while full sweeps (`GATES_SKIP_DEEP=0`, pre-push, CI) enforce it.
+
+No `scripts/smoke.sh` = an explicit "this project has no runtime
+component" decision — record that in `docs/spec/`, don't leave it implicit.
+
 ## Env flags
 
 | Env                | Effect                                                                                                |

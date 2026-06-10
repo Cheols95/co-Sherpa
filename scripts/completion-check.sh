@@ -303,6 +303,12 @@ fi
 if [ "$OVERALL_PASS" = true ]; then
   echo "ALL_DONE" > "$ACTIVE_FILE"
   echo "🎉 ALL GOALS ACHIEVED. Every gate of every goal passes."
+  # Cycle-end doc-sync advisory (never gates): the chain just went green,
+  # which is the cheapest moment to reconcile the contract docs with the
+  # code before drift compounds. ASCII-only message.
+  if [ -f docs/spec/INDEX.md ]; then
+    echo "  advisory: chain is green -- run /spec-sync once to reconcile docs/spec/ with the code (Phase 2.5 cadence)."
+  fi
   exit 0
 fi
 

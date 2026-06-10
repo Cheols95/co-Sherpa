@@ -57,7 +57,22 @@ GATE_INPUTS=(
 
 # Labels matching this (case-insensitive) are "deep" -- skipped under
 # GATES_SKIP_DEEP=1 for fast inner-loop iteration.
-DEEP_LABELS_RE='test|build|e2e|coverage|integration'
+DEEP_LABELS_RE='test|build|e2e|coverage|integration|smoke'
+
+# --- Runtime smoke (deep, auto-detected) ----------------------------------
+# "Compiles" and "works" are different claims: unit-green code can still die
+# on boot (missing env var, port/config error, unapplied migration). When the
+# project has a runnable service, create scripts/smoke.sh that boots it,
+# sends one health-check/minimal request, asserts a 2xx (exit non-zero on
+# failure), and tears down. This block wires it in automatically as a deep
+# check (label matches DEEP_LABELS_RE, so GATES_SKIP_DEEP=1 inner loops skip
+# it; completion-check with GATES_SKIP_DEEP=0, pre-push, CI run it).
+# Absence of scripts/smoke.sh = an explicit "no runtime component" decision
+# -- record that decision in docs/spec/ rather than leaving it implicit.
+if [ -f "$ROOT/scripts/smoke.sh" ]; then
+  META_CHECKS+=("smoke-runtime::bash scripts/smoke.sh")
+  GATE_INPUTS+=("scripts/smoke.sh")
+fi
 
 # --- Cache key: shallow runs never satisfy the full `_meta` key, so a
 # full check is always forced after an input change until one runs. ------
