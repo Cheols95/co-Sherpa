@@ -9,6 +9,6 @@ Claude-specific notes:
   loop (`/fcg-goal` etc.) when useful; GPT is primary for high-volume coding.
 - Run `/handoff` before switching model/session.
 - Skills auto-trigger from their descriptions — the user drives the sequence; you don't need to
-  recite the workflow. Full workflow lives in `README.md`.
+  recite the workflow. Full workflow lives in `Workflow_Guideline_v1.html` (user guide; agent-readable).
 
 _(Add Claude-only project notes below, if any.)_

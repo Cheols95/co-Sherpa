@@ -18,7 +18,8 @@
 # NOTE: several skills carry template-specific fixes (dryforge transplants,
 # ladder, EXAMPLE.md pointers). Do NOT reinstall from the public sources
 # (mattpocock/skills, greatSumini/cc-system) -- that would overwrite the
-# fixes. The repo backup is the source of truth; credits in README.md.
+# fixes. The repo backup is the source of truth; credits in
+# Workflow_Guideline_v1.html (footer).
 #
 # Usage:
 #   bash scripts/install-skills.sh            # install missing, skip existing
@@ -94,5 +95,5 @@ machine. Repo assets (scripts/, goals/ conventions, dashboard/, ...) are
 per-project -- propagate those with scripts/update-workflow.sh instead.
 
 Verify:  ls ~/.claude/skills    # and ~/.codex/skills for the Codex set
-Matrix:  see README.md "필수 전역 스킬 (먼저 설치)"
+Matrix:  see Workflow_Guideline_v1.html (tab 2 "설치 위치" / tab 3 "채널 1")
 EOF

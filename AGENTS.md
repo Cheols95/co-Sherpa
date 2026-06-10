@@ -4,7 +4,7 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 (**Claude = planning+implementation / GPT = implementation**) on the **FCG** harness.
 
 - The **user drives** the slash-command sequence; skills self-trigger from their own descriptions.
-- Full workflow (human reference): `README.md`. FCG mechanics: `docs/fcg-system.md`.
+- Full workflow (human reference): `Workflow_Guideline_v1.html`. FCG mechanics: `docs/fcg-system.md`.
 
 > Fill the two sections below per project — this is the context skills cannot infer, and it
 > loads every session, so keep it tight and current.

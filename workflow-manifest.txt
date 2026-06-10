@@ -15,7 +15,7 @@
 #    안 바뀌면 조용, 양쪽 다 바뀌면 CONFLICT 보고) --
 AGENTS.md
 CLAUDE.md
-README.md
+Workflow_Guideline_v1.html
 .gitattributes
 .gitignore
 workflow-manifest.txt
