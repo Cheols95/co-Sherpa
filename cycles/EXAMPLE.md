@@ -45,7 +45,8 @@ LOOP:
 push 완료. 종료 시 frontmatter `completed_at`/`status` 갱신 +
 `learnings.md` 한 줄.
 
-**막혀도 종료하지 마라.** stuck → blocker 기록 → 다음 target.
+**막혀도 종료하지 마라.** stuck → 사다리 2단(맥락 보강 → 접근 전환,
+goal-iteration.md §Stuck) → blocker 기록 → 다음 target.
 
 ---
 
@@ -86,7 +87,7 @@ signal 검증 → frontmatter (`resolved: true` + `resolved_by`) + 본문 끝
 2. Hook 우회 (`--no-verify` 등).
 3. 테스트/lint 비활성화 (`.skip`, `eslint-disable` 추가).
 4. Coverage threshold 인하.
-5. 3 사이클 무진전 → blocker → 다음 target.
+5. 3 사이클 무진전 → 사다리 2단(맥락 보강 → 접근 전환) → blocker → 다음 target.
 6. Destructive git (`push --force`, `reset --hard`).
 7. `.env`/credential/대용량 산출물 커밋.
 

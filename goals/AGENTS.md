@@ -25,9 +25,10 @@ typecheck / test / build); `completion-check.sh` launches it first.
 
 **Discovery rule.** The harness treats a markdown file in `goals/` as a
 goal only when its name starts with a digit (`<n>-<name>.md`) or is exactly
-`_meta.md`. Anything else here — this `AGENTS.md`, a `README.md`, scratch
-notes — is ignored by `completion-check.sh` / `check-gate-rigor.sh` /
-`diagnose.sh`, so it never shows up as a "missing gate" failure.
+`_meta.md`. Anything else here — this `AGENTS.md`, `EXAMPLE.md`, a
+`README.md`, scratch notes — is ignored by `completion-check.sh` /
+`check-gate-rigor.sh` / `diagnose.sh`, so it never shows up as a "missing
+gate" failure.
 
 **Bootstrap rule — the first conversion replaces `0-example`.**
 `goals/0-example.*` is a **teaching placeholder**, not part of the real
@@ -66,6 +67,12 @@ goals/<n>-<name>.md            # mission
 goals/<n>-<name>.gates.sh      # machine verification (chmod +x)
 goals/<n>-<name>.next-task.sh  # next-action hint (chmod +x)
 ```
+
+Before authoring your first real goal — or converting issues in mode B —
+read `goals/EXAMPLE.md` once: an annotated issue→three-file conversion
+with the anti-patterns called out. It is documentation, not a goal (the
+discovery rule ignores it), and it survives the `0-example` bootstrap
+deletion.
 
 The next `completion-check.sh` run picks the lowest failing goal as active.
 Before writing it, run the **self-audit** in `docs/goal-design.md`

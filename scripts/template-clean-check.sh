@@ -37,7 +37,7 @@ mapfile -t issue_leftovers < <(find docs/issues -maxdepth 1 -type f ! -name 'REA
 mapfile -t goal_leftovers < <(
   find goals -maxdepth 1 -type f 2>/dev/null |
     sed 's#.*/##' |
-    grep -Ev '^(AGENTS\.md|0-example\.(md|gates\.sh|next-task\.sh)|_meta\.(md|gates\.sh|next-task\.sh))$' |
+    grep -Ev '^(AGENTS\.md|EXAMPLE\.md|0-example\.(md|gates\.sh|next-task\.sh)|_meta\.(md|gates\.sh|next-task\.sh))$' |
     sort |
     sed 's#^#goals/#'
 )
@@ -69,8 +69,11 @@ done
 # Machine-local / runtime state that .gitignore cannot strip on a folder
 # copy (vs git clone). A copy-ready template must not carry these; they
 # regenerate on first run. Clear with scripts/reset-for-new-project.sh.
+# .workflow-version belongs to PROJECT copies (template-SHA reconcile marker,
+# written by scripts/update-workflow.sh) -- the template itself must not
+# carry one, or every copied project starts with a bogus baseline.
 leaked=()
-for p in .state docs/state/next-task.md docs/state/progress.md .claude/settings.local.json; do
+for p in .state docs/state/next-task.md docs/state/progress.md .claude/settings.local.json .workflow-version; do
   [ -e "$p" ] && leaked+=("$p")
 done
 if [ "${#leaked[@]}" -gt 0 ]; then

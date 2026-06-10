@@ -102,15 +102,27 @@ git log --oneline -5  # 이번 iteration 커밋들이 보여야 함
 `.gitignore` 누락 점검, 전체 회귀 필요 시 `bash scripts/completion-check.sh`.
 통과하면 매 iteration 끝에 푸시 — 로컬 커밋을 쌓아두지 않는다.
 
-## When You Are Stuck
+## When You Are Stuck — bounded escalation ladder
 
-한 테스트에 3 TDD 사이클 넘게 무진전이면:
+한 테스트에 3 TDD 사이클 넘게 무진전이면, 바로 blocker 를 적지 말고
+**사다리 2단을 먼저 밟는다**. 핵심은 재시도의 횟수가 아니라 질이다 —
+각 단은 직전 시도와 반드시 무언가 달라야 하며, 같은 시도의 반복은
+단으로 치지 않는다.
 
-1. 멈춘다.
-2. `docs/state/blockers.md` 에 append: 하려던 것 / 시도한 것 / 무엇이
-   잘못되는지.
-3. `scripts/next-task.sh` 로 다른 task 로 이동.
-4. fresh context 로 나중에 복귀.
+1. **1단 — 맥락 보강 재시도 (1회).** 멈추고 빠진 맥락을 다시 모은 뒤
+   같은 접근을 한 번 더 시도한다: goal `.md` 의 Mission /
+   forbidden-actions 재독, `docs/spec/` 의 해당 계약 슬라이스, 관련
+   finding / `learnings.md`, 실패 출력 전문.
+2. **2단 — 접근 전환 재시도 (1회).** 그래도 무진전이면 접근 자체를
+   바꿔 한 번 더 시도한다: 다른 구현 전략, 다른 테스트 각도, 다른
+   문제 분해.
+3. **기록.** 그래도 안 되면 `docs/state/blockers.md` 에 append:
+   하려던 것 / **각 단에서 시도한 것과 결과** / 무엇이 잘못되는지.
+4. `scripts/next-task.sh` 로 다른 task 로 이동. fresh context 로 나중에
+   복귀.
+
+사다리는 여기서 끝난다 — 2단을 넘겨 재시도 루프를 돌지 마라(무인 루프
+보호). cycle 모드(fcg-goal 모드 C)의 target 처리에도 동일하게 적용된다.
 
 ## Working With State Files
 

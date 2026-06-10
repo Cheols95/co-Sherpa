@@ -36,7 +36,9 @@
    2. 모든 goal 이 green 이면, target findings 중 미해결 첫 항목을
       처리(promote/delegate/direct).
    3. 모든 target 이 닫혔고 chain 이 green 이면 종료.
-   - 무진전(3 사이클) 시 blocker 기록 후 다음 target — **조기 종료 금지**.
+   - 무진전(3 사이클) 시 사다리 2단 — 맥락 보강 재시도 1회 → 접근 전환
+     재시도 1회 (`guidelines/goal-iteration.md` §When You Are Stuck) —
+     후에도 무진전이면 blocker 기록 후 다음 target — **조기 종료 금지**.
      promote 한 goal 이 막히면 promotion back-out 으로 chain 을 green 복귀.
 4. **Finding 처리 절차** — 읽기 / promote·delegate·direct 판단 / 실행
    (TDD) / 검증(Acceptance signal) / 마무리(frontmatter + `## Resolution`).

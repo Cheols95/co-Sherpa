@@ -12,26 +12,69 @@
 ## 필수 전역 스킬 (먼저 설치)
 
 이 폴더는 FCG **자산**(scripts·goals·cycles·docs 구조·규약)만 담는다. 워크플로우의 **스킬(동사)** 은
-전역 설치본이라 폴더 복사로는 따라오지 않는다. 같은 머신에서 계속 쓰면 이미 깔려 있지만, **새 머신/유저**에서
-처음 셋업한다면 아래가 있어야 워크플로우가 발동한다.
+전역 설치본이라 폴더 복사로는 따라오지 않는다 — 단, **12종 전부 이 레포 `skills/`에 소스가 백업**돼
+있어 설치는 한 줄이다:
+
+```bash
+bash scripts/install-skills.sh           # 새 머신: 빠진 것만 설치 (기존은 skip)
+bash scripts/install-skills.sh --force   # 템플릿에서 스킬을 고친 뒤 전역 재배포
+```
 
 | 단계 | 스킬 | 설치 위치 |
 |---|---|---|
 | Phase 1 (기획·계약) | `grill-with-docs` · `prototype` · `to-prd` · `to-spec` · `to-issues` · `handoff` | `~/.claude/skills/` |
-| Phase 2 (구현) | `fcg-goal` · `fcg-findings` · `fcg-cycles` | `~/.claude/skills/`(Claude) · `~/.codex/skills/`(Codex) |
+| Phase 2 (구현) | `fcg-goal` · `fcg-findings` · `fcg-cycles` · `handoff` | `~/.claude/skills/`(Claude) **및** `~/.codex/skills/`(Codex — 이 4종만) |
 | Phase 2·2.5 (보조·정비) | `tdd` · `improve-codebase-architecture` · `spec-sync` | `~/.claude/skills/` |
 
-**설치 (새 머신·배포 시)** — `git clone` 후 한 번: `bash scripts/install-skills.sh` (bespoke를 전역에 설치하고, 공개 스킬 설치법을 출력).
+**스킬은 머신-전역이다** — 한 번 설치/갱신하면 이 머신의 **모든 프로젝트**가 즉시 같은 스킬을 쓴다.
+레포 `skills/`는 비활성 백업 소스일 뿐 Claude/Codex가 직접 로드하지 않는다(중복 등재 없음). Codex에는
+구현 단계 4종만 설치한다 — 기획 스킬까지 깔면 Codex 컨텍스트에 등재 비용만 생긴다.
 
-**출처**
+**출처 (크레딧)** — 원 출처는 아래이지만, 레포 사본에는 템플릿 전용 수정(dryforge 이식·escalation
+ladder·EXAMPLE.md 연결 등)이 들어 있다. **원 출처에서 재설치하지 말 것** — 수정분이 덮인다. 정본 = 레포 `skills/`.
 - **Matt Pocock 스킬셋**(github.com/mattpocock/skills): grill-with-docs · to-prd · to-issues · prototype · tdd · improve-codebase-architecture · handoff.
-- **FCG 하네스**(github.com/greatSumini/cc-system): fcg-goal · fcg-findings · fcg-cycles. 그 레포의 `prompt/install-findings-cycles-goals.md`로 설치한다.
-- **이 템플릿 전용(bespoke)**: `to-spec` · `spec-sync` — `docs/spec` 계약 규약 전용으로 만든 것이라 **공개 install 출처가 없다.** 소스는 레포 `skills/`에 백업돼 있고, `scripts/install-skills.sh`가 전역(`~/.claude/skills/`)으로 설치한다.
+- **FCG 하네스**(github.com/greatSumini/cc-system): fcg-goal · fcg-findings · fcg-cycles.
+- **이 템플릿 전용(bespoke)**: `to-spec` · `spec-sync` — `docs/spec` 계약 규약 전용. 공개 출처 없음.
 
 > 확인: Claude는 `~/.claude/skills/`, Codex는 `~/.codex/skills/`에 위 스킬 폴더가 있는지 본다.
 > 이 폴더의 `.claude/skills/`는 **프로젝트 전용** 슬롯이며 전역 스킬과 구분된다. 현재 `roadmap/`
 > (로컬 로드맵 대시보드) 하나가 들어 있다 — 이 워크플로우 시스템이 갖춰져야만 동작하므로
 > 전역이 아닌 프로젝트 전용으로 둔다(`scripts/template-clean-check.sh`가 필수 산출물로 강제).
+
+## 워크플로우 업데이트 전파 (템플릿 → 기존 프로젝트)
+
+템플릿을 고치면 두 채널로 기존 프로젝트들에 전파한다. **스킬과 자산은 채널이 다르다:**
+
+| 채널 | 대상 | 전파 방법 | 비용 |
+|---|---|---|---|
+| **스킬(동사)** | `skills/` 12종 | 템플릿에서 `bash scripts/install-skills.sh --force` | 머신 1회 = 전 프로젝트 동시 반영 |
+| **자산(명사)** | `workflow-manifest.txt` 등재 하네스 파일 | 각 프로젝트에서 `bash scripts/update-workflow.sh --apply` | 프로젝트당 1회 |
+
+자산 동기화는 **템플릿의 커밋(HEAD) 기준**이다 — 미커밋 변경은 전파되지 않는다(커밋 = 배포 단위).
+프로젝트 상태(docs 내용물·번호 goal·cycles 이력·CONTEXT.md·`docs/state/*`·`scripts/smoke.sh`)는
+manifest에 없으므로 절대 건드리지 않는다.
+
+**3-way 동작** — `.workflow-version` 마커(프로젝트가 마지막으로 수용한 템플릿 SHA, 커밋 대상) 기준:
+
+- 프로젝트가 안 고친 파일 + 템플릿 전진 → 자동 갱신 `[UPDATE]` / 신규 파일 → 생성 `[NEW]`
+- 프로젝트가 고친 파일 + 템플릿 그대로 → 커스텀 유지 `[LOCAL-MOD]` (예: 스택 맞춤 `_meta.gates.sh`)
+- 둘 다 고침 → 덮지 않고 보고 `[CONFLICT]` — 안내된 명령으로 수동 정리 후 `--set-baseline`
+- 프로젝트가 지운 파일 → 존중 `[LOCAL-DEL]` (예: 부트스트랩으로 지운 `0-example`)
+
+**구버전(v0) 프로젝트 첫 적용** — 프로젝트에 스크립트가 아직 없으니 템플릿 것을 직접 호출:
+
+```bash
+cd <프로젝트>
+bash <템플릿>/scripts/update-workflow.sh --from <템플릿>            # dry-run 보고 (기본)
+bash <템플릿>/scripts/update-workflow.sh --from <템플릿> --apply    # 신규 생성 + 안전 갱신만 적용
+# 보고된 [REVIEW]/[CONFLICT] 파일을 출력에 안내된 명령으로 정리(템플릿 채택 or 로컬 유지)한 뒤:
+bash scripts/update-workflow.sh --set-baseline                      # 이후부터 3-way 자동
+```
+
+`--from`은 로컬 경로·git URL 둘 다 받고 마커에 기억되므로, 이후엔 프로젝트에서
+`bash scripts/update-workflow.sh --apply`만 치면 된다. ⚠ 첫 적용의 `[NEW]` 목록은 dry-run에서
+한번 훑을 것 — 예컨대 이미 변환을 끝낸 프로젝트에 `0-example`이 다시 깔리는 게 싫으면 적용 후
+지우면 된다(마커가 생긴 다음부터는 그 삭제가 `[LOCAL-DEL]`로 존중된다).
 
 ## 빠른 시작
 
@@ -137,7 +180,7 @@ bash scripts/diagnose.sh                              # 매 시작: active-goal�
 |---|---|---|---|
 | issues/PRD를 실행계약으로 변환 | `/fcg-goal docs/issues/*.md` (또는 `docs/prd/PRD.md`) | **B. 변환** | 각 수직 슬라이스 → `goals/<n>-*.{md,gates.sh,next-task.sh}` 3파일 계약 생성 |
 | active goal 구현 | `/fcg-goal` (입력 없음) 또는 `/fcg-goal goals/<n>-*.md` | **A. 게이트 루프** | active goal을 RED→GREEN으로 green화, green이면 다음 goal로 자동 전진 |
-| cycle 무인 실행 | `/fcg-goal cycles/<파일>.md` | **C. 사이클 실행** | driver 문서대로 findings를 소진까지 처리(조기 종료 금지, 3회 무진전 시 `blockers.md` 기록) |
+| cycle 무인 실행 | `/fcg-goal cycles/<파일>.md` | **C. 사이클 실행** | driver 문서대로 findings를 소진까지 처리(조기 종료 금지, 3회 무진전 시 사다리 2단 — 맥락보강·접근전환 재시도 — 후 `blockers.md` 기록) |
 
 > 입력이 곧 모드 선택이다. 변환을 원하면 이슈/PRD 경로를 명시하고, 구현을 원하면 그냥 부른다.
 > (변환 모드 B는 개념적으로 [Phase 1 → 2 경계](#phase-1--2-경계--변환)에서 쓰지만, 같은 엔진이라 여기 함께 정리한다.)
@@ -201,11 +244,13 @@ bash scripts/diagnose.sh                              # 매 시작: active-goal�
 | `docs/goal-design.md` | goal 설계 노트 |
 | `goals/` | FCG 미션 스택 (`<n>-*.{md,gates.sh,next-task.sh}`) |
 | `cycles/` | FCG loop-driver 프롬프트 |
-| `scripts/` | FCG 오케스트레이터 셸스크립트 + `install-skills.sh`(스킬 설치) + `reset-for-new-project.sh`(복사 후 머신-로컬 상태 초기화) |
+| `scripts/` | FCG 오케스트레이터 셸스크립트 + `install-skills.sh`(스킬 전역 배포) + `update-workflow.sh`(템플릿→프로젝트 하네스 동기화) + `reset-for-new-project.sh`(복사 후 머신-로컬 상태 초기화) |
+| `workflow-manifest.txt` | `update-workflow.sh`가 동기화하는 **하네스 파일 목록**(템플릿 HEAD 기준). 새 하네스 파일을 만들면 여기 등재 |
+| `.workflow-version` | (프로젝트 사본에만) 마지막으로 수용한 템플릿 SHA + 출처 — 3-way 기준점. 템플릿 자신은 갖지 않는다(`template-clean-check.sh`가 강제) |
 | `dashboard/` | 로컬 로드맵 대시보드. `engines/roadmap.sh`(이슈·active goal·goal 계약 → self-contained `roadmap.html` emit, gitignore) + `engines/roadmap-selftest.sh` + `README.md`. `/roadmap` 스킬로 호출 |
 | `guidelines/` | iteration 운영 매뉴얼 + 품질점검 체크리스트 |
 | `prompts/` | 메타 프롬프트 — `cycle-generate.md`(사이클 문서 생성) + `check-test-codes/`(테스트코드 점검 지침) |
-| `skills/` | 배포용 **bespoke 스킬 소스**(to-spec·spec-sync). `scripts/install-skills.sh`가 `~/.claude/skills/`로 설치(전역 실행 유지 + 레포 백업) |
+| `skills/` | **전역 스킬 12종 전체의 소스 백업**(비활성 — Claude/Codex가 직접 로드하지 않음). `scripts/install-skills.sh`가 `~/.claude/skills/`(12종)·`~/.codex/skills/`(fcg 3종+handoff)로 배포. 원 출처 재설치 금지(수정분 소실) |
 | `.claude/skills/` | 이 프로젝트 **전용** 스킬(전역 스킬과 구분). 현재 `roadmap/` 하나 — 워크플로우 시스템 의존이라 전역 아닌 프로젝트 전용이며 `template-clean-check.sh`가 필수로 강제. 기획·구현·계약 스킬은 모두 전역(`~/.claude`·`~/.codex`). 프로젝트 한정 패턴이 반복 증명되면 추가 |
 ## Worktree Safety
 

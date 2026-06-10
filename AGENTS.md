@@ -42,7 +42,9 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
   goals. Goal `<n>` is an ordering label, not a 1:1 map to issue `NNN`; link a goal to its
   issue by slug (`goals/<n>-<slug>`).
 - **FCG invariants:** gates are immutable (fix code, not gates); `.state/` is gitignored;
-  in loop mode never terminate early (log to `blockers.md` after 3 stalled rounds).
+  in loop mode never terminate early (3 stalled rounds → the escalation ladder — one
+  context-reinforced retry, one approach-switch retry — then log to `blockers.md` and move on;
+  `guidelines/goal-iteration.md` §When You Are Stuck).
 
 ## Spec authority (which doc wins on conflict)
 
@@ -76,6 +78,18 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
   **asked-and-answered**, or **deferred-tunable** (a default inside a settled mechanism, marked
   tunable). Enumerate exhaustively, ask minimally — never ask what is derivable. Grilling ends when
   no `assumed` slot survives — not when it "feels like enough".
+- **Filter candidate questions through a grounds-gate.** A question may reach the user only when it
+  can state three things: its **site** (which entity/slot), **why** the material at hand doesn't
+  already settle it, and the **consequence** of guessing wrong. A candidate that can't state all
+  three is noise — drop it; don't spray "have you considered X?". The gate filters noise only — it
+  is never a license to drop a load-bearing slot by under-arguing. When genuinely unsure whether a
+  slot is load-bearing, ask: one question costs a beat, an un-surfaced decision costs a wrong build.
+- **Demote incoming documents to material — track presence, not coverage.** A spec/plan/notes file
+  brought from elsewhere enters as challengeable material, not ground truth: a document's existence
+  is no evidence of the design conversation behind it. While accounting the surface, distinguish a
+  slot the input merely *mentions* from one it *states with rules* — "touched" is not "covered",
+  and only stated-with-rules counts toward `grounded`. Differences between sources (doc ↔ spoken ↔
+  code) become questions, never silent picks.
 - **Pre-freeze intent-audit (independent).** Right before `/to-spec` freezes the contract, dispatch
   one subagent that did **not** author the plan; it reads the dialogue + the decision surface and
   hunts un-grounded guesses (a slot settled silently, a disposition rubber-stamped). Each finding is
