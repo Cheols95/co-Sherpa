@@ -413,7 +413,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             <div class="s-body">
               <div class="row"><span class="lab">절차</span>
                 <ul>
-                  <li><code>bash scripts/install-skills.sh</code> — 레포 <code>skills/</code> 백업에서 Claude 13종 + Codex 4종을 전역 설치</li>
+                  <li><code>bash scripts/install-skills.sh</code> — 레포 <code>skills/</code> 백업에서 Claude 12종 + Codex 4종을 전역 설치</li>
                   <li>스킬은 <b>머신 전역</b>이라 한 번 깔면 이 컴퓨터의 모든 프로젝트가 같이 씁니다</li>
                 </ul>
               </div>
@@ -634,7 +634,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <tr><td><code>docs/state/</code></td><td>진행 상태 — 자동생성(progress·next-task) + append-only(blockers·learnings)</td></tr>
         <tr><td><code>goals/</code> · <code>cycles/</code></td><td>FCG 미션 스택(3파일 계약) · 루프 구동 문서</td></tr>
         <tr><td><code>scripts/</code></td><td>FCG 오케스트레이터(diagnose·completion-check 등) + install-skills + update-workflow + reset</td></tr>
-        <tr><td><code>skills/</code></td><td>전역 스킬 13종의 <b>소스 백업</b>(정본) — 비활성, install-skills.sh가 배포</td></tr>
+        <tr><td><code>skills/</code></td><td>전역 스킬 12종의 <b>소스 백업</b>(정본) — 비활성, install-skills.sh가 배포</td></tr>
         <tr><td><code>.claude/skills/</code></td><td>이 프로젝트 <b>전용</b> 스킬 슬롯 (현재 roadmap 1종)</td></tr>
         <tr><td><code>dashboard/</code></td><td>로드맵 대시보드 엔진 + self-test</td></tr>
         <tr><td><code>guidelines/</code> · <code>prompts/</code></td><td>iteration 운영 매뉴얼·품질점검 / 메타 프롬프트(cycle 생성, 테스트 점검)</td></tr>
@@ -806,17 +806,6 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 
       <details class="skill" data-cat="aux">
         <summary>
-          <div class="sk-top"><span class="sk-name">/tdd</span><span class="pill pill-teal">보조</span></div>
-          <div class="sk-one">red-green-refactor 테스트 설계의 깊이를 보강 — build과 택일 아님</div>
-        </summary>
-        <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> TDD 절차 자체는 build에 내장돼 있습니다. 이 스킬이 더하는 건 "어떻게 도는가"가 아니라 <b>"무엇을 왜 그렇게 테스트하나"</b> — 구현 세부가 아닌 공개 동작을 검증해 리팩토링에도 살아남는 테스트, 깊은 모듈 인터페이스 설계, mocking 가이드. 테스트 설계가 까다로운 기능이나 goal 루프 밖 단발 작업(버그 수정, 프로토타입)에서 따로 부릅니다.</div>
-          <div class="row easy">🧰 build이 "공정 순서를 아는 작업자"라면, /tdd는 "검사 항목을 어떻게 정해야 하는지 아는 품질 엔지니어"입니다. 평소엔 작업자로 충분하고, 검사 설계가 어려운 부품에서 엔지니어를 부릅니다.</div>
-        </div>
-      </details>
-
-      <details class="skill" data-cat="aux">
-        <summary>
           <div class="sk-top"><span class="sk-name">/improve-codebase-architecture</span><span class="pill pill-teal">Phase 2.5</span></div>
           <div class="sk-one">얕은 모듈·개선 후보를 발굴해 HTML 리포트로 — 실행은 FCG 파이프라인으로</div>
         </summary>
@@ -859,7 +848,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <h2 style="font-size:32px">스킬은 머신 전역, 자산은 프로젝트별</h2>
       <p class="sec-sub">위 스킬들은 폴더 복사로 따라오지 않습니다 — 전역 설치본이 실행되고, 레포 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">skills/</code>는 정본 백업입니다.</p>
       <div class="grid-3 mt-40">
-        <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 13종</div><h3 style="font-size:18px;margin-top:6px">Claude 전체 세트</h3><p>Phase 1 기획 7종(freeze 포함) + 구현 3종 + 보조·정비 3종. 슬래시 명령으로 호출.</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 12종</div><h3 style="font-size:18px;margin-top:6px">Claude 전체 세트</h3><p>Phase 1 기획 7종(freeze 포함) + 구현 3종 + 보조·정비 2종. 슬래시 명령으로 호출.</p></div>
         <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 4종</div><h3 style="font-size:18px;margin-top:6px">Codex 구현 세트</h3><p>build · finding · cycle · handoff만. 기획 스킬까지 깔면 컨텍스트 비용만 늘어 제외. 자연어로 호출.</p></div>
         <div class="dark-card"><div class="mono-tag">.claude/skills/ — 프로젝트</div><h3 style="font-size:18px;margin-top:6px">프로젝트 전용 슬롯</h3><p>현재 roadmap 1종. 패턴이 반복 증명될 때만 추가(컨텍스트 비용 절제).</p></div>
       </div>
@@ -886,7 +875,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="ic">🔧</div>
           <h3>채널 1 — 스킬 (동사)</h3>
           <p><b>머신 전역 1회 = 전 프로젝트 동시 반영.</b> 스킬은 <code>~/.claude/skills/</code>·<code>~/.codex/skills/</code>에 살므로, 템플릿에서 한 번 재배포하면 이 컴퓨터의 모든 프로젝트가 즉시 새 스킬을 씁니다.</p>
-          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: 레포 <code>skills/</code> 13종 · 도구: <code>install-skills.sh</code></p>
+          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: 레포 <code>skills/</code> 12종 · 도구: <code>install-skills.sh</code></p>
         </div>
         <div class="feature-card">
           <div class="ic">📦</div>

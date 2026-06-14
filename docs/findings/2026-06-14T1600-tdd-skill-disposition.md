@@ -1,8 +1,13 @@
 ---
 title: tdd 스킬 거취 — build/goal-iteration과 중복, 강등/제거 검토
 created_at: 2026-06-14T16:00:45Z
-resolved: false
+resolved: true
 priority: P2
+status_notes: |
+  CLOSED 2026-06-15 — tdd 보조문서(tests·mocking·deep-modules·interface-design·refactoring) + SKILL 본문을
+  guidelines/tdd/로 이전, goal-iteration §"Phase 4: TDD Cycles"가 §참조하도록 연결. skills/tdd 제거
+  (레포 + 전역 ~/.claude·~/.codex). 루프 정본=goal-iteration, guidelines/tdd=노하우. 이제 build가 실제로 닿음.
+  (잔여: tdd Workflow 섹션과 goal-iteration Phase4의 루프 단계 중복은 doc-prose-dedup에서 다룰 수 있음.)
 related:
   - skills/tdd/SKILL.md
   - skills/build/SKILL.md

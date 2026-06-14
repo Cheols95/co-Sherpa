@@ -4,11 +4,11 @@
 #
 # The template ships FCG *assets* in-repo; the workflow *skills* run from
 # global installs and do NOT travel with a folder copy/clone. The repo
-# skills/ directory is the SINGLE SOURCE for all 13 workflow skills
+# skills/ directory is the SINGLE SOURCE for all 12 workflow skills
 # (inert backup -- Claude/Codex never load it directly), and this script
 # deploys it:
 #
-#   skills/<all 13>            -> ~/.claude/skills/   (Claude)
+#   skills/<all 12>            -> ~/.claude/skills/   (Claude)
 #   skills/<CODEX_SET, 4>      -> ~/.codex/skills/    (Codex / GPT)
 #
 # CODEX_SET = the implementation-phase skills Codex actually triggers:

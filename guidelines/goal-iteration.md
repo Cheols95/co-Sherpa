@@ -45,6 +45,9 @@ cat docs/state/next-task.md
 
 ### Phase 4: TDD Cycles (60–70%)
 
+> 이 Phase가 RED→GREEN→REFACTOR **루프 가동의 정본**이다. 좋은 테스트(구현 아닌 행위 검증)·깊은 모듈·
+> mocking·리팩토링 **노하우**는 `guidelines/tdd/`(구 tdd 스킬) 참조 — 거기는 "이 루프 안에서 어떻게 잘 쓰나".
+
 계획의 각 테스트마다:
 
 1. **RED**: 테스트 작성 → 실패 확인 → 커밋 `red(<id>): <test-name>`.

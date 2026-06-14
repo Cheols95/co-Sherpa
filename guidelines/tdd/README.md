@@ -1,9 +1,8 @@
----
-name: tdd
-description: Test-driven development with red-green-refactor loop. Use when user wants to build features or fix bugs using TDD, mentions "red-green-refactor", wants integration tests, or asks for test-first development.
----
+# guidelines/tdd/ — TDD 노하우 (build 루프가 참조하는 "좋은 테스트 작성법")
 
-# Test-Driven Development
+> 구 `skills/tdd` (2026-06-15 스킬 → guidelines 이전 — build/Codex가 실제로 읽도록). RED→GREEN→REFACTOR
+> **루프 가동 규약의 정본**은 `guidelines/goal-iteration.md` §"Phase 4: TDD Cycles"다. 여기는 그 루프 안에서
+> *좋은 테스트·깊은 모듈을 어떻게 쓰나*의 상세다 — build/goal 작업 중 goal-iteration이 이 폴더를 가리킨다.
 
 ## Philosophy
 
@@ -26,7 +25,7 @@ This produces **crap tests**:
 - Tests become insensitive to real changes - they pass when behavior breaks, fail when behavior is fine
 - You outrun your headlights, committing to test structure before understanding the implementation
 
-**Correct approach**: Vertical slices via tracer bullets. One test → one implementation → repeat. Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters and how to verify it.
+**Correct approach**: Vertical slices via tracer bullets. One test -> one implementation -> repeat. Each test responds to what you learned from the previous cycle. Because you just wrote the code, you know exactly what behavior matters and how to verify it.
 
 ```
 WRONG (horizontal):
@@ -34,13 +33,13 @@ WRONG (horizontal):
   GREEN: impl1, impl2, impl3, impl4, impl5
 
 RIGHT (vertical):
-  RED→GREEN: test1→impl1
-  RED→GREEN: test2→impl2
-  RED→GREEN: test3→impl3
+  RED->GREEN: test1->impl1
+  RED->GREEN: test2->impl2
+  RED->GREEN: test3->impl3
   ...
 ```
 
-## Workflow
+## Workflow (노하우 — 루프 단계의 정본은 `goal-iteration.md` §Phase 4)
 
 ### 1. Planning
 
@@ -64,8 +63,8 @@ Ask: "What should the public interface look like? Which behaviors are most impor
 Write ONE test that confirms ONE thing about the system:
 
 ```
-RED:   Write test for first behavior → test fails
-GREEN: Write minimal code to pass → test passes
+RED:   Write test for first behavior -> test fails
+GREEN: Write minimal code to pass -> test passes
 ```
 
 This is your tracer bullet - proves the path works end-to-end.
@@ -75,8 +74,8 @@ This is your tracer bullet - proves the path works end-to-end.
 For each remaining behavior:
 
 ```
-RED:   Write next test → fails
-GREEN: Minimal code to pass → passes
+RED:   Write next test -> fails
+GREEN: Minimal code to pass -> passes
 ```
 
 Rules:
