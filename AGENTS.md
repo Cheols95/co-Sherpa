@@ -81,11 +81,12 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
   (persistence/interface/consistency), **CONTRACT** (status·enum *sets*/uniqueness/output keys).
   Every slot must end **grounded** (the user said it, or it follows from what they said),
   **asked-and-answered**, **deferred-tunable** (a default inside a settled mechanism, marked
-  tunable), or **N/A — covered** (a load-bearing lens deliberately excluded, with the covering
-  argument named — e.g. "concurrency: N/A — single user"). Every (entity × lens) ends in one of
-  these four — the *total form* the checklist records (`docs/grill/README.md`). Enumerate
-  exhaustively, ask minimally — never ask what is derivable. Grilling ends when no `assumed` slot
-  survives — not when it "feels like enough".
+  tunable), **experiment-pending** (a load-bearing choice a prototype will settle — parked, not
+  guessed), or **N/A — covered** (a load-bearing lens deliberately excluded, with the covering
+  argument named — e.g. "concurrency: N/A — single user"). These are the *semantic* exit states;
+  their checklist **notation** (`[x]` / `[~]` / `[>]` / `[-]`) is owned by `docs/grill/README.md`
+  (the single source for the symbols). Enumerate exhaustively, ask minimally — never ask what is
+  derivable. Grilling ends when no **un-grounded** slot survives — not when it "feels like enough".
 - **Filter candidate questions through a grounds-gate.** A question — or a new checklist item — may
   reach the user only when it can state three things: its **site** (which entity/slot), **why** the
   material at hand doesn't already settle it, and the **consequence** of guessing wrong. **The *why*
@@ -162,3 +163,7 @@ The rules that make a multi-origin system read like one. Check new/edited files 
 - **Frozen terms.** Reuse the established term, don't coin synonyms (`graph-lint`, not a
   transliteration; the risk enum is exactly `RISKY | MECHANICAL | NONE`). Cite an AGENTS heading as
   `§Name` (e.g. `§Spec authority`, `§Phase 1`).
+- **Overloaded terms — qualify when ambiguous.** "gate" = the machine `.gates.sh` goal check or the
+  `graph-lint` hard gate (both machine-checked); the *pre-freeze intent review* is an **audit**, not
+  a gate. "contract" = the `docs/spec/` interface (spec 계약) vs the goal triplet (goal 실행계약) vs
+  issue frontmatter (machine-readable dependency contract) — qualify which when context doesn't disambiguate.

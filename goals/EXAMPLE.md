@@ -215,7 +215,10 @@ gate fail 여부 — 구현 형태가 아니라 진행 상태에 대한 명제).
 2. Mission의 universal claim ↔ gate enumeration이 짝을 이루는가.
 3. gate에 엔티티/규칙 이름 하드코딩 없음 — source of truth 순회인가.
 4. `_gate-cache.sh` source + `GATE_INPUTS` + rigor self-check 포함, `chmod +x`.
-5. 횡단 검사(lint/typecheck/test/build)는 이 goal이 아니라 `_meta` 소관.
+5. 횡단 검사(lint/typecheck/test/build)는 이 goal이 아니라 `_meta` 소관 —
+   **첫 변환이면 `goals/_meta.gates.sh`의 `META_CHECKS`/`GATE_INPUTS`를 스택에 맞게 채우고
+   `bash goals/_meta.gates.sh`로 1회 실행 검증**(build 스킬 모드 B 절차). 안 채우면 _meta가
+   vacuous-pass = 회귀 안전망 부재 → `diagnose.sh`가 경고.
 6. Forbidden actions에 scope 경계 명시.
 7. gate/`_meta`가 테스트 러너를 호출하면 디렉토리가 아니라 파일/글롭 인자 —
    디렉토리 발견 의미는 런타임 버전마다 달라 wiring-red 유발(`docs/goal-design.md` §1.5).

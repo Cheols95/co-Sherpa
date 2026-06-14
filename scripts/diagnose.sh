@@ -88,6 +88,36 @@ if [ -d goals ]; then
 fi
 echo ""
 
+echo "=== Cross-cutting checks (_meta) ==="
+# Advisory only -- never gates. The _meta gate passes "vacuously" when
+# META_CHECKS is empty (lint/typecheck/test/build not wired). Fine during
+# bootstrap (only 0-example present); but once a real numbered goal exists,
+# an empty _meta lets regressions land silently -- the safety net the user
+# wants. Surface it every iteration until filled. ASCII-only output.
+meta_file="goals/_meta.gates.sh"
+if [ -f "$meta_file" ]; then
+  real_goal=$(find goals -maxdepth 1 -type f -name '[0-9]*.md' ! -name '0-example.md' 2>/dev/null | head -1)
+  meta_has_checks=$(awk '
+    /^META_CHECKS=\(/{inb=1; next}
+    inb && /^[[:space:]]*\)/{inb=0}
+    inb && /^[[:space:]]*"/{f=1}
+    END{print (f?"yes":"no")}
+  ' "$meta_file")
+  [ -f scripts/smoke.sh ] && meta_has_checks=yes
+  if [ "$meta_has_checks" = "yes" ]; then
+    echo "  _meta: configured"
+  elif [ -n "$real_goal" ]; then
+    echo "  ** _meta has NO checks but real goals exist -- regressions can land silently **"
+    echo "     -> fill META_CHECKS / GATE_INPUTS in goals/_meta.gates.sh"
+    echo "        (detect stack -> wire lint/type/test/build -> run once). See build skill mode B."
+  else
+    echo "  _meta: empty (ok during bootstrap -- fill at first real goal)"
+  fi
+else
+  echo "  (no goals/_meta.gates.sh)"
+fi
+echo ""
+
 echo "=== Open Findings (docs/findings/) ==="
 if [ -d docs/findings ]; then
   OPEN=0

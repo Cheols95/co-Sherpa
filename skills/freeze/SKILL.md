@@ -6,7 +6,7 @@ description: "닫힌 기능을 한 번의 호출로 계약·PRD·이슈·graph-l
 # freeze — sealed 동결 번들 (Phase 1 → 계약)
 
 `grill`이 **"기능 X 닫힘 — /freeze ready"**를 선언한 기능을, 한 번의 호출로
-**의도감사 → PRD → 계약 스펙 → 이슈 → 그래프린트**까지 봉인한다.
+**의도감사 → PRD → 계약 스펙 → 이슈 → graph-lint**까지 봉인한다.
 **이 호출 자체가 유일한 인간 승인점이다** — 호출 = "이 동결을 승인한다"(다른 중간 승인점 없음).
 
 > 규칙 권위는 `AGENTS.md` §Phase 1 / §Gate validity, 체크리스트 규약은 `docs/grill/README.md`.

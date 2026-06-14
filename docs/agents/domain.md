@@ -1,13 +1,11 @@
 # Domain docs layout (for engineering skills)
 
-> Single source of truth: **`AGENTS.md` → "Agent-skills configuration" → "Domain docs"**
-> (auto-loaded each session — that's what grill / improve-codebase-architecture / tdd
-> actually use). This file is a pointer + ready path-slot for skills that look it up by path
-> (e.g. zoom-out / diagnose) when installed.
-
-- **Single-context repo** (not a monorepo CONTEXT-MAP layout).
-- **Domain glossary / model:** one `CONTEXT.md` at repo root.
-  (Created lazily by `/grill` in Phase 1 — may not exist yet on a fresh template.)
-- **Decisions:** `docs/adr/` (one ADR per decision).
-
-Skills must use `CONTEXT.md` vocabulary for the domain and not re-litigate `docs/adr/` decisions.
+> **Single source of truth: `AGENTS.md` → "Agent-skills configuration" → "Domain docs"**
+> (auto-loaded each session — what grill / improve-codebase-architecture actually use).
+>
+> This file is an intentionally-thin **path-slot**: deferred skills (zoom-out / diagnose) may look
+> domain config up by this path when installed. Do NOT restate AGENTS.md here — a second copy only
+> drifts (doc-hygiene rule, `AGENTS.md` §"문서 위생"). Read AGENTS.md.
+>
+> (Key facts it records, for the path-slot reader: domain glossary = one `CONTEXT.md` at repo root,
+> lazily created by `/grill`; decisions = `docs/adr/`.)

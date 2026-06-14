@@ -1,39 +1,51 @@
 ---
 name: prototype
-description: Build a throwaway prototype to flesh out a design before committing to it. Routes between two branches — a runnable terminal app for state/business-logic questions, or several radically different UI variations toggleable from one route. Use when the user wants to prototype, sanity-check a data model or state machine, mock up a UI, explore design options, or says "prototype this", "let me play with it", "try a few designs".
+description: "커밋 전에 설계를 다듬으려고 버리는(throwaway) 프로토타입을 만든다. 두 갈래로 분기 — 상태/비즈니스 로직 질문엔 실행 가능한 터미널 앱, UI 질문엔 한 라우트에서 토글하는 여러 급진적 UI 변형. 프로토타입을 만들거나, 데이터 모델·상태머신을 점검하거나, UI를 목업하거나, 설계 옵션을 탐색할 때, '프로토타입 만들어줘'·'한번 만져보자'·'몇 가지 디자인 시도' 요청 시 활성화."
 ---
 
-# Prototype
+# prototype — 버리는 프로토타입
 
-A prototype is **throwaway code that answers a question**. The question decides the shape.
+프로토타입은 **질문에 답하는 버리는 코드**다. 질문이 형태를 정한다.
 
-## Anchor the question to a checklist slot
+## 질문을 체크리스트 슬롯에 고정한다
 
-When grilling drives the plan, a prototype exists to settle a specific `[>]` slot in
-`docs/grill/checklist.md` (the "experiment-pending settlement" state). Before building, name which slot
-it closes — the prototype's question **is** that slot. **No slot, no prototype:** an experiment with no
-named decision to settle is the "until it feels right" loop the checklist exists to bound. When the
-prototype answers, record the ground on that slot and flip `[>]` → `[x]` (or `[~]` / `[-]`). If the work
-isn't grilling-driven, the question still anchors it — just without the checklist line.
+grilling이 계획을 끌 때, 프로토타입은 `docs/grill/checklist.md`의 특정 `[>]` 슬롯("실험 정산 대기" 상태)을
+닫기 위해 존재한다. 만들기 전에 **어느 슬롯을 닫는지** 명명하라 — 프로토타입의 질문이 곧 그 슬롯이다.
+**슬롯 없으면 프로토타입 없다**: 닫을 결정이 명명되지 않은 실험은 체크리스트가 막으려는 "느낌이 올 때까지"
+루프 그 자체다. 프로토타입이 답하면 그 슬롯에 근거를 기록하고 `[>]` → `[x]`(또는 `[~]`/`[-]`)로 넘긴다.
+grilling 주도 작업이 아니어도 질문이 여전히 작업을 고정한다 — 체크리스트 줄만 없을 뿐.
 
-## Pick a branch
+## 갈래를 고른다
 
-Identify which question is being answered — from the user's prompt, the surrounding code, or by asking if the user is around:
+어떤 질문에 답하는지 식별한다 — 사용자 프롬프트, 주변 코드에서, 또는 사용자가 있으면 물어서:
 
-- **"Does this logic / state model feel right?"** → [LOGIC.md](LOGIC.md). Build a tiny interactive terminal app that pushes the state machine through cases that are hard to reason about on paper.
-- **"What should this look like?"** → [UI.md](UI.md). Generate several radically different UI variations on a single route, switchable via a URL search param and a floating bottom bar.
+- **"이 로직/상태 모델이 맞나?"** → [LOGIC.md](LOGIC.md). 종이로 추론하기 어려운 케이스들을 상태머신에
+  통과시키는 작은 대화형 터미널 앱을 만든다.
+- **"이건 어떻게 생겨야 하나?"** → [UI.md](UI.md). 한 라우트에서 URL 검색 파라미터와 떠 있는 하단 바로
+  전환하는, 급진적으로 다른 여러 UI 변형을 생성한다.
 
-The two branches produce very different artifacts — getting this wrong wastes the whole prototype. If the question is genuinely ambiguous and the user isn't reachable, default to whichever branch better matches the surrounding code (a backend module → logic; a page or component → UI) and state the assumption at the top of the prototype.
+두 갈래는 매우 다른 산출물을 낸다 — 잘못 고르면 프로토타입 전체가 낭비다. 질문이 정말 모호하고 사용자가
+닿지 않으면, 주변 코드에 더 맞는 갈래로 기본 선택하고(백엔드 모듈 → 로직; 페이지/컴포넌트 → UI)
+프로토타입 상단에 그 가정을 적는다.
 
-## Rules that apply to both
+## 두 갈래 공통 규칙
 
-1. **Throwaway from day one, and clearly marked as such.** Locate the prototype code close to where it will actually be used (next to the module or page it's prototyping for) so context is obvious — but name it so a casual reader can see it's a prototype, not production. For throwaway UI routes, obey whatever routing convention the project already uses; don't invent a new top-level structure.
-2. **One command to run.** Whatever the project's existing task runner supports — `pnpm <name>`, `python <path>`, `bun <path>`, etc. The user must be able to start it without thinking.
-3. **No persistence by default.** State lives in memory. Persistence is the thing the prototype is _checking_, not something it should depend on. If the question explicitly involves a database, hit a scratch DB or a local file with a clear "PROTOTYPE — wipe me" name.
-4. **Skip the polish.** No tests, no error handling beyond what makes the prototype _runnable_, no abstractions. The point is to learn something fast and then delete it.
-5. **Surface the state.** After every action (logic) or on every variant switch (UI), print or render the full relevant state so the user can see what changed.
-6. **Delete or absorb when done.** When the prototype has answered its question, either delete it or fold the validated decision into the real code — don't leave it rotting in the repo.
+1. **첫날부터 버리는 것, 그리고 그렇게 명확히 표시.** 프로토타입 코드는 실제로 쓰일 곳 가까이(프로토타이핑
+   대상 모듈·페이지 옆)에 둬 맥락이 드러나게 하되 — 무심한 독자도 프로덕션이 아니라 프로토타입임을 알게
+   이름 짓는다. 버리는 UI 라우트는 프로젝트가 이미 쓰는 라우팅 관례를 따르고, 새 최상위 구조를 발명하지 마라.
+2. **한 명령으로 실행.** 프로젝트의 기존 태스크 러너가 지원하는 무엇이든 — `pnpm <name>`·`python <path>`·
+   `bun <path>` 등. 사용자가 생각 없이 시작할 수 있어야 한다.
+3. **기본은 영속성 없음.** 상태는 메모리에 산다. 영속성은 프로토타입이 *검사하는* 대상이지 의존할 게 아니다.
+   질문이 명시적으로 DB를 포함하면 스크래치 DB나 "PROTOTYPE — wipe me" 같은 또렷한 이름의 로컬 파일을 쓴다.
+4. **광택은 생략.** 테스트 없음, 프로토타입을 *실행 가능*하게 하는 것 이상의 에러 처리 없음, 추상화 없음.
+   요점은 빠르게 뭔가 배우고 지우는 것.
+5. **상태를 드러낸다.** 매 액션 후(로직) 또는 매 변형 전환 시(UI) 관련 상태 전부를 출력/렌더해 사용자가
+   무엇이 바뀌었는지 보게 한다.
+6. **끝나면 지우거나 흡수.** 프로토타입이 질문에 답했으면, 지우거나 검증된 결정을 실제 코드로 접어 넣는다 —
+   레포에 썩게 두지 마라.
 
-## When done
+## 끝났을 때
 
-The _answer_ is the only thing worth keeping from a prototype. Capture it somewhere durable (commit message, ADR, issue, or a `NOTES.md` next to the prototype) along with the question it was answering. If the user is around, that capture is a quick conversation; if not, leave the placeholder so they (or you, on the next pass) can fill in the verdict before deleting the prototype.
+프로토타입에서 간직할 가치가 있는 것은 **답**뿐이다. 답을, 그것이 답한 질문과 함께 영속적인 곳(커밋 메시지,
+ADR, 이슈, 프로토타입 옆 `NOTES.md`)에 기록하라. 사용자가 있으면 그 기록은 짧은 대화로; 없으면 자리표시자를
+남겨 그들이(또는 다음 패스의 당신이) 프로토타입을 지우기 전에 평결을 채우게 한다.

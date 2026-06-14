@@ -61,7 +61,16 @@ goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아
 - **risk 운반**: 이슈 frontmatter `risk: RISKY|MECHANICAL|NONE`을 goal `.md` frontmatter로 그대로 옮긴다.
   이슈에 없으면 변환 시 휴리스틱으로 판정(프로젝트 `AGENTS.md` §Agent-skills configuration) — **미지정은
   MECHANICAL이 아니라 미판정**이며, 행위 표면이 보이면 강한 검증 쪽으로 기운다.
-- 횡단 불변식(lint/typecheck/test/build)은 `_meta` 세트로.
+- **횡단 불변식 = `_meta` 세트 — 첫 변환에서 이빨을 켠다 (자동, 사용자 개입 불필요).**
+  `goals/_meta.gates.sh`의 `META_CHECKS`는 비어 출하되어 "vacuously pass"(아무것도 검증 안 함)다.
+  첫 모드 B 변환에서 — `0-example` 삭제와 같은 시점에 — **반드시**:
+  (1) 스택 감지(`package.json`·`pyproject.toml`·`Cargo.toml`·`go.mod`·`*.csproj` 등 설정 파일),
+  (2) 그 스택의 lint·typecheck·test·build 실제 명령을 `META_CHECKS`에 `"label::command"`로 채운다
+  (`_meta.gates.sh` 상단 주석의 스택별 예시 참조 — 해당 없는 축은 생략),
+  (3) `GATE_INPUTS`를 소스·테스트·설정으로 확장한다(자기참조 3줄 유지 — 코드 변경 시 캐시 무효화),
+  (4) 서비스가 뜨면 `scripts/smoke.sh`(부팅→헬스체크→2xx→teardown)를 만든다(=`_meta`에 런타임 스모크 자동 배선),
+  (5) `bash goals/_meta.gates.sh`를 1회 실행해 명령이 실제로 돌고 통과하는지 확인한다(wiring 오류 조기 발견).
+  안 채우면 회귀 안전망이 빈 총인 채 남는다 — `diagnose.sh`가 매 진단에서 경고한다.
 - 각 gate는 `scripts/_gate-cache.sh`를 source하고 `GATE_INPUTS`를 선언하며, 끝에 `check-gate-rigor.sh`로 자기 `.md` 정합성을 검사.
 - **게이트 ≠ convention police**: 테스트·타입체커·커버리지가 더 정확히 잡는 것은 게이트에 하드코딩하지 않는다. "이 불변식이 깨지면 어떤 테스트가 red가 되나?" → 된다면 그 테스트가 소유, 게이트에서 제거.
 - **red-first 위생검사 (변환 직후 1회)**: 3파일을 다 만든 직후, 구현 전 코드에서
