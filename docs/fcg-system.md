@@ -38,5 +38,5 @@
 | 작업 | 전역 스킬 | 구동 |
 |---|---|---|
 | 목표 생성·게이트 루프·사이클 실행 | `/build` | `bash scripts/{diagnose,active-check,completion-check}.sh` |
-| finding 기록·정리 | `/fcg-findings` | `docs/findings/` 문서 작성 |
-| cycle 문서 작성 | `/fcg-cycles` | `prompts/cycle-generate.md` + `docs/findings/` 취합 |
+| finding 기록·정리 | `/finding` | `docs/findings/` 문서 작성 |
+| cycle 문서 작성 | `/cycle` | `prompts/cycle-generate.md` + `docs/findings/` 취합 |

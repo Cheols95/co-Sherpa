@@ -96,7 +96,7 @@ declared.
   dispatch one subagent that did **not** author the code. Give it the goal `.md` mission +
   the **raw diff** of this goal's labeled commits (`git log --oneline --grep='(<id>)'` —
   the `red/green/refactor/chore(<id>)` set) — never the implementer's summary (anchoring).
-  Findings go to `docs/findings/` (fcg-findings 규약, file:line evidence) — they do **NOT**
+  Findings go to `docs/findings/` (finding 규약, file:line evidence) — they do **NOT**
   block the gate verdict: gates stay the only "done" authority; the review is semantic
   insurance for what gates can't see (proxy-gap, out-of-surface edits, weakened tests).
   No subagent tooling (e.g. a Codex solo loop) → queue the review request itself as a

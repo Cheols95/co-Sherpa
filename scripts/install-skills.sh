@@ -12,7 +12,7 @@
 #   skills/<CODEX_SET, 4>      -> ~/.codex/skills/    (Codex / GPT)
 #
 # CODEX_SET = the implementation-phase skills Codex actually triggers:
-# build, fcg-findings, fcg-cycles, handoff. Phase-1 planning skills
+# build, finding, cycle, handoff. Phase-1 planning skills
 # stay Claude-only (listing them in Codex would only cost context).
 #
 # NOTE: several skills carry template-specific fixes (dryforge transplants,
@@ -38,7 +38,7 @@ CODEX_DST="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 FORCE=0
 [ "${1:-}" = "--force" ] && FORCE=1
 
-CODEX_SET="build fcg-findings fcg-cycles handoff"
+CODEX_SET="build finding cycle handoff"
 
 if [ ! -d "$SRC" ]; then
   echo "[FAIL] no source dir: $SRC"

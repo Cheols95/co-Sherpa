@@ -1,9 +1,9 @@
 ---
-name: fcg-cycles
-description: "FCG 사이클 드라이버 작성기. docs/findings/의 미해결 finding들을 우선순위·의존성으로 묶어 cycles/<YYMMDD>-<NN>-<slug>.md 한 세션 loop-driver 프롬프트로 정리한다. 'cycle 만들어줘', 'fcg-cycles', '쌓인 findings 묶어줘', '야간 작업서 만들어줘' 요청 시 활성화. 생성한 cycle 문서는 /build cycles/<파일>.md 로 실행한다."
+name: cycle
+description: "FCG 사이클 드라이버 작성기. docs/findings/의 미해결 finding들을 우선순위·의존성으로 묶어 cycles/<YYMMDD>-<NN>-<slug>.md 한 세션 loop-driver 프롬프트로 정리한다. 'cycle 만들어줘', 'cycle', '쌓인 findings 묶어줘', '야간 작업서 만들어줘' 요청 시 활성화. 생성한 cycle 문서는 /build cycles/<파일>.md 로 실행한다."
 ---
 
-# fcg-cycles — 사이클 드라이버 작성기
+# cycle — 사이클 드라이버 작성기
 
 `cycles/`는 **loop-driver 프롬프트** 모음이다 — 무한 루프 모드의 코딩 에이전트에게 통째로 넘기는 한 세션 작업서. 이 스킬은 `docs/findings/`의 미해결 항목을 골라 **하나의 cycle 문서**로 묶는다. cycle은 goal이 아니다(gate 없음, `completion-check.sh`가 스캔 안 함) — 실행은 `/build cycles/<파일>.md`로 한다.
 

@@ -530,7 +530,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">3</span><span class="s-cmd">"범위 밖이니 finding으로 적어둬"</span><span class="s-out">fcg-findings — 부채 큐잉</span><span class="chev">▶</span></summary>
+            <summary><span class="num">3</span><span class="s-cmd">"범위 밖이니 finding으로 적어둬"</span><span class="s-out">finding — 부채 큐잉</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">두 경로</span> <b>자동</b>: 루프 중 에이전트가 범위 밖 버그·부채를 발견하면 고치지 않고 스스로 큐잉(scope creep 방지의 핵심). <b>수동</b>: 사용자가 대화 중 "이건 나중에"라고 지시. 리뷰 대화에서 나온 통찰도 1급 출처입니다.</div>
               <div class="row"><span class="lab">전제 조건</span> goal의 미션·금지사항이 또렷해야 작동합니다 — 경계가 모호하면 에이전트가 곁가지를 그냥 고쳐버려 기록이 남지 않습니다.</div>
@@ -538,7 +538,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">4</span><span class="s-cmd">"쌓인 findings 묶어서 cycle 만들어줘"</span><span class="s-out">fcg-cycles — 작업지시서 작성</span><span class="chev">▶</span></summary>
+            <summary><span class="num">4</span><span class="s-cmd">"쌓인 findings 묶어서 cycle 만들어줘"</span><span class="s-out">cycle — 작업지시서 작성</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> 미해결 findings를 우선순위·의존성으로 묶어 <code>cycles/&lt;날짜&gt;-&lt;번호&gt;-&lt;이름&gt;.md</code> 한 세션짜리 구동 문서로 만듭니다.</div>
               <div class="row easy">📦 <b>쉬운 풀이</b> — 벽에 붙은 메모지들을 모아 "오늘 밤 작업지시서" 한 장으로 정리하는 일. 다음 단계에서 이 지시서를 통째로 맡깁니다.</div>
@@ -782,24 +782,24 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 
       <details class="skill" data-cat="p2">
         <summary>
-          <div class="sk-top"><span class="sk-name">fcg-findings</span><span class="pill pill-dark">Phase 2</span></div>
+          <div class="sk-top"><span class="sk-name">finding</span><span class="pill pill-dark">Phase 2</span></div>
           <div class="sk-one">범위 밖 발견을 docs/findings/에 큐잉 — scope creep 방지 장치</div>
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span> 발견을 frontmatter(<code>resolved:</code>, 우선순위 P0~P2, 관련 문서) 달린 한 파일로 기록합니다. 자동 경로(루프 중 에이전트가 스스로)와 수동 경로(사용자 지시) 둘 다 지원하고, 리뷰 대화에서 나온 통찰도 1급 출처입니다. "지금 고치지 말고 기록"이 철칙 — 이 규율 덕에 루프가 옆길로 새지 않고, 발견은 유실되지 않습니다.</div>
-          <div class="row"><span class="lab">호출</span> Claude: <code>/fcg-findings</code> · Codex: "이건 범위 밖이니 finding으로 적어둬"</div>
-          <div class="row easy">🗒️ 작업 중 발견한 다른 하자를 메모지로 벽에 붙여두는 시스템. 메모지가 쌓이면 fcg-cycles가 작업지시서로 묶습니다.</div>
+          <div class="row"><span class="lab">호출</span> Claude: <code>/finding</code> · Codex: "이건 범위 밖이니 finding으로 적어둬"</div>
+          <div class="row easy">🗒️ 작업 중 발견한 다른 하자를 메모지로 벽에 붙여두는 시스템. 메모지가 쌓이면 cycle이 작업지시서로 묶습니다.</div>
         </div>
       </details>
 
       <details class="skill" data-cat="p2">
         <summary>
-          <div class="sk-top"><span class="sk-name">fcg-cycles</span><span class="pill pill-dark">Phase 2</span></div>
+          <div class="sk-top"><span class="sk-name">cycle</span><span class="pill pill-dark">Phase 2</span></div>
           <div class="sk-one">미해결 findings를 한 세션짜리 루프 구동 문서로 묶는 작성기</div>
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span> 열린 findings를 우선순위·의존성으로 정렬해 <code>cycles/&lt;YYMMDD&gt;-&lt;NN&gt;-&lt;slug&gt;.md</code>로 묶습니다. cycle 문서는 goal이 아닙니다 — 게이트 없는 "프롬프트"이며, 실행 규율(처리 순서·품질점검 주기·종료 조건)을 본문에 담습니다. 생성된 문서는 build 모드 C로 실행합니다.</div>
-          <div class="row"><span class="lab">호출</span> Claude: <code>/fcg-cycles</code> · Codex: "쌓인 findings 묶어서 cycle 만들어줘", "야간 작업서 만들어줘"</div>
+          <div class="row"><span class="lab">호출</span> Claude: <code>/cycle</code> · Codex: "쌓인 findings 묶어서 cycle 만들어줘", "야간 작업서 만들어줘"</div>
           <div class="row easy">📦 흩어진 메모지들을 "오늘 밤 작업지시서" 한 장으로 정리하는 공정 관리자. 지시서가 좋을수록 무인 야간 작업의 품질이 올라갑니다.</div>
         </div>
       </details>
@@ -860,7 +860,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <p class="sec-sub">위 스킬들은 폴더 복사로 따라오지 않습니다 — 전역 설치본이 실행되고, 레포 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">skills/</code>는 정본 백업입니다.</p>
       <div class="grid-3 mt-40">
         <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 13종</div><h3 style="font-size:18px;margin-top:6px">Claude 전체 세트</h3><p>Phase 1 기획 7종(freeze 포함) + 구현 3종 + 보조·정비 3종. 슬래시 명령으로 호출.</p></div>
-        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 4종</div><h3 style="font-size:18px;margin-top:6px">Codex 구현 세트</h3><p>build · fcg-findings · fcg-cycles · handoff만. 기획 스킬까지 깔면 컨텍스트 비용만 늘어 제외. 자연어로 호출.</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 4종</div><h3 style="font-size:18px;margin-top:6px">Codex 구현 세트</h3><p>build · finding · cycle · handoff만. 기획 스킬까지 깔면 컨텍스트 비용만 늘어 제외. 자연어로 호출.</p></div>
         <div class="dark-card"><div class="mono-tag">.claude/skills/ — 프로젝트</div><h3 style="font-size:18px;margin-top:6px">프로젝트 전용 슬롯</h3><p>현재 roadmap 1종. 패턴이 반복 증명될 때만 추가(컨텍스트 비용 절제).</p></div>
       </div>
       <p class="mt-30" style="font-size:14.5px">설치·재배포 명령은 <a href="#update" onclick="showTab('update');return false" style="color:var(--amber)">③ 업데이트 탭</a>에 있습니다.</p>
@@ -1044,7 +1044,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <h4>스킬 출처 (크레딧)</h4>
         <ul>
           <li>Matt Pocock — <a href="https://github.com/mattpocock/skills">mattpocock/skills</a><br><span style="font-size:12px">grill·to-prd·to-issues·prototype·tdd·improve-arch·handoff</span></li>
-          <li>greatSumini — <a href="https://github.com/greatSumini/cc-system">cc-system</a><br><span style="font-size:12px">build·fcg-findings·fcg-cycles</span></li>
+          <li>greatSumini — <a href="https://github.com/greatSumini/cc-system">cc-system</a><br><span style="font-size:12px">build·finding·cycle</span></li>
           <li>템플릿 bespoke — freeze·to-spec·spec-sync·roadmap<br><span style="font-size:12px">레포 사본에 템플릿 전용 수정 포함 — 원 출처 재설치 금지</span></li>
         </ul>
       </div>

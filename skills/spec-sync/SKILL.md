@@ -41,7 +41,7 @@ description: "docs/spec/가 이미 있을 때 계약 문서 ↔ 코드 ↔ 최�
 - **모호하면 멈추고 묻는다.** 코드를 스펙에 맞춰 굳히거나 그 반대를 하기 전에, 어느 쪽이 의도인지 불분명하면 사용자 확인.
 
 ## finding 큐잉 형식
-코드 수정이 필요한 발견은 `docs/findings/`에 적는다 — 형식·frontmatter는 `fcg-findings` 스킬 규약을 따른다. TL;DR에 "계약 `<문서>`와 코드 `<file:line>`가 어긋남, 코드 쪽 수정 필요"를 명시한다.
+코드 수정이 필요한 발견은 `docs/findings/`에 적는다 — 형식·frontmatter는 `finding` 스킬 규약을 따른다. TL;DR에 "계약 `<문서>`와 코드 `<file:line>`가 어긋남, 코드 쪽 수정 필요"를 명시한다.
 
 ## `docs/spec/INDEX.md` 형식
 현재 유효한 계약 문서의 목록 — 구현 에이전트가 진실원천으로 최우선하는 인덱스. **형식·표기는

@@ -1,9 +1,9 @@
 ---
-name: fcg-findings
-description: "FCG 부채/통찰 큐. 현재 goal 범위 밖에서 발견된 기술부채·버그·추가요구·리뷰 통찰을 잃지 않도록 docs/findings/에 문서로 기록·갱신·정리한다. 'finding 기록해줘', 'fcg-findings', '나중에 할 일 적어둬', '부채 큐 정리', '이건 범위 밖이니 적어두자' 요청 시 활성화. 리뷰 대화에서 나온 통찰도 finding의 1급 출처다."
+name: finding
+description: "FCG 부채/통찰 큐. 현재 goal 범위 밖에서 발견된 기술부채·버그·추가요구·리뷰 통찰을 잃지 않도록 docs/findings/에 문서로 기록·갱신·정리한다. 'finding 기록해줘', 'finding', '나중에 할 일 적어둬', '부채 큐 정리', '이건 범위 밖이니 적어두자' 요청 시 활성화. 리뷰 대화에서 나온 통찰도 finding의 1급 출처다."
 ---
 
-# fcg-findings — 부채/통찰 큐
+# finding — 부채/통찰 큐
 
 `docs/findings/`는 **out-of-scope 발견을 잃지 않는 큐**다. goal iteration 중 곁가지로 발견한 부채, 또는 리뷰 대화에서 나온 통찰을 여기에 적는다. finding은 goal이 아니다 — gate 없음, `completion-check.sh`를 막지 않음, 누구나 자유롭게 편집 가능.
 
