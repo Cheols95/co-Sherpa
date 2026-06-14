@@ -145,3 +145,20 @@ condition is the *right* one). Three guards keep validity honest:
 `.claude/skills/` = skills only this project needs (global skills live in `~/.claude`, `~/.codex`).
 Add one only when a pattern has proven to repeat — don't auto-generate agent/skill rosters
 (context bloat hurts performance). Encode tailoring above and in `goals/<n>-*.gates.sh` instead.
+
+## Doc & skill hygiene (when adding or editing a skill / doc)
+
+The rules that make a multi-origin system read like one. Check new/edited files against them:
+
+- **One canonical home per rule; cite, don't restate.** A rule lives in exactly one file; others link
+  it ("see X") with at most a one-line gist — a second full copy is drift waiting to happen. (Model:
+  `spec-sync` cites `§Spec authority` instead of pasting it.)
+- **Density.** Every sentence must change what an agent does — if removing it breaks nothing, cut it.
+  No decoration, no restating the obvious.
+- **Stack-agnostic.** No concrete stack / framework / library / tool name in a skill or harness doc;
+  the real stack is discovered at runtime. (Names inside `*EXAMPLE*` files are marked illustrative.)
+- **Self-describing files.** A reference/doc opens with `# <filename> — <one-line role>`; a skill's
+  `description:` ends with its trigger phrases.
+- **Frozen terms.** Reuse the established term, don't coin synonyms (`graph-lint`, not a
+  transliteration; the risk enum is exactly `RISKY | MECHANICAL | NONE`). Cite an AGENTS heading as
+  `§Name` (e.g. `§Spec authority`, `§Phase 1`).

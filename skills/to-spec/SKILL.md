@@ -8,11 +8,11 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 `grill`(ADR) → `to-prd`(PRD)로 **결정이 또렷해진 시점**에,
 그 결정을 구현이 따라야 할 **계약문서**로 굳혀 `docs/spec/`에 처음 생성한다.
 (이 계약을 먼저 고정한 뒤 `to-issues`가 그 위에서 작업 슬라이스를 자른다.)
-`AGENTS.md`의 "Spec authority" 규약상 `docs/spec/INDEX.md`가 가리키는 문서가 **PRD·ADR보다 우선하는
+`AGENTS.md`의 §Spec authority에 따라 `docs/spec/INDEX.md`가 가리키는 문서가 **PRD·ADR보다 우선하는
 단일 진실원천**이므로, 이 산출물은 `/build` 변환·`/handoff` 전에 존재해야 한다.
 
 > 이 스킬은 **생성(0→1)**, `spec-sync`는 **유지(코드·ADR 드리프트 정합)**. 역할이 다르다.
-> 권위·읽기순서 규칙은 `AGENTS.md` "Spec authority"를 따른다(여기 복붙하지 않음).
+> 권위·읽기순서 규칙은 `AGENTS.md` §Spec authority를 따른다(여기 복붙하지 않음).
 
 ## 언제 도나
 - **계약 고정 단계.** `to-prd` 직후(설계 결정 아래 7항목이 굳었을 때), **`to-issues` 전**에 사용자가 수동 실행 — 계약을 먼저 고정해야 issues가 그 인터페이스 위에서 슬라이스된다.
