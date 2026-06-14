@@ -9,7 +9,7 @@
 ```yaml
 ---
 depends: [001, 003]   # 차단 이슈 id 인라인 리스트. 없으면 []. 산문 "## Blocked by"와 일치시키되, 어긋나면 frontmatter가 우선
-risk: MECHANICAL      # RISKY | MECHANICAL | NONE — RISKY 판정 휴리스틱은 AGENTS.md 참조. 비우면 "미판정"(MECHANICAL 아님)
+risk: MECHANICAL      # RISKY | MECHANICAL | NONE — RISKY 판정 휴리스틱은 `goals/AGENTS.md` §Risk tier. 비우면 "미판정"(MECHANICAL 아님)
 ---
 ```
 

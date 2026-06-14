@@ -9,8 +9,8 @@ description: "결정표면(decision surface)을 4렌즈로 체크리스트(docs/
 `docs/grill/checklist.md`에 정산하고, 각 슬롯을 사용자와 함께 닫은 뒤, 남은 게 없으면
 **"기능 X 닫힘 — /freeze ready"**를 선언한다.
 
-규칙의 권위는 `AGENTS.md` §Phase 1(4렌즈·grounds-gate·exit bar·2방향 감사), 체크리스트 형식·닫힘
-상태·입장 규칙은 `docs/grill/README.md`에 있다. 이 스킬은 그것을 *운영*하는 법이다 — 규칙을 사용자에게
+규칙의 권위는 `docs/grill/AGENTS.md`(4렌즈·grounds-gate·exit bar·2방향 감사) — **grilling 시작 전 반드시
+읽는다**. 체크리스트 형식·닫힘 상태·입장 규칙은 `docs/grill/README.md`에 있다. 이 스킬은 그것을 *운영*하는 법이다 — 규칙을 사용자에게
 낭독하지 말고 시퀀스를 끌고 가라.
 
 루프:
@@ -34,7 +34,7 @@ description: "결정표면(decision surface)을 4렌즈로 체크리스트(docs/
   이름 붙이지 않은 것은 훑지 못한다.
 - **입장 = grounds-gate.** 슬롯은 site·**왜 기존 자료로 정산 안 되는지(능동 논증)**·오추측 consequence
   3요소를 못 대면 소음이니 버린다 — ground②가 종료 엔진. 전수 형식·빈칸 금지(빈칸은 "닫힘"이 아니며
-  /freeze residual-enumeration 감사 대상). 정책 전문은 `AGENTS.md` §Phase 1, 3요소·4종 표는
+  /freeze residual-enumeration 감사 대상). 정책 전문은 `docs/grill/AGENTS.md`, 3요소·4종 표는
   `docs/grill/README.md` 참조.
 - **결정이 날 때 근거를 함께 적는다**(몰아서 적지 말 것). hard-to-reverse면 ADR 번호, 가벼우면
   rationale 한 줄(ADR 강제 안 함). 실험이면 `[>]`에 어느 프로토타입이 정산하는지 명명. 배제면 `[-]`에
@@ -94,6 +94,6 @@ ADR은 **셋 다** 참일 때만 제안한다: 되돌리기 어렵다 · 맥락 
 
 기능의 체크리스트에 `[ ]`도 미정산 `[>]`도 없으면 **"기능 X 닫힘 — /freeze ready"**를 선언한다.
 동결 후에는 새 기획거리 → `docs/findings/`, 동결 결정의 근본 오류 → 사용자 승인 후 grilling 재오픈
-(`AGENTS.md` §Phase 1).
+(`docs/grill/AGENTS.md`).
 
 </supporting-info>

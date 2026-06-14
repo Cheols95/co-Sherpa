@@ -50,7 +50,7 @@ description: "docs/spec/가 아직 없을 때 PRD/ADR을 계약 스펙으로 처
 
 ## 동결 전 게이트 — 결정표면 회계 + 독립 의도-감사 (절차 0단계)
 
-계약을 굳히기 전에 두 가지를 통과해야 한다 (`AGENTS.md` §"Phase 1 elicitation" 상세):
+계약을 굳히기 전에 두 가지를 통과해야 한다 (`docs/grill/AGENTS.md` 상세):
 
 1. **결정표면 회계.** 엔티티 목록을 만들고 4렌즈(구조: cardinality·identity / 행위: lifecycle·동시성·엣지 /
    기술: 저장·인터페이스·일관성 / 계약: enum 집합·유일성·출력 키)로 "설계가 답해야 할 결정"을 열거한다.

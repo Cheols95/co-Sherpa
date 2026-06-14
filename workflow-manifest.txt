@@ -49,6 +49,7 @@ prompts/
 # -- goals 하네스 (번호 goal은 프로젝트 것 -- 등재 금지. 0-example은 템플릿
 #    교육용: 프로젝트가 부트스트랩으로 지웠으면 LOCAL-DEL로 존중된다) --
 goals/AGENTS.md
+goals/CLAUDE.md
 goals/EXAMPLE.md
 goals/_meta.md
 goals/_meta.gates.sh
@@ -59,8 +60,10 @@ goals/0-example.next-task.sh
 
 # -- cycles/findings 규약 (실제 cycle 문서·finding 문서는 프로젝트 이력) --
 cycles/AGENTS.md
+cycles/CLAUDE.md
 cycles/EXAMPLE.md
 docs/findings/AGENTS.md
+docs/findings/CLAUDE.md
 docs/findings/EXAMPLE.md
 
 # -- 문서 구조 설명서·설정 스텁 --
@@ -68,6 +71,8 @@ docs/fcg-system.md
 docs/goal-design.md
 docs/adr/README.md
 docs/design/README.md
+docs/grill/AGENTS.md
+docs/grill/CLAUDE.md
 docs/grill/README.md
 docs/issues/README.md
 docs/prd/README.md

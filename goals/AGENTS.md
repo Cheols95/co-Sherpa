@@ -86,9 +86,14 @@ declared.
 ## Risk tier & RISKY close-out review
 
 - A numbered goal's `.md` MAY open with frontmatter `risk: RISKY | MECHANICAL | NONE`,
-  **carried from the source issue's frontmatter** at conversion (build mode B) or judged
-  there by the heuristic in `AGENTS.md` §"Agent-skills configuration". An omitted `risk` is
-  **unclassified, NOT mechanical**.
+  **carried from the source issue's frontmatter** at conversion (build mode B) or judged there by
+  the **risk heuristic below**. An omitted `risk` is **unclassified, NOT mechanical**.
+- **Risk heuristic (a floor, judged per slice) — single source.** `RISKY` if the slice names an
+  explicit edge case, invariant, state-coordination or validation rule, **or** touches data integrity
+  (schema/migration), auth/security boundaries, money, irreversible external effects, or the
+  `docs/spec/` contract surface. `NONE` if it has no behavioral surface (docs/config/pure scaffold).
+  `MECHANICAL` otherwise. `/to-issues` emit, `/build` mode B carry, and this close-out review all read
+  this one definition (degrade-don't-corrupt: when unsure, bias toward RISKY).
 - **Runtime upgrade-only.** If mid-loop the goal proves more behavioral / multi-file /
   ambiguous than declared (e.g. you feel the urge to touch a test or a prior invariant),
   upgrade to `RISKY` on the spot. Downgrading requires the user — never silent.
@@ -117,3 +122,26 @@ declared.
 
 Every gate should source `scripts/_gate-cache.sh`, declare `GATE_INPUTS`,
 and end with a `check-gate-rigor.sh` self-check on its own `.md`.
+
+---
+
+## Gate validity (Phase 1→2) — trusting an LLM-written gate
+
+Machine-checked gates give **reproducibility** (same code → same verdict), not **validity** (that the
+condition is the *right* one). Three guards keep validity honest:
+
+- **Authority comes from freeze, not invention.** A `.gates.sh` condition must be the mechanical
+  translation of a `/freeze` acceptance criterion (`/build` mode B does issues→gates), not an LLM
+  ad-lib. "Is this gate strange?" then reduces to "did it translate the criterion faithfully?" —
+  checkable, because translation is verifiable where invention is not. The upstream guarantee is
+  freeze's *verifiable floor* (criteria written so "was it met?" is decidable).
+- **Red-first hygiene.** A newly written gate must be run against the **pre-implementation** code and
+  **must fail (red)**. A gate that is green before any code exists checks nothing (`exit 0` /
+  tautology) — red-first catches that class at once. (`/build` runs the new gate on current code at
+  conversion and asserts red.)
+- **green is necessary, not sufficient.** green = "the stated checks passed", not "everything is
+  correct" — a permanent gap remains between a natural-language criterion and a bash check, and gate
+  coverage is capped by decision-surface completeness (un-stated intent is outside the gate). The
+  dashboard should show green as "this promise (the plain-language criterion) held"; RISKY independent
+  review + occasional human spot-checks are the permanent complement. "There's a gate so I needn't
+  look" is reward-hacking.

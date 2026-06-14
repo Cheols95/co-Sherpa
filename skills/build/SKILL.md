@@ -59,7 +59,7 @@ goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아
 - **변환 전 1회 참조**: `goals/EXAMPLE.md`(이슈→3파일 모범 변환 정답지, 안티패턴 주석 포함)가 프로젝트에 있으면 먼저 읽는다. 구버전 템플릿엔 없을 수 있다 — 그러면 `goals/AGENTS.md` 규약만으로 진행.
 - **첫 변환**이면 `goals/0-example.*` 교육용 placeholder triplet을 제거한다(`goals/AGENTS.md` 부트스트랩 규약 — 안 지우면 예제가 실제 체인에 영구 잔존). `goals/EXAMPLE.md`는 goal이 아니라 문서이므로 **삭제 대상이 아니다**.
 - **risk 운반**: 이슈 frontmatter `risk: RISKY|MECHANICAL|NONE`을 goal `.md` frontmatter로 그대로 옮긴다.
-  이슈에 없으면 변환 시 휴리스틱으로 판정(프로젝트 `AGENTS.md` §Agent-skills configuration) — **미지정은
+  이슈에 없으면 변환 시 휴리스틱으로 판정(`goals/AGENTS.md` §Risk tier) — **미지정은
   MECHANICAL이 아니라 미판정**이며, 행위 표면이 보이면 강한 검증 쪽으로 기운다.
 - **횡단 불변식 = `_meta` 세트 — 첫 변환에서 이빨을 켠다 (자동, 사용자 개입 불필요).**
   `goals/_meta.gates.sh`의 `META_CHECKS`는 비어 출하되어 "vacuously pass"(아무것도 검증 안 함)다.
@@ -76,7 +76,7 @@ goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아
 - **red-first 위생검사 (변환 직후 1회)**: 3파일을 다 만든 직후, 구현 전 코드에서
   `bash scripts/red-first-check.sh`로 새 goal 게이트가 **전부 red인지** 확인한다. 구현 전
   green인 게이트는 아무것도 안 검사하는 빈 게이트(`exit 0`·tautology) — 그 자리에서 고친다.
-  (근거: 프로젝트 `AGENTS.md` §Gate validity. check-gate-rigor가 못 잡는 빈-게이트 클래스를 잡는다.)
+  (근거: `goals/AGENTS.md` §Gate validity. check-gate-rigor가 못 잡는 빈-게이트 클래스를 잡는다.)
 - **graph-lint (변환 후)**: 이슈 의존성을 옮겼으면 `bash scripts/issues-graph-check.sh`로
   순환·dangling이 없는지 확인(`/freeze`가 이미 봉인 시 강제하지만, 직접 변환 경로의 안전선).
 

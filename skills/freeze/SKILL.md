@@ -9,7 +9,7 @@ description: "닫힌 기능을 한 번의 호출로 계약·PRD·이슈·graph-l
 **의도감사 → PRD → 계약 스펙 → 이슈 → graph-lint**까지 봉인한다.
 **이 호출 자체가 유일한 인간 승인점이다** — 호출 = "이 동결을 승인한다"(다른 중간 승인점 없음).
 
-> 규칙 권위는 `AGENTS.md` §Phase 1 / §Gate validity, 체크리스트 규약은 `docs/grill/README.md`.
+> 규칙 권위는 `docs/grill/AGENTS.md`(Phase 1) / `goals/AGENTS.md` §Gate validity — **봉인 시작 전 반드시 읽는다**. 체크리스트 규약은 `docs/grill/README.md`.
 > 이 스킬은 그 종료를 **봉인**하는 오케스트레이터다. 새로 만드는 본체는 ③ spec 증분 확장 하나뿐 —
 > 나머지는 기존 스킬(to-prd·to-spec·to-issues)을 sealed로 수행한다.
 
@@ -34,7 +34,7 @@ PRD 진행 **전**, 계획을 작성하지 않은 서브에이전트 1회(없으
 발견이 있으면 **중단** → 사용자에게 질문해 종결 → checklist 갱신 후 freeze 재호출. 한 발견을 닫으며 새 엣지가 열리면 **닿은 슬롯만 1회 재walk**, 또 나오면 사용자에게 escalate(열린 루프 금지).
 
 > 이것이 `to-spec` §"동결 전 게이트"를 freeze로 끌어올린 것이다. 그러므로 ③에서 `to-spec`을 sealed로
-> 부를 때 거기 0단계 게이트는 **이미 수행됨 — 생략**(중복 방지). 권위: `AGENTS.md` §Phase 1.
+> 부를 때 거기 0단계 게이트는 **이미 수행됨 — 생략**(중복 방지). 권위: `docs/grill/AGENTS.md`.
 
 ## ② to-prd (sealed)
 
@@ -78,4 +78,4 @@ bash scripts/issues-graph-check.sh
 ## 동결 후 (일방향)
 - 새 기획거리 → `docs/findings/`(체크리스트 재오픈 아님).
 - 동결 결정의 **근본 오류** → 사용자 승인 후 `grill` 재오픈(Phase 1 재진입). 라우팅: 단순 추가/충돌 → findings,
-  동결 결정 자체가 틀림 → grill 재오픈. (`AGENTS.md` §Phase 1)
+  동결 결정 자체가 틀림 → grill 재오픈. (`docs/grill/AGENTS.md`)
