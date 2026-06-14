@@ -9,6 +9,8 @@ Break a plan into independently-grabbable issues using vertical slices (tracer b
 
 The issue tracker and triage label vocabulary should have been provided to you — if not, read the **Agent-skills configuration** section in the project's `AGENTS.md`.
 
+> **This repo uses a local-markdown tracker:** the "issue tracker" is `docs/issues/<NNN>-*.md` files (numbered from 001), with no remote UI or issue comments. So "fetch/publish an issue" below means **read/write the matching `docs/issues/*.md` file**, and the triage label is a `Status:` line inside that file.
+
 ## Process
 
 ### 1. Gather context

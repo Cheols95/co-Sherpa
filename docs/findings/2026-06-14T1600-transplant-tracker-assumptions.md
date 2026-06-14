@@ -1,8 +1,11 @@
 ---
 title: to-prd/to-issues의 원격 트래커 가정을 로컬 마크다운 현실로 정합
 created_at: 2026-06-14T16:00:45Z
-resolved: false
+resolved: true
 priority: P2
+status_notes: |
+  CLOSED 2026-06-15 — to-prd/to-issues 상단에 "로컬-마크다운 트래커" 현실 노트(영문, tracker=
+  docs/issues/*.md · PRD=단일 파일 · comments/label 없음)를 추가해 GitHub 전제 문구를 무효화.
 related:
   - skills/to-prd/SKILL.md
   - skills/to-issues/SKILL.md

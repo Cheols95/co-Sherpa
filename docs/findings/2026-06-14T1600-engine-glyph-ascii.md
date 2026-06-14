@@ -1,8 +1,12 @@
 ---
 title: 엔진 스크립트 유니코드 글리프 → ASCII 표준화 (cp949 손상 방지)
 created_at: 2026-06-14T16:00:45Z
-resolved: false
+resolved: true
 priority: P1
+status_notes: |
+  CLOSED 2026-06-15 — 4개 엔진 스크립트(completion-check·active-check·diagnose·check-gate-rigor)의
+  글리프(✓✗⚙🎉⚠▷→)와 em/en dash·ellipsis를 ASCII([OK]/[FAIL]/[ACTIVE]/[DONE]/[WARN]/>/--/...)로
+  치환. 비-ASCII grep 0 + bash -n 통과 확인. (workflow v1.5 후속 커밋)
 related:
   - scripts/completion-check.sh
   - scripts/active-check.sh

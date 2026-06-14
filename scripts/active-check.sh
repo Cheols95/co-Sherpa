@@ -1,18 +1,18 @@
 #!/usr/bin/env bash
-# active-check.sh — Per-iteration gate check.
+# active-check.sh -- Per-iteration gate check.
 #
 # Runs only the *active* goal's gates plus the orchestrator-owned rigor
-# sweep. Prior-goal regression is deliberately NOT checked here — that
+# sweep. Prior-goal regression is deliberately NOT checked here -- that
 # work is delegated to scripts/completion-check.sh, which runs:
 #   1. when the active goal turns green (this script exec's into it to
 #      advance the active-goal pointer and catch any silent prior
 #      regression at the goal boundary),
 #   2. before push when scripts/hooks/pre-push is installed or a manual
 #      full verify is run, and
-#   3. in CI on every PR — only where you wire a workflow (none ships by
+#   3. in CI on every PR -- only where you wire a workflow (none ships by
 #      default).
 #
-# Cost: ~5–30 s depending on which goal is active, vs. 1–3 min for the
+# Cost: ~5-30 s depending on which goal is active, vs. 1-3 min for the
 # full sweep. Use this for the inner TDD loop; let completion-check
 # handle the boundaries.
 #
@@ -20,9 +20,9 @@
 #   bash scripts/active-check.sh
 #
 # Exit codes:
-#   0 — rigor green AND (active goal green → orchestrator advanced)
-#       OR (no active goal → orchestrator bootstrapped)
-#   1 — rigor failed, or active goal still has failing gates
+#   0 -- rigor green AND (active goal green -> orchestrator advanced)
+#       OR (no active goal -> orchestrator bootstrapped)
+#   1 -- rigor failed, or active goal still has failing gates
 
 set -uo pipefail
 
@@ -39,13 +39,13 @@ export GATES_SKIP_DEEP="${GATES_SKIP_DEEP:-1}"
 echo "=== ACTIVE-GOAL CHECK ==="
 echo
 
-# Rigor sweep — cheap, every iter. Catches .md ↔ .gates.sh drift the
+# Rigor sweep -- cheap, every iter. Catches .md <-> .gates.sh drift the
 # moment it happens, regardless of which goal is active.
-echo "--- Meta: gate rigor sweep (every .md ↔ .gates.sh) ---"
+echo "--- Meta: gate rigor sweep (every .md <-> .gates.sh) ---"
 if bash "$ROOT/scripts/check-gate-rigor.sh" --all; then
-  echo "    ✓ rigor green"
+  echo "    [OK] rigor green"
 else
-  echo "    ✗ rigor failed — fix .md or .gates.sh above before continuing"
+  echo "    [FAIL] rigor failed -- fix .md or .gates.sh above before continuing"
   exit 1
 fi
 echo
@@ -58,13 +58,13 @@ if [ -f "$ACTIVE_FILE" ]; then
 fi
 
 if [ -z "$ACTIVE" ]; then
-  echo "--- No active-goal recorded — bootstrapping via completion-check ---"
+  echo "--- No active-goal recorded -- bootstrapping via completion-check ---"
   exec bash "$ROOT/scripts/completion-check.sh"
 fi
 
 if [ "$ACTIVE" = "ALL_DONE" ]; then
   cat <<'EOF'
-🎉 active-goal = ALL_DONE.
+[DONE] active-goal = ALL_DONE.
    Nothing to do at the iteration level.
    To re-verify the full chain: bash scripts/completion-check.sh
 EOF
@@ -72,7 +72,7 @@ EOF
 fi
 
 if [ ! -f "$ACTIVE" ]; then
-  echo "--- Active-goal points at $ACTIVE which no longer exists — re-bootstrapping ---"
+  echo "--- Active-goal points at $ACTIVE which no longer exists -- re-bootstrapping ---"
   exec bash "$ROOT/scripts/completion-check.sh"
 fi
 
@@ -80,15 +80,15 @@ goal_name=$(basename "$ACTIVE" .md)
 gate_script="goals/${goal_name}.gates.sh"
 
 if [ ! -f "$gate_script" ]; then
-  echo "✗ missing gate script: $gate_script"
+  echo "[FAIL] missing gate script: $gate_script"
   exit 1
 fi
 
 echo "--- Active goal: $goal_name ---"
 if bash "$gate_script"; then
   echo
-  echo "    ✓ active goal $goal_name turned green."
-  echo "    → running full completion-check to (a) advance pointer and"
+  echo "    [OK] active goal $goal_name turned green."
+  echo "    -> running full completion-check to (a) advance pointer and"
   echo "      (b) catch any silent prior-goal regression at this boundary."
   echo
   exec bash "$ROOT/scripts/completion-check.sh"
@@ -96,10 +96,10 @@ fi
 
 echo
 cat <<EOF
-    ✗ active goal $goal_name still has failing gates.
+    [FAIL] active goal $goal_name still has failing gates.
       Prior-goal regression is NOT checked at the iteration level. The
       full chain is verified only where you wire it: a manual
-      completion-check, a project-provided commit/pre-push hook, or CI —
+      completion-check, a project-provided commit/pre-push hook, or CI --
       none of those ship by default. To verify the full chain right now:
         bash scripts/completion-check.sh
 EOF

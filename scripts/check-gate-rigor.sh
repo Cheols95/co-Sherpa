@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# check-gate-rigor.sh — Meta-gate: if a goal's markdown claims universality
-# ("every / all / each <entity / model / route / file / command / test …>"),
+# check-gate-rigor.sh -- Meta-gate: if a goal's markdown claims universality
+# ("every / all / each <entity / model / route / file / command / test ...>"),
 # the matching `<n>-<name>.gates.sh` MUST contain at least one iteration
 # construct (for / while / find / xargs / mapfile / readarray).
 #
@@ -11,7 +11,7 @@
 #
 # The noun list below is deliberately broad and stack-neutral. Tune it for
 # your domain if needed, but keep the --self-test green (completion-check
-# runs it). Over-matching is safe — it only asks a gate to enumerate;
+# runs it). Over-matching is safe -- it only asks a gate to enumerate;
 # under-matching lets a narrow-gate cheat through.
 #
 # Usage:
@@ -37,7 +37,7 @@ check_one() {
   gate="goals/${name}.gates.sh"
 
   if [ ! -f "$gate" ]; then
-    echo "✗ check-gate-rigor: $gate missing"
+    echo "[FAIL] check-gate-rigor: $gate missing"
     return 1
   fi
 
@@ -51,7 +51,7 @@ check_one() {
     return 0
   fi
 
-  echo "✗ check-gate-rigor: $name claims universality:"
+  echo "[FAIL] check-gate-rigor: $name claims universality:"
   echo "$claims" | sed 's/^/        /'
   echo "    but $gate has no for / while / find / xargs iteration."
   return 1
@@ -81,18 +81,18 @@ case "${1:-}" in
     SELF_FAIL=0
     for phrase in "${MUST_MATCH[@]}"; do
       if ! echo "$phrase" | grep -iqE "$UNIVERSAL_RE"; then
-        echo "✗ self-test FAIL: should match — '$phrase'"
+        echo "[FAIL] self-test FAIL: should match -- '$phrase'"
         SELF_FAIL=1
       fi
     done
     for phrase in "${MUST_NOT[@]}"; do
       if echo "$phrase" | grep -iqE "$UNIVERSAL_RE"; then
-        echo "✗ self-test FAIL: should NOT match — '$phrase'"
+        echo "[FAIL] self-test FAIL: should NOT match -- '$phrase'"
         SELF_FAIL=1
       fi
     done
     if [ "$SELF_FAIL" -eq 0 ]; then
-      echo "✓ check-gate-rigor --self-test: UNIVERSAL_RE passes smoke cases"
+      echo "[OK] check-gate-rigor --self-test: UNIVERSAL_RE passes smoke cases"
       exit 0
     fi
     exit 1
@@ -105,7 +105,7 @@ case "${1:-}" in
     if [ "$FAIL" -ne 0 ]; then
       exit 1
     fi
-    echo "✓ check-gate-rigor: every goal with universal claims has an iterating gate"
+    echo "[OK] check-gate-rigor: every goal with universal claims has an iterating gate"
     exit 0
     ;;
   '')
@@ -116,22 +116,22 @@ case "${1:-}" in
       ACTIVE=""
     fi
     if [ -z "$ACTIVE" ] || [ "$ACTIVE" = ALL_DONE ] || [ ! -f "$ACTIVE" ]; then
-      echo "✓ check-gate-rigor: no failing goal to check"
+      echo "[OK] check-gate-rigor: no failing goal to check"
       exit 0
     fi
     if check_one "$ACTIVE"; then
-      echo "✓ check-gate-rigor: $(basename "$ACTIVE" .md) gate iterates as required"
+      echo "[OK] check-gate-rigor: $(basename "$ACTIVE" .md) gate iterates as required"
       exit 0
     fi
     exit 1
     ;;
   *)
     if [ ! -f "$1" ]; then
-      echo "✗ check-gate-rigor: '$1' is not a file"
+      echo "[FAIL] check-gate-rigor: '$1' is not a file"
       exit 1
     fi
     if check_one "$1"; then
-      echo "✓ check-gate-rigor: $(basename "$1" .md) gate iterates as required"
+      echo "[OK] check-gate-rigor: $(basename "$1" .md) gate iterates as required"
       exit 0
     fi
     exit 1

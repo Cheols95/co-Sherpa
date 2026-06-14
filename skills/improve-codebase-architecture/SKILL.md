@@ -83,6 +83,8 @@ shallow 의심 대상엔 **삭제 테스트**를 적용하라: 지우면 복잡�
 사용자가 후보를 고르면 grilling 대화로 들어간다. 함께 설계 트리를 걷는다 — 제약, 의존성, 깊어진 모듈의
 형태, seam 뒤에 무엇이 있는지, 어떤 테스트가 살아남는지.
 
+의존성 분류별 deepening 실행법·seam 규율·"replace, don't layer" 테스트 전략은 [DEEPENING.md](DEEPENING.md)를 따른다.
+
 부수효과는 결정이 굳을 때 인라인으로 일어난다:
 
 - **깊어진 모듈을 `CONTEXT.md`에 없는 개념으로 명명?** 그 용어를 `CONTEXT.md`에 추가한다 — `/grill`과

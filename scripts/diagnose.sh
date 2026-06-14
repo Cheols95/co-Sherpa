@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# diagnose.sh — Tell the agent what state the repo is in. Read-only,
+# diagnose.sh -- Tell the agent what state the repo is in. Read-only,
 # idempotent, stack-neutral. Run this first, every iteration.
 #
 # Project-specific signals (test matrix, coverage, scaffolding presence)
-# are intentionally omitted from this generic version — add your own
+# are intentionally omitted from this generic version -- add your own
 # sections below the "Project signals" marker if useful.
 
 set -uo pipefail
@@ -35,12 +35,12 @@ ptr=""
 if [ -n "$ptr" ]; then
   echo "  $ptr"
 else
-  echo "  (unknown — run scripts/completion-check.sh first)"
+  echo "  (unknown -- run scripts/completion-check.sh first)"
 fi
 
 # A pointer only certifies goal status when it is ALL_DONE or an existing
 # goal file. Empty / (none) / NEEDS_FIRST_GOAL / a deleted path means the
-# chain was never successfully checked — show every goal as "(not yet
+# chain was never successfully checked -- show every goal as "(not yet
 # checked)" rather than falsely green.
 verified=false
 if [ "$ptr" = "ALL_DONE" ] || { [ -n "$ptr" ] && [ -f "$ptr" ]; }; then
@@ -74,14 +74,14 @@ if [ -d goals ]; then
     if [ "$verified" = false ]; then
       status="(not yet checked)"
     elif [ "$ptr" = "ALL_DONE" ]; then
-      status="✓ passed (as of last check)"
+      status="[OK] passed (as of last check)"
     elif [ "$ptr" = "$f" ]; then
-      status="⚙ active (failing)"
+      status="[ACTIVE] active (failing)"
       seen_active=true
     elif [ "$seen_active" = false ]; then
-      status="✓ passed (as of last check)"
+      status="[OK] passed (as of last check)"
     else
-      status="(deferred — earlier goal is active)"
+      status="(deferred -- earlier goal is active)"
     fi
     echo "    - $f $status"
   done
@@ -171,7 +171,7 @@ else
 fi
 echo ""
 
-# ─── Project signals (add stack-specific sections here) ─────────────────
+# --- Project signals (add stack-specific sections here) -----------------
 # Examples you might add:
 #   - test pass/fail summary from your runner
 #   - enumeration coverage of a source of truth (models / routes / specs)

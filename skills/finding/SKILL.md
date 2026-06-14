@@ -24,6 +24,7 @@ title: <짧은 명사구>
 created_at: 2026-MM-DDTHH:MM:SSZ      # 파일명 prefix와 분 단위까지 일치
 resolved: false                        # false | partial | true
 priority: P2                           # P0 데이터무결성/체인블로커 | P1 릴리즈전 위험 | P2 릴리즈후 정리 (선택)
+kind:                                  # 선택. snapshot(동결 audit) | append-only-log(텔레메트리) — 둘 다 resolve 대상 아님 (상세 docs/findings/AGENTS.md)
 related:                               # 선택: 다른 finding/goal/소스 경로
   - docs/<other>.md
 ---

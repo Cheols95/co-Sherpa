@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# completion-check.sh — Parallel orchestrator for all goal gate suites.
+# completion-check.sh -- Parallel orchestrator for all goal gate suites.
 #
 # Discovers every goals/<n>-<name>.md, launches each matching
 # <n>-<name>.gates.sh as a background worker (bounded by
@@ -10,11 +10,11 @@
 #
 # This script is the only owner of the "no prior-goal regression"
 # semantics: per-goal scripts do not chain into earlier goals. Running a
-# single `bash goals/<n>-*.gates.sh` checks that goal's surface only —
+# single `bash goals/<n>-*.gates.sh` checks that goal's surface only --
 # run this orchestrator for the full chain.
 #
 # Env:
-#   GATES_CONCURRENCY  default 4; cap on parallel workers (0 → serial)
+#   GATES_CONCURRENCY  default 4; cap on parallel workers (0 -> serial)
 #   GATES_SKIP_DEEP    default 1 (skip external-system gates like Docker
 #                      spin-up, deploy state). Set to 0 explicitly to run
 #                      the full world-state suite (release check / job).
@@ -38,7 +38,7 @@ ACTIVE_FILE="$ROOT/.state/active-goal"
 
 CONCURRENCY="${GATES_CONCURRENCY:-4}"
 case "$CONCURRENCY" in
-  ''|*[!0-9]*) CONCURRENCY=4 ;;   # non-numeric → documented default (4), not 2
+  ''|*[!0-9]*) CONCURRENCY=4 ;;   # non-numeric -> documented default (4), not 2
   0) CONCURRENCY=1 ;;
 esac
 
@@ -62,7 +62,7 @@ done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md'
 # _meta (zero numbered goals) is NOT "done": _meta passes vacuously on a
 # fresh template, which would otherwise mint a false ALL_DONE. The L80
 # empty-guard tests the COMBINED array, so it never fires once _meta is
-# present — this count is the real guard (see below).
+# present -- this count is the real guard (see below).
 NUM_NUMBERED=${#GOALS[@]}
 
 # Meta is launched first so its slot in the parallel pool starts at t=0.
@@ -73,13 +73,13 @@ NUM_NUMBERED=${#GOALS[@]}
 # CI workflows that already run lint/typecheck/test/build as explicit
 # steps (for per-step visibility in the Actions UI) set GATES_SKIP_META=1
 # to avoid duplicating that work here. The meta claims are still enforced
-# — by the workflow itself.
+# -- by the workflow itself.
 if [ -n "$META_MD" ] && [ "${GATES_SKIP_META:-}" != "1" ]; then
   GOALS=("$META_MD" "${GOALS[@]}")
 fi
 
 # False-completion guard. With zero numbered goals but a _meta present,
-# the chain would otherwise pass vacuously and write ALL_DONE — an
+# the chain would otherwise pass vacuously and write ALL_DONE -- an
 # autonomous agent would believe a build with nothing in it is finished.
 # ASCII-only message (no glyphs) so a cp949 re-save can't corrupt it.
 if [ "$NUM_NUMBERED" -eq 0 ] && [ -n "$META_MD" ]; then
@@ -94,7 +94,7 @@ if [ "$NUM_NUMBERED" -eq 0 ] && [ -n "$META_MD" ]; then
 fi
 
 if [ "${#GOALS[@]}" -eq 0 ]; then
-  echo "✗ completion-check: no goals/*.md found."
+  echo "[FAIL] completion-check: no goals/*.md found."
   echo "(none)" > "$ACTIVE_FILE"
   exit 1
 fi
@@ -120,7 +120,7 @@ launch_goal() {
   GOAL_OUT_FILES[$idx]="$out_file"
 
   if [ ! -f "$gate_script" ] && [ ! -x "$gate_script" ]; then
-    printf '✗ missing gate script: %s\n' "$gate_script" > "$out_file"
+    printf '[FAIL] missing gate script: %s\n' "$gate_script" > "$out_file"
     GOAL_PIDS[$idx]=0
     GOAL_LAUNCH_FAILED[$idx]=1
     return
@@ -129,7 +129,7 @@ launch_goal() {
   GOAL_LAUNCH_FAILED[$idx]=0
   bash "$gate_script" >"$out_file" 2>&1 &
   GOAL_PIDS[$idx]=$!
-  printf '▷ %s (pid %s)\n' "$goal_name" "${GOAL_PIDS[$idx]}"
+  printf '> %s (pid %s)\n' "$goal_name" "${GOAL_PIDS[$idx]}"
 }
 
 wait_for_slot() {
@@ -151,10 +151,10 @@ FIRST_FAIL_MD=""
 FAILED=()
 
 # Meta: orchestrator-owned rigor sweep. Closes the leak where a prior
-# goal's .md is not in its own GATE_INPUTS — direct edits to those .md
+# goal's .md is not in its own GATE_INPUTS -- direct edits to those .md
 # files would otherwise sit behind a stale cache. Cheap, runs before the
 # parallel goal workers so doc/gate drift fails fast.
-echo "--- Meta: gate rigor sweep (every .md ↔ .gates.sh) ---"
+echo "--- Meta: gate rigor sweep (every .md <-> .gates.sh) ---"
 
 RIGOR_CACHE_DIR="$ROOT/.state/gate-cache"
 RIGOR_CACHE_FILE="$RIGOR_CACHE_DIR/_meta-rigor"
@@ -194,19 +194,19 @@ rigor_cache_fresh() {
 }
 
 if ! bash "$ROOT/scripts/check-gate-rigor.sh" --self-test >/dev/null 2>&1; then
-  echo "    ✗ rigor self-test failed — UNIVERSAL_RE may be broken"
+  echo "    [FAIL] rigor self-test failed -- UNIVERSAL_RE may be broken"
   OVERALL_PASS=false
 fi
 
 if rigor_cache_fresh; then
-  echo "    ✓ cache hit — rigor sweep skipped (fingerprint unchanged)"
+  echo "    [OK] cache hit -- rigor sweep skipped (fingerprint unchanged)"
 else
   if bash "$ROOT/scripts/check-gate-rigor.sh" --all; then
-    echo "    ✓ every goal's universal claims match an iterating gate"
+    echo "    [OK] every goal's universal claims match an iterating gate"
     mkdir -p "$RIGOR_CACHE_DIR"
     rigor_fingerprint > "$RIGOR_CACHE_FILE"
   else
-    echo "    ✗ rigor mismatch — fix .md or its gate before continuing"
+    echo "    [FAIL] rigor mismatch -- fix .md or its gate before continuing"
     OVERALL_PASS=false
     # Collect ALL rigor-failing goals; do not pick a winner here. The
     # active-goal pointer is chosen after the runtime sweep (below) so a
@@ -254,9 +254,9 @@ for goal_md in "${GOALS[@]}"; do
     cat "$out_file"
   fi
   if [ "$goal_exit" -eq 0 ]; then
-    printf '    ✓ goal %s passes all gates.\n' "$goal_name"
+    printf '    [OK] goal %s passes all gates.\n' "$goal_name"
   else
-    printf '    ✗ goal %s has failing gates.\n' "$goal_name"
+    printf '    [FAIL] goal %s has failing gates.\n' "$goal_name"
     OVERALL_PASS=false
     FAILED+=("$goal_md")
   fi
@@ -284,7 +284,7 @@ if [ "${#FAILED[@]}" -gt 0 ]; then
 fi
 
 # Defensive: if something set OVERALL_PASS=false without populating FAILED
-# (e.g. the rigor self-test failed — neither sweep), still write a
+# (e.g. the rigor self-test failed -- neither sweep), still write a
 # non-empty pointer so downstream readers don't see a blank active-goal.
 if [ "$OVERALL_PASS" != true ] && [ -z "$FIRST_FAIL_MD" ]; then
   if [ -n "$META_MD" ]; then
@@ -296,7 +296,7 @@ fi
 
 if [ "$OVERALL_PASS" = true ]; then
   echo "ALL_DONE" > "$ACTIVE_FILE"
-  echo "🎉 ALL GOALS ACHIEVED. Every gate of every goal passes."
+  echo "[DONE] ALL GOALS ACHIEVED. Every gate of every goal passes."
   # Cycle-end doc-sync advisory (never gates): the chain just went green,
   # which is the cheapest moment to reconcile the contract docs with the
   # code before drift compounds. ASCII-only message.
@@ -307,6 +307,6 @@ if [ "$OVERALL_PASS" = true ]; then
 fi
 
 echo "$FIRST_FAIL_MD" > "$ACTIVE_FILE"
-echo "⚠ Active goal: $(cat "$ACTIVE_FILE")"
+echo "[WARN] Active goal: $(cat "$ACTIVE_FILE")"
 echo "  Continue iterating against that goal."
 exit 1

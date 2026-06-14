@@ -7,6 +7,8 @@ This skill takes the current conversation context and codebase understanding and
 
 The issue tracker and triage label vocabulary should have been provided to you — if not, read the **Agent-skills configuration** section in the project's `AGENTS.md`.
 
+> **This repo uses a local-markdown tracker:** the "issue tracker" is `docs/issues/<NNN>-*.md` files and the PRD is the single file `docs/prd/PRD.md` — no remote UI, no issue comments, no PRD-level label. So "publish the PRD" below means **write `docs/prd/PRD.md`**; the `ready-for-agent` label is an *issue* `Status:` line (see `to-issues`), not something applied to the PRD.
+
 ## Process
 
 1. Explore the repo to understand the current state of the codebase, if you haven't already. Use the project's domain glossary vocabulary throughout the PRD, and respect any ADRs in the area you're touching.
