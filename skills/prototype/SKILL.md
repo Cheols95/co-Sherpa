@@ -7,6 +7,15 @@ description: Build a throwaway prototype to flesh out a design before committing
 
 A prototype is **throwaway code that answers a question**. The question decides the shape.
 
+## Anchor the question to a checklist slot
+
+When grilling drives the plan, a prototype exists to settle a specific `[>]` slot in
+`docs/grill/checklist.md` (the "experiment-pending settlement" state). Before building, name which slot
+it closes — the prototype's question **is** that slot. **No slot, no prototype:** an experiment with no
+named decision to settle is the "until it feels right" loop the checklist exists to bound. When the
+prototype answers, record the ground on that slot and flip `[>]` → `[x]` (or `[~]` / `[-]`). If the work
+isn't grilling-driven, the question still anchors it — just without the checklist line.
+
 ## Pick a branch
 
 Identify which question is being answered — from the user's prompt, the surrounding code, or by asking if the user is around:

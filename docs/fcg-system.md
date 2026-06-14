@@ -4,11 +4,7 @@
 
 ## 3-자산 모델
 
-| 자산 | 무엇인가 | 검증 | 수명 |
-|---|---|---|---|
-| **findings** (`docs/findings/`) | out-of-scope 발견을 잃지 않는 부채/통찰 **큐** | 없음 | close 까지 |
-| **cycles** (`cycles/`) | 무한 루프에 넘기는 한 세션 **프롬프트** | 없음 | 영구(이력) |
-| **goals** (`goals/`) | gate로 검증되는 **영속 invariant** (goal당 3파일) | `.gates.sh` | 영구 |
+요지: **findings**(out-of-scope 발견 큐, 검증 없음, close까지) → **cycles**(무한 루프 한 세션 프롬프트, 검증 없음, 영구 이력) → **goals**(gate로 검증되는 영속 invariant, goal당 3파일, 영구). 전체 표·각 자산 상세는 `docs/goal-design.md` §"세 가지 자산: findings → cycles → goals"가 단일 출처.
 
 **흐름:** iteration 중 발견한 부채 → **finding** 큐잉 → 사람이 **cycle** 문서를 써서 루핑 에이전트에 전달 → 에이전트가 finding들을 닫으며 일부를 **goal**로 promote → goal 하네스가 "완료"를 기계 검증.
 
@@ -16,15 +12,7 @@
 
 ## 오케스트레이터 스크립트 (`scripts/`)
 
-| 스크립트 | 역할 | 비용 |
-|---|---|---|
-| `diagnose.sh` | 매 iteration 첫 단계. git/active-goal/열린 finding/blocker read-only 출력 | sub-sec |
-| `next-task.sh` | active goal의 `next-task.sh`로 dispatch (advisory hint) | sub-sec |
-| `active-check.sh` | active goal gate + rigor sweep. green이면 completion-check로 exec | ~5–30s |
-| `completion-check.sh` | 모든 goal gate 병렬 실행, 첫 실패를 `.state/active-goal`에 기록 | ~1–3분 |
-| `check-gate-rigor.sh` | 메타-검증: universal claim ↔ enumerating gate 일치 | sub-sec |
-| `_gate-cache.sh` | source 전용. gate 결과를 input fingerprint로 memoize (병렬 안전) | — |
-| `update-state.sh` | `docs/state/{progress,next-task}.md` 재생성 | sub-sec |
+핵심 7종: `diagnose.sh`(매 iter 첫 단계, read-only 상태 출력) · `next-task.sh`(active goal로 dispatch) · `active-check.sh`(active goal gate + rigor sweep, green이면 completion-check exec) · `completion-check.sh`(모든 goal gate 병렬, 첫 실패를 `.state/active-goal`에 기록) · `check-gate-rigor.sh`(메타-검증: universal claim ↔ enumerating gate) · `_gate-cache.sh`(input fingerprint memoize, 병렬 안전) · `update-state.sh`(`docs/state/{progress,next-task}.md` 재생성). 각 스크립트 역할·비용 표는 `docs/goal-design.md` §`scripts/`(및 비용 모델 표)가 단일 출처.
 
 > Windows에서는 Claude(Bash 도구)·Codex(셸) 모두 `bash scripts/<name>.sh` 형태로 호출한다(git-bash).
 
@@ -49,6 +37,6 @@
 
 | 작업 | 전역 스킬 | 구동 |
 |---|---|---|
-| 목표 생성·게이트 루프·사이클 실행 | `/fcg-goal` | `bash scripts/{diagnose,active-check,completion-check}.sh` |
+| 목표 생성·게이트 루프·사이클 실행 | `/build` | `bash scripts/{diagnose,active-check,completion-check}.sh` |
 | finding 기록·정리 | `/fcg-findings` | `docs/findings/` 문서 작성 |
 | cycle 문서 작성 | `/fcg-cycles` | `prompts/cycle-generate.md` + `docs/findings/` 취합 |

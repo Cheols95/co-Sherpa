@@ -26,17 +26,16 @@ description: "docs/spec/가 이미 있을 때 계약 문서 ↔ 코드 ↔ 최�
 |---|---|
 | 계약 **문서가** 코드/ADR보다 구버전 (문서만 고치면 정합) | **직접 갱신** — `docs/spec/` 문서 + `INDEX.md` |
 | accepted ADR의 결정이 계약 문서에 아직 반영 안 됨 | **직접 반영** (delta만, 전면 재작성 X) |
-| **코드를** 고쳐야 함 (코드가 계약과 어긋나고 코드 쪽이 틀림) | 직접 안 고침 → `docs/findings/`에 큐잉 (이후 `/fcg-goal`이 테스트와 함께 처리) |
+| **코드를** 고쳐야 함 (코드가 계약과 어긋나고 코드 쪽이 틀림) | 직접 안 고침 → `docs/findings/`에 큐잉 (이후 `/build`이 테스트와 함께 처리) |
 | 코드·문서 중 어느 쪽이 맞는지 모호 | **사용자에게 질문.** 임의 결정 금지 |
 | 계약 문서가 hollow shell(칸만 있고 내용 빔)이거나 품질 floor(검증가능·반례·구체엣지, `to-spec` §품질 floor 참조) 위반 | 채울 근거(우선순위: ①코드 → ②최신 accepted ADR → ③①②가 대체(supersede) 안 한 PRD 결정, 충돌 시 상위 우선)가 있으면 **직접 보강**, 없으면 **finding 또는 사용자 질문**. 단, 칸 내용이 `TODO(미결정)`이면 보강 대상이 아니다(to-spec이 사용자 결정 대기로 비운 칸) — 그대로 두고 finding/질문으로만 처리 |
 
-> 서비스 흐름 계약(`docs/spec/service-flow.md`)도 같은 규칙: Groups·Components 표가 실제 배포 토폴로지·
-> 최신 ADR과 어긋나면 — 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (표 형식 권위 출처는
-> `dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`; `docs/spec/data-schema.md`
-> §서비스 흐름 입력 계약은 to-spec이 옮겨 둔 사본.)
+> 서비스 흐름 계약(`docs/spec/service-flow.md`)도 같은 규칙: 표가 실제 배포 토폴로지·최신 ADR과 어긋나면
+> 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (표 형식·권위 출처는 `skills/to-spec/SKILL.md`
+> 서비스 흐름 항목과 `docs/spec/README.md` 참조 — 코드 `architecture.md`와는 다른 문서.)
 
 ## 가드레일
-- **코드를 직접 고치지 않는다.** 테스트 없는 코드 변경은 TDD 엔진(`/fcg-goal`)의 영역 — 여기선 finding으로 넘긴다.
+- **코드를 직접 고치지 않는다.** 테스트 없는 코드 변경은 TDD 엔진(`/build`)의 영역 — 여기선 finding으로 넘긴다.
 - **PRD/ADR을 재작성하지 않는다.** PRD는 의도(동결), ADR은 이력(append-only). 이 스킬의 쓰기 대상은 `docs/spec/`와 `docs/spec/INDEX.md`뿐이다.
 - **대량 재작성 금지.** 드리프트 난 delta만 손본다. 잘 써둔 문서를 통째로 다시 쓰지 않는다.
 - **모호하면 멈추고 묻는다.** 코드를 스펙에 맞춰 굳히거나 그 반대를 하기 전에, 어느 쪽이 의도인지 불분명하면 사용자 확인.
@@ -45,15 +44,7 @@ description: "docs/spec/가 이미 있을 때 계약 문서 ↔ 코드 ↔ 최�
 코드 수정이 필요한 발견은 `docs/findings/`에 적는다 — 형식·frontmatter는 `fcg-findings` 스킬 규약을 따른다. TL;DR에 "계약 `<문서>`와 코드 `<file:line>`가 어긋남, 코드 쪽 수정 필요"를 명시한다.
 
 ## `docs/spec/INDEX.md` 형식
-현재 유효한 계약 문서의 목록 — 구현 에이전트가 진실원천으로 최우선하는 인덱스.
-> `TODO(미결정)` 칸이 남은 스펙은 Covers에 `(미결정 칸 있음)` 표기 + frontmatter `resolved:false`를
-> 유지하고, 동결되면 그 표기를 제거한다. (형식·표기를 to-spec과 일치시킨다.)
-```markdown
-# Current contract specs (single source of truth)
-
-| Spec | File | Covers |
-|---|---|---|
-| Data schema | docs/spec/data-schema.md | DB tables, relations |
-| API contract | docs/spec/api-contract.md | HTTP endpoints, payloads |
-```
-파일이 없으면 첫 계약 문서가 생길 때 lazily 만든다.
+현재 유효한 계약 문서의 목록 — 구현 에이전트가 진실원천으로 최우선하는 인덱스. **형식·표기는
+`skills/to-spec/SKILL.md` §`docs/spec/INDEX.md` 형식이 단일 출처**(표 헤더 `| Spec | File | Covers |`,
+`TODO(미결정)` 칸은 Covers에 `(미결정 칸 있음)`+frontmatter `resolved:false`, 동결 시 제거) — 여기 복붙하지
+않고 그대로 따른다. 파일이 없으면 첫 계약 문서가 생길 때 lazily 만든다.

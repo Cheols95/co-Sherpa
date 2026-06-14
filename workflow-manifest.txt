@@ -23,13 +23,16 @@ workflow-manifest.txt
 .claude/skills/roadmap/SKILL.md
 
 # -- FCG 오케스트레이터 (scripts/smoke.sh는 프로젝트별 -- 등재 금지) --
+scripts/_deps-lib.sh
 scripts/_gate-cache.sh
 scripts/active-check.sh
 scripts/check-gate-rigor.sh
 scripts/completion-check.sh
 scripts/diagnose.sh
 scripts/install-skills.sh
+scripts/issues-graph-check.sh
 scripts/next-task.sh
+scripts/red-first-check.sh
 scripts/reset-for-new-project.sh
 scripts/template-clean-check.sh
 scripts/update-state.sh
@@ -65,6 +68,7 @@ docs/fcg-system.md
 docs/goal-design.md
 docs/adr/README.md
 docs/design/README.md
+docs/grill/README.md
 docs/issues/README.md
 docs/prd/README.md
 docs/spec/README.md

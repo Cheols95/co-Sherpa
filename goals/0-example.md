@@ -6,7 +6,7 @@
 > **This is a throwaway teaching example.** It demonstrates the three-file
 > goal shape and the universal-claim ↔ enumeration rule, and it passes out
 > of the box so you can watch the chain turn green. Once you understand the
-> pattern, the normal path is to run **fcg-goal** on your issues/PRD: its
+> pattern, the normal path is to run **build** on your issues/PRD: its
 > conversion (mode B) writes `goals/<n>-<name>.{md,gates.sh,next-task.sh}`
 > from your spec and **removes this triplet** as it does so (the
 > `goals/AGENTS.md` bootstrap rule; you can also delete it by hand).

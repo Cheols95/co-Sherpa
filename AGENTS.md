@@ -26,7 +26,7 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 - **Issue frontmatter = machine-readable contract.** Each issue opens with YAML frontmatter carrying
   `depends: [NNN, ...]` (inline list of blocking issue ids — mirrors the prose "Blocked by" section;
   on disagreement frontmatter wins) and `risk: RISKY | MECHANICAL | NONE`. `/to-issues` emits both;
-  the roadmap dashboard reads `depends:`; `/fcg-goal` mode B carries `risk:` into the goal contract.
+  the roadmap dashboard reads `depends:`; `/build` mode B carries `risk:` into the goal contract.
   - **Risk heuristic (a floor, judged per slice):** `RISKY` if the slice names an explicit edge case,
     invariant, state-coordination or validation rule, **or** touches data integrity (schema/
     migration), auth/security boundaries, money, irreversible external effects, or the `docs/spec/`
@@ -35,16 +35,15 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
     conversion time and bias toward stronger verification (degrade-don't-corrupt).
 - **Triage roles:** `needs-triage` / `needs-info` / `ready-for-agent` / `ready-for-human` / `wontfix`.
 - **Domain docs = single-context:** one `CONTEXT.md` at repo root + `docs/adr/`.
-- **Phase 1→2 bridge:** `/fcg-goal` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
+- **Phase 1→2 bridge:** `/build` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
   `goals/<n>-<name>.{md,gates.sh,next-task.sh}` contracts. On the **first** conversion it
   **replaces the `goals/0-example.*` placeholder triplet** (a teaching example, not a real
   goal; see the Bootstrap rule in `goals/AGENTS.md`) rather than leaving it beside the real
   goals. Goal `<n>` is an ordering label, not a 1:1 map to issue `NNN`; link a goal to its
   issue by slug (`goals/<n>-<slug>`).
 - **FCG invariants:** gates are immutable (fix code, not gates); `.state/` is gitignored;
-  in loop mode never terminate early (3 stalled rounds → the escalation ladder — one
-  context-reinforced retry, one approach-switch retry — then log to `blockers.md` and move on;
-  `guidelines/goal-iteration.md` §When You Are Stuck).
+  in loop mode never terminate early (stuck → climb the bounded escalation ladder, then log a
+  blocker and move on — full ladder: `guidelines/goal-iteration.md` §When You Are Stuck).
 
 ## Spec authority (which doc wins on conflict)
 
@@ -60,11 +59,17 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
 
 ## Phase 1 elicitation (planning gate)
 
+> Sequence: `/grill` (account the decision surface into `docs/grill/checklist.md` until every slot
+> closes) → `/freeze` (the one human approval point — seals the closed feature through
+> to-prd → spec → to-issues → graph-lint as a sealed bundle) → `/build`. Freeze is **per-feature**
+> (tracer-bullet): feature A can be sealing while feature C is still being grilled. Checklist
+> convention: `docs/grill/README.md`.
+
 - **Surface load-bearing choices before freezing the spec.** Persistence, delivery shape
   (service / library / CLI / UI), and stack are decisions the whole plan rests on — state them to
   the user **explicitly, with the trade-off**, never silently default. A silently-defaulted
   load-bearing choice traps a user who didn't know to object; they discover the wrong one only at
-  build time. `to-spec` will not freeze a contract while such a choice is unresolved.
+  build time. `/freeze` will not seal a contract while such a choice is unresolved.
 - **Ask in plain words, encode in precise rules.** With a non-developer, translate jargon into the
   decision behind it: not "is this an invariant?" but "if this changes, must something else change
   too?"; not "what's the authorization model?" but "who may do this, and who must be blocked?" Then
@@ -75,28 +80,65 @@ Entry point for Codex/GPT (Claude also reads `CLAUDE.md`). This repo runs a two-
   composition/identity), **BEHAVIORAL** (lifecycle/concurrency/policy/edges), **TECHNICAL**
   (persistence/interface/consistency), **CONTRACT** (status·enum *sets*/uniqueness/output keys).
   Every slot must end **grounded** (the user said it, or it follows from what they said),
-  **asked-and-answered**, or **deferred-tunable** (a default inside a settled mechanism, marked
-  tunable). Enumerate exhaustively, ask minimally — never ask what is derivable. Grilling ends when
-  no `assumed` slot survives — not when it "feels like enough".
-- **Filter candidate questions through a grounds-gate.** A question may reach the user only when it
-  can state three things: its **site** (which entity/slot), **why** the material at hand doesn't
-  already settle it, and the **consequence** of guessing wrong. A candidate that can't state all
-  three is noise — drop it; don't spray "have you considered X?". The gate filters noise only — it
-  is never a license to drop a load-bearing slot by under-arguing. When genuinely unsure whether a
-  slot is load-bearing, ask: one question costs a beat, an un-surfaced decision costs a wrong build.
+  **asked-and-answered**, **deferred-tunable** (a default inside a settled mechanism, marked
+  tunable), or **N/A — covered** (a load-bearing lens deliberately excluded, with the covering
+  argument named — e.g. "concurrency: N/A — single user"). Every (entity × lens) ends in one of
+  these four — the *total form* the checklist records (`docs/grill/README.md`). Enumerate
+  exhaustively, ask minimally — never ask what is derivable. Grilling ends when no `assumed` slot
+  survives — not when it "feels like enough".
+- **Filter candidate questions through a grounds-gate.** A question — or a new checklist item — may
+  reach the user only when it can state three things: its **site** (which entity/slot), **why** the
+  material at hand doesn't already settle it, and the **consequence** of guessing wrong. **The *why*
+  is the termination engine:** actively argue that spec/code/harness/convention does *not* already
+  cover it — "might be covered" is not enough; a loose *why* lets the surface grow without bound
+  (infinite grilling moves into the file). A candidate that can't state all three is noise — drop it;
+  don't spray "have you considered X?". The gate filters noise only — it is never a license to drop a
+  load-bearing slot by under-arguing. When genuinely unsure whether a slot is load-bearing, ask: one
+  question costs a beat, an un-surfaced decision costs a wrong build.
 - **Demote incoming documents to material — track presence, not coverage.** A spec/plan/notes file
   brought from elsewhere enters as challengeable material, not ground truth: a document's existence
   is no evidence of the design conversation behind it. While accounting the surface, distinguish a
   slot the input merely *mentions* from one it *states with rules* — "touched" is not "covered",
   and only stated-with-rules counts toward `grounded`. Differences between sources (doc ↔ spoken ↔
   code) become questions, never silent picks.
-- **Pre-freeze intent-audit (independent).** Right before `/to-spec` freezes the contract, dispatch
-  one subagent that did **not** author the plan; it reads the dialogue + the decision surface and
-  hunts un-grounded guesses (a slot settled silently, a disposition rubber-stamped). Each finding is
-  closed by asking the user — never patched silently into a document. No subagent tooling available
-  (e.g. a Codex session) → run the audit as an explicit self-review pass and surface the list to the
-  user. The downstream existence of this audit is **no license for shallow grilling** — a finding
-  here means the dialogue was closed too early.
+- **Pre-freeze intent-audit (independent, two directions).** Right before `/freeze` seals the
+  contract, dispatch one subagent that did **not** author the plan; it reads the dialogue + the
+  decision surface and runs **both** audits: **(a) disposition** — is each `[x]`/`deferred` slot
+  defensible from the dialogue, or was a guess rubber-stamped as grounded? (hunts over-claiming);
+  **(b) residual-enumeration** — independently re-walk the four lenses over the entity manifest and
+  colliding pairs to find any obligation-slot *nobody enumerated* (hunts under-listing). **Without
+  (b) the closure condition is forgeable** — closure is defined on the checklist's own contents,
+  which the agent controls, so simply omitting a checkbox would make a feature "closed". Each finding
+  is closed by asking the user — never patched silently into a document; if closing one opens new
+  edges, re-walk only the touched slots once, then escalate to the user (not an open loop). No
+  subagent tooling (e.g. a Codex session) → run both as an explicit self-review pass and surface the
+  list. This audit is **no license for shallow grilling** — a finding here means the dialogue was
+  closed too early.
+- **Freeze is one-way.** Once `/freeze` seals a feature, a *new* design idea about it goes to
+  `docs/findings/` (not a checklist re-open); only a *fundamental error in a frozen decision* re-opens
+  Phase 1, and only with explicit user approval. Routing: simple addition / conflict → findings; the
+  frozen decision itself is wrong → `/grill` re-open.
+
+## Gate validity (Phase 1→2) — trusting an LLM-written gate
+
+Machine-checked gates give **reproducibility** (same code → same verdict), not **validity** (that the
+condition is the *right* one). Three guards keep validity honest:
+
+- **Authority comes from freeze, not invention.** A `.gates.sh` condition must be the mechanical
+  translation of a `/freeze` acceptance criterion (`/build` mode B does issues→gates), not an LLM
+  ad-lib. "Is this gate strange?" then reduces to "did it translate the criterion faithfully?" —
+  checkable, because translation is verifiable where invention is not. The upstream guarantee is
+  freeze's *verifiable floor* (criteria written so "was it met?" is decidable).
+- **Red-first hygiene.** A newly written gate must be run against the **pre-implementation** code and
+  **must fail (red)**. A gate that is green before any code exists checks nothing (`exit 0` /
+  tautology) — red-first catches that class at once. (`/build` runs the new gate on current code at
+  conversion and asserts red.)
+- **green is necessary, not sufficient.** green = "the stated checks passed", not "everything is
+  correct" — a permanent gap remains between a natural-language criterion and a bash check, and gate
+  coverage is capped by decision-surface completeness (un-stated intent is outside the gate). The
+  dashboard should show green as "this promise (the plain-language criterion) held"; RISKY independent
+  review + occasional human spot-checks are the permanent complement. "There's a gate so I needn't
+  look" is reward-hacking.
 
 ## Project-specific skills
 

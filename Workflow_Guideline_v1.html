@@ -313,15 +313,15 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <div class="cw-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
         <span class="cw-title">workflow — 전체 파이프라인</span></div>
       <pre><span class="c"># Phase 1 · 기획 — Claude</span>
-<span class="s">/grill-with-docs</span> → <span class="s">/to-prd</span> → <span class="s">/to-spec</span> → <span class="s">/to-issues</span> → <span class="s">/handoff</span>
-   <span class="c">└ CONTEXT·ADR     PRD     계약(spec)    이슈 슬라이스   인계</span>
+<span class="s">/grill</span> → <span class="s">/freeze</span> → <span class="s">/handoff</span>
+   <span class="c">└ 체크리스트 정산   봉인(PRD·계약·이슈·graph-lint)   인계</span>
 
 <span class="c"># 경계 · 변환 — 정확히 한 번</span>
-<span class="s">/fcg-goal</span> docs/issues/*.md  →  <span class="o">goals/&lt;n&gt;-*</span> 3파일 실행계약
+<span class="s">/build</span> docs/issues/*.md  →  <span class="o">goals/&lt;n&gt;-*</span> 3파일 실행계약
 
 <span class="c"># Phase 2 · 구현 — GPT/Codex (자연어 트리거)</span>
 <span class="k">$</span> bash scripts/diagnose.sh
-<span class="k">&gt;</span> "fcg-goal 돌려줘"          <span class="c"># 게이트 RED → </span><span class="g">GREEN</span>
+<span class="k">&gt;</span> "build 돌려줘"          <span class="c"># 게이트 RED → </span><span class="g">GREEN</span>
 <span class="k">&gt;</span> "범위 밖이니 finding으로 적어둬"
 <span class="k">&gt;</span> "cycles/….md 완수까지 작업해줘"   <span class="c"># 무인 루프</span></pre>
     </div>
@@ -413,7 +413,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             <div class="s-body">
               <div class="row"><span class="lab">절차</span>
                 <ul>
-                  <li><code>bash scripts/install-skills.sh</code> — 레포 <code>skills/</code> 백업에서 Claude 12종 + Codex 4종을 전역 설치</li>
+                  <li><code>bash scripts/install-skills.sh</code> — 레포 <code>skills/</code> 백업에서 Claude 13종 + Codex 4종을 전역 설치</li>
                   <li>스킬은 <b>머신 전역</b>이라 한 번 깔면 이 컴퓨터의 모든 프로젝트가 같이 씁니다</li>
                 </ul>
               </div>
@@ -426,48 +426,43 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <!-- Phase 1 -->
       <div class="phase-block">
         <div class="phase-head"><h3>Phase 1 — 기획 · 계약</h3><span class="pill pill-coral">Claude</span><span class="who">슬래시 명령으로 호출</span></div>
-        <p class="phase-desc">구현이 흔들리지 않도록 <b>계약을 먼저 고정</b>하는 단계. 순서가 곧 설계입니다: 용어·결정(grill) → 의도(PRD) → 계약(spec) → 작업 목록(issues) → 인계(handoff).</p>
+        <p class="phase-desc">구현이 흔들리지 않도록 <b>계약을 먼저 고정</b>하는 단계. 순서가 곧 설계입니다: 결정표면을 체크리스트로 닫고(grill) → 닫힌 기능을 한 번에 봉인(freeze: PRD·계약·이슈·graph-lint) → 인계(handoff).</p>
         <div class="steps">
           <details class="step">
-            <summary><span class="num">1</span><span class="s-cmd">/grill-with-docs</span><span class="s-out">→ CONTEXT.md · docs/adr/</span><span class="chev">▶</span></summary>
+            <summary><span class="num">1</span><span class="s-cmd">/grill</span><span class="s-out">→ docs/grill/checklist.md · CONTEXT.md · docs/adr/</span><span class="chev">▶</span></summary>
             <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> 계획을 도메인 모델·기존 결정과 충돌시키며 다듬는 <b>그릴링(grilling, 집요한 검증 인터뷰)</b> 세션. 용어가 굳을 때마다 용어집(CONTEXT.md)과 결정 기록(ADR)을 그 자리에서 갱신합니다.</div>
-              <div class="row"><span class="lab">종료 판정 — 감이 아니라 회계</span> 엔티티를 나열한 뒤 4개 렌즈(구조 / 행위 / 기술 / 계약)로 훑어 <b>설계가 반드시 답해야 할 결정들을 전부 열거</b>하고, 모든 항목이 "근거 있음 / 물어서 답 받음 / 튜닝값 보류" 중 하나가 되면 끝납니다. 질문은 grounds-gate(어느 슬롯인지 · 왜 기존 재료로 안 풀리는지 · 잘못 추측하면 어떤 대가인지 3요소를 댈 수 있어야 통과)를 거쳐야 사용자에게 도달합니다.</div>
-              <div class="row easy">🔥 <b>쉬운 풀이</b> — 착공 전 깐깐한 건축사와의 인터뷰입니다. "대충 이런 집"으로 시작하면 공사 중에 벽을 부수게 되니, 애매한 부분을 지금 전부 캐묻습니다. 단, 도면에서 유추 가능한 건 묻지 않고 진짜 갈림길만 묻습니다.</div>
+              <div class="row"><span class="lab">무엇을</span> 계획을 도메인 모델·기존 결정과 충돌시키며 다듬는 <b>그릴링(grilling, 집요한 검증 인터뷰)</b> 세션. 결정표면을 <code>docs/grill/checklist.md</code>에 4개 렌즈(구조 / 행위 / 기술 / 계약)로 <b>회계</b>해 슬롯마다 상태를 추적하고, 용어가 굳을 때마다 용어집(CONTEXT.md)과 결정 기록(ADR)을 그 자리에서 갱신합니다.</div>
+              <div class="row"><span class="lab">종료 판정 — 감이 아니라 회계</span> 엔티티를 나열한 뒤 4렌즈로 <b>설계가 반드시 답해야 할 결정들을 전부 열거</b>하고, 각 슬롯이 네 상태 중 하나로 닫힙니다 — <code>[x]</code> 결정 / <code>[~]</code> 보류 / <code>[&gt;]</code> 실험 대기 / <code>[-]</code> 렌즈 해당없음. 빈칸(<code>[ ]</code>)도 미해결 <code>[&gt;]</code>도 없으면 grill이 <b>"기능 X 닫힘 — /freeze ready"</b>를 선언합니다. 질문은 grounds-gate(어느 슬롯인지 · 왜 기존 재료로 안 풀리는지 · 잘못 추측하면 어떤 대가인지 3요소를 댈 수 있어야 통과)를 거쳐야 사용자에게 도달합니다.</div>
+              <div class="row easy">🔥 <b>쉬운 풀이</b> — 착공 전 깐깐한 건축사와의 인터뷰입니다. 다만 "충분히 물은 느낌"으로 끝내지 않고, 답해야 할 결정을 <code>docs/grill/checklist.md</code>라는 한 장에 적어 칸칸이 채웁니다 — 결정 <code>[x]</code> · 나중에 <code>[~]</code> · 실험으로 답할 것 <code>[&gt;]</code> · 해당없음 <code>[-]</code>. 칸이 전부 닫혀야 "닫힘" 도장을 찍습니다.</div>
             </div>
           </details>
           <details class="step">
             <summary><span class="num">2</span><span class="s-cmd">/prototype</span><span class="s-out">(선택) 버리는 시제품</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> 설계를 확정하기 전에 <b>버릴 각오로 만드는 시제품</b>. 데이터 모델·상태 흐름이 궁금하면 터미널 앱으로, 화면이 궁금하면 과감하게 다른 UI 변형 여러 개를 한 화면에서 토글해보며 고릅니다.</div>
-              <div class="row easy">🧪 <b>쉬운 풀이</b> — 본 공사 전의 종이 모형. 모형은 버리는 게 정상이고, 모형에서 얻은 "답"만 설계에 들어갑니다.</div>
+              <div class="row"><span class="lab">실험은 슬롯에 묶인다</span> 프로토타입은 grill 체크리스트의 어떤 <code>[&gt;]</code>(실험 대기) 슬롯을 닫는지 명시해야 합니다 — <b>슬롯이 없으면 프로토타입도 없습니다</b>. 실험이 끝나면 그 슬롯이 <code>[x]</code>로 닫혀 freeze 자격을 갖춥니다.</div>
+              <div class="row easy">🧪 <b>쉬운 풀이</b> — 본 공사 전의 종이 모형. 모형은 버리는 게 정상이고, 모형에서 얻은 "답"만 설계에 들어갑니다. 모형은 반드시 "어느 질문에 답하려고"(어느 <code>[&gt;]</code> 칸) 만드는지를 정해두고 시작합니다.</div>
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">3</span><span class="s-cmd">/to-prd</span><span class="s-out">→ docs/prd/PRD.md</span><span class="chev">▶</span></summary>
+            <summary><span class="num">3</span><span class="s-cmd">/freeze</span><span class="s-out">→ PRD · spec · issues · graph-lint (봉인)</span><span class="chev">▶</span></summary>
             <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> 지금까지의 대화를 PRD(Product Requirements Document, 제품 요구사항 문서)로 굳힙니다. PRD는 <b>"원래 의도"의 사진</b>입니다 — 이후 코드가 바뀌어도 PRD는 다시 쓰지 않으며, 현재 상태의 권위는 spec이 가집니다.</div>
-              <div class="row easy">📸 <b>쉬운 풀이</b> — "우리가 처음에 무엇을 왜 만들기로 했는가"를 찍어두는 기념사진. 나중에 길을 잃었을 때 돌아볼 원점입니다.</div>
+              <div class="row"><span class="lab">무엇을</span> grill로 닫힌 <b>기능 하나</b>를 단 한 번의 호출로 봉인하는 sealed 번들. <b>이 호출 자체가 유일한 인간 승인점</b>입니다 — 도장 한 번에 PRD·계약·이슈·그래프 검사까지 한꺼번에 굳힙니다.</div>
+              <div class="row"><span class="lab">내부 5단계 (순서대로)</span>
+                <ul>
+                  <li>① <b>2방향 의도감사</b> — 기획에 참여하지 않은 비저자 서브에이전트가 처분(disposition) + 잔여 항목 열거(residual-enumeration)로 1회 감사. 대화에서 조용히 채워진 추측(아무도 결정한 적 없는데 문서에 들어간 것)을 사냥합니다.</li>
+                  <li>② <b>to-prd</b> — 대화를 <code>docs/prd/PRD.md</code>로 굳힘. PRD는 <b>"원래 의도"의 사진</b>이라 이후 코드가 바뀌어도 다시 쓰지 않고, 현재 상태의 권위는 spec이 가집니다.</li>
+                  <li>③ <b>spec 생성 / 증분확장</b> — spec이 없으면 to-spec으로 계약문서(데이터 스키마 · API 계약 · 공개 타입 + INDEX.md)를 처음 생성, 이미 있으면 충돌 검사 후 증분 확장. spec은 구현이 <b>최우선으로 참조하는 단일 진실원천</b>이며 충돌 시 PRD·ADR보다 우선합니다.</li>
+                  <li>④ <b>to-issues</b> — PRD+계약을 <b>수직 슬라이스</b>(화면부터 저장소까지 얇게 관통하는 tracer-bullet 동작 단위) 이슈로 자름. 각 이슈 머리에 기계가 읽는 frontmatter <code>depends:</code>(선행 이슈)·<code>risk: RISKY|MECHANICAL|NONE</code>(위험 등급)이 붙습니다.</li>
+                  <li>⑤ <b>graph-lint</b> — <code>scripts/issues-graph-check.sh</code>로 의존성 그래프의 순환(cycle)·끊긴 참조(dangling)를 검사하는 <b>하드 게이트</b>. 통과해야 봉인이 완료됩니다.</li>
+                </ul>
+              </div>
+              <div class="row"><span class="lab">sealed — 중간 질문 없음</span> 번들 실행 중에는 사용자에게 되묻지 않습니다. <b>모든 미결정은 grill 체크리스트에서 이미 닫혀 있어야</b> 합니다 — 예컨대 테스트 이음새(test seam)는 그릴링에서 정해지지, 봉인 중에 다시 묻지 않습니다.</div>
+              <div class="row easy">📜 <b>쉬운 풀이</b> — 계약서 묶음(PRD·계약·이슈)에 <b>도장을 한 번</b> 찍는 순간입니다. 도장을 찍기 직전 제3자(비저자 에이전트)가 "이 조항, 정말 합의하신 건가요?"를 한 번 더 검토하고, 서류끼리 앞뒤가 맞는지(graph-lint) 기계가 확인합니다. 도장은 닫힌 기능에만 — 기능 단위로 찍습니다.</div>
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">4</span><span class="s-cmd">/to-spec</span><span class="s-out">→ docs/spec/* + INDEX.md (계약 고정)</span><span class="chev">▶</span></summary>
-            <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> 승인된 ADR + PRD + 용어집을 읽어 <b>계약문서</b>(데이터 스키마 · API 계약 · 공개 타입)를 처음 생성합니다. 구현 모델이 <b>최우선으로 참조하는 단일 진실원천</b>이며, 충돌 시 PRD·ADR보다 우선합니다.</div>
-              <div class="row"><span class="lab">동결 직전 안전장치</span> 계약을 굳히기 직전, 기획에 참여하지 않은 <b>비저자 서브에이전트가 의도-감사 1회</b>를 수행합니다 — 대화에서 조용히 채워진 추측(아무도 결정한 적 없는데 문서에 들어간 것)을 사냥해 사용자 질문으로 되돌립니다.</div>
-              <div class="row easy">📜 <b>쉬운 풀이</b> — 시공 계약서에 도장을 찍는 순간입니다. 도장 찍기 직전에 제3자(다른 에이전트)가 "이 조항, 정말 합의하신 건가요?"를 한 번 더 검토합니다.</div>
-            </div>
-          </details>
-          <details class="step">
-            <summary><span class="num">5</span><span class="s-cmd">/to-issues</span><span class="s-out">→ docs/issues/NNN-*.md</span><span class="chev">▶</span></summary>
-            <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> PRD + 계약을 <b>수직 슬라이스</b>(화면부터 저장소까지 얇게 관통하는 동작 단위) 이슈 목록으로 자릅니다. 각 이슈 머리에는 기계가 읽는 frontmatter — <code>depends:</code>(선행 이슈)와 <code>risk: RISKY|MECHANICAL|NONE</code>(위험 등급) — 가 붙습니다.</div>
-              <div class="row"><span class="lab">왜 수직으로</span> "DB 전부 → API 전부 → 화면 전부"처럼 층으로 자르면 마지막까지 아무것도 동작하지 않습니다. 슬라이스마다 끝까지 동작하는 한 줄기를 먼저 뚫는 방식(tracer bullet)이라 매 단계 검증 가능합니다.</div>
-              <div class="row easy">🍰 <b>쉬운 풀이</b> — 케이크를 층별로 분해하지 않고 조각으로 자릅니다. 한 조각만 먹어도 모든 층을 맛볼 수 있게.</div>
-            </div>
-          </details>
-          <details class="step">
-            <summary><span class="num">6</span><span class="s-cmd">/handoff</span><span class="s-out">→ 인계 문서 (Phase 1 마무리)</span><span class="chev">▶</span></summary>
+            <summary><span class="num">4</span><span class="s-cmd">/handoff</span><span class="s-out">→ 인계 문서 (Phase 1 마무리)</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> 현재 대화를 다른 에이전트(또는 미래의 세션)가 이어받을 수 있는 압축 문서로 만듭니다. 모델 전환(Claude → Codex)이나 긴 세션 교체 전에 항상 실행합니다.</div>
               <div class="row"><span class="lab">필수 명시</span> 인계 문서에 <b><code>goals/</code> 변환 상태(미변환 | 변환완료)</b>를 반드시 적습니다 — 누락하면 다음 에이전트가 이중 변환하거나 빈 goals에 구현 모드를 돌리는 사고가 납니다.</div>
@@ -477,7 +472,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         </div>
 
         <div class="callout callout-info mt-30"><span class="mark">✅</span>
-          <div><b>Phase 1 마감 체크리스트</b> — grill에만 의존하지 말고 아래 7개가 구체화됐는지 직접 확인하세요. (체크는 저장되지 않습니다 — 눈으로 점검하는 용도)
+          <div><b>Phase 1 마감 체크리스트</b> — 이제 <code>/grill</code>이 이 결정표면을 <code>docs/grill/checklist.md</code>에 4상태(<code>[x]</code>/<code>[~]</code>/<code>[&gt;]</code>/<code>[-]</code>) 라이브 체크리스트로 추적하므로, 아래 7개는 <b>사람이 눈으로 한 번 더 보는 백업</b>입니다. (체크는 저장되지 않습니다 — 눈으로 점검하는 용도)
             <div class="checklist">
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>1. 구현가능성</span></label>
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>2. 기술 스택</span></label>
@@ -498,7 +493,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <p class="phase-desc">Phase 1의 이슈 "목록"을 Phase 2의 goal "실행계약"으로 바꾸는 단 하나의 작업입니다.</p>
         <div class="steps">
           <details class="step">
-            <summary><span class="num">★</span><span class="s-cmd">/fcg-goal docs/issues/*.md</span><span class="s-out">→ goals/&lt;n&gt;-* 3파일 실행계약 (모드 B)</span><span class="chev">▶</span></summary>
+            <summary><span class="num">★</span><span class="s-cmd">/build docs/issues/*.md</span><span class="s-out">→ goals/&lt;n&gt;-* 3파일 실행계약 (모드 B)</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> 각 수직 슬라이스를 <code>goals/&lt;n&gt;-&lt;이름&gt;.{md, gates.sh, next-task.sh}</code> 3파일 계약으로 변환합니다. 이슈의 <code>risk:</code> 등급도 goal로 운반됩니다. 첫 변환은 교육용 예제 <code>goals/0-example.*</code>을 제거하고 실제 goal로 교체합니다.</div>
               <div class="row"><span class="lab">⚠ 함정</span> 변환은 <b>경계에서 정확히 한 번</b> — 기획(Claude)이 handoff 전에 하거나, 구현(Codex)이 handoff 후에 하거나 둘 중 하나입니다. 그래서 handoff 문서에 변환 상태를 반드시 명시합니다. 층위 구분: 이슈 "목록" ≠ goal "3파일 실행계약" ≠ spec "계약 인터페이스".</div>
@@ -514,7 +509,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <p class="phase-desc">게이트를 초록불로 만드는 자율 루프. TDD 규율(RED 테스트 → GREEN 최소코드 → REFACTOR)이 내장되어 있습니다.</p>
 
         <div class="callout callout-warn"><span class="mark">⚠️</span>
-          <div><b>모델별 호출 방식이 다릅니다.</b> Claude는 슬래시(<code>/fcg-goal</code>)가 먹지만, <b>Codex는 슬래시가 안 먹습니다</b> — 자연어로 트리거하세요: <i>"fcg-goal 돌려줘"</i>, <i>"이건 범위 밖이니 finding으로 적어둬"</i>, <i>"cycles/&lt;파일&gt;.md 완수까지 작업해줘"</i>. Codex에는 구현용 4종(fcg 3종 + handoff)만 설치되어 있습니다.</div>
+          <div><b>모델별 호출 방식이 다릅니다.</b> Claude는 슬래시(<code>/build</code>)가 먹지만, <b>Codex는 슬래시가 안 먹습니다</b> — 자연어로 트리거하세요: <i>"build 돌려줘"</i>, <i>"이건 범위 밖이니 finding으로 적어둬"</i>, <i>"cycles/&lt;파일&gt;.md 완수까지 작업해줘"</i>. Codex에는 구현용 4종(fcg 3종 + handoff)만 설치되어 있습니다.</div>
         </div>
 
         <div class="steps">
@@ -526,7 +521,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">2</span><span class="s-cmd">"fcg-goal 돌려줘"</span><span class="s-out">모드 A — active goal을 GREEN으로</span><span class="chev">▶</span></summary>
+            <summary><span class="num">2</span><span class="s-cmd">"build 돌려줘"</span><span class="s-out">모드 A — active goal을 GREEN으로</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> active goal의 게이트를 통과시킬 때까지 TDD로 자율 반복합니다. 커밋도 규율대로: <code>red(id):</code> → <code>green(id):</code> → <code>refactor(id):</code>. 초록불이 되면 다음 goal로 자동 전진합니다.</div>
               <div class="row"><span class="lab">RISKY 마감 리뷰</span> 위험 등급이 RISKY인 goal은 초록불 후 전진 전에 <b>작성에 관여하지 않은 서브에이전트가 미션 ↔ 실제 코드 변경분(raw diff)을 1회 대조</b>합니다. 발견은 finding 큐로 가고, 게이트 판정 자체는 막지 않습니다(게이트가 유일한 "완료" 권위).</div>
@@ -639,7 +634,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <tr><td><code>docs/state/</code></td><td>진행 상태 — 자동생성(progress·next-task) + append-only(blockers·learnings)</td></tr>
         <tr><td><code>goals/</code> · <code>cycles/</code></td><td>FCG 미션 스택(3파일 계약) · 루프 구동 문서</td></tr>
         <tr><td><code>scripts/</code></td><td>FCG 오케스트레이터(diagnose·completion-check 등) + install-skills + update-workflow + reset</td></tr>
-        <tr><td><code>skills/</code></td><td>전역 스킬 12종의 <b>소스 백업</b>(정본) — 비활성, install-skills.sh가 배포</td></tr>
+        <tr><td><code>skills/</code></td><td>전역 스킬 13종의 <b>소스 백업</b>(정본) — 비활성, install-skills.sh가 배포</td></tr>
         <tr><td><code>.claude/skills/</code></td><td>이 프로젝트 <b>전용</b> 스킬 슬롯 (현재 roadmap 1종)</td></tr>
         <tr><td><code>dashboard/</code></td><td>로드맵 대시보드 엔진 + self-test</td></tr>
         <tr><td><code>guidelines/</code> · <code>prompts/</code></td><td>iteration 운영 매뉴얼·품질점검 / 메타 프롬프트(cycle 생성, 테스트 점검)</td></tr>
@@ -658,7 +653,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 <main id="panel-skills" class="panel">
   <header class="wrap" style="padding-top:72px">
     <div class="kicker">스킬 사전</div>
-    <h1 style="font-size:48px">13개의 스킬, 각자의 원리</h1>
+    <h1 style="font-size:48px">14개의 스킬, 각자의 원리</h1>
     <p class="sec-sub">스킬(skill)은 에이전트가 특정 작업 방식을 따르도록 하는 절차 묶음입니다 — 요리로 치면 레시피. 카드를 눌러 펼치면 <b>작동 원리</b>와 <b>쉬운 풀이</b>가 나옵니다.</p>
     <div class="filter-row">
       <button class="chip active" data-f="all" onclick="filterSkills('all',this)">전체</button>
@@ -674,17 +669,30 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 
       <details class="skill" data-cat="p1">
         <summary>
-          <div class="sk-top"><span class="sk-name">/grill-with-docs</span><span class="pill pill-coral">Phase 1</span></div>
-          <div class="sk-one">계획을 도메인 모델과 충돌시켜 다듬는 그릴링 세션 — 용어집·ADR을 그 자리에서 갱신</div>
+          <div class="sk-top"><span class="sk-name">/grill</span><span class="pill pill-coral">Phase 1</span></div>
+          <div class="sk-one">계획을 도메인 모델과 충돌시켜 다듬는 그릴링 세션 — 결정표면을 체크리스트로 정산하고 용어집·ADR을 갱신</div>
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span>
-            계획을 기존 문서·결정과 대조하며 모순과 빈칸을 캐묻습니다. 핵심 장치 셋 —
-            ① <b>결정표면 회계</b>: 엔티티마다 4렌즈(구조: 1:N인가? / 행위: 수명주기·동시성 / 기술: 저장·인터페이스 / 계약: 상태값 집합·유일성)를 돌려 답해야 할 결정을 전부 열거하고 슬롯별 상태를 추적.
-            ② <b>grounds-gate</b>: 질문이 사용자에게 도달하려면 "어느 슬롯 · 왜 기존 재료로 안 풀리나 · 오답의 대가" 3요소를 대야 함 — 노이즈 질문 차단.
-            ③ <b>문서 강등</b>: 외부에서 가져온 기획서는 진실이 아니라 "도전 가능한 재료"로 취급 — 언급(touched)과 규칙으로 서술(covered)을 구분.</div>
-          <div class="row"><span class="lab">산출물</span> <code>CONTEXT.md</code>(용어집) · <code>docs/adr/</code>(결정 기록)</div>
-          <div class="row easy">🔥 비유하면 깐깐한 건축사 인터뷰입니다. 다만 아무거나 묻지 않습니다 — 도면에서 유추되는 건 안 묻고, 잘못 추측하면 비싼 결정만 골라 묻습니다. "충분히 물은 느낌"이 아니라 "물을 것 목록이 비었음"이 종료 조건입니다.</div>
+            계획을 기존 문서·결정과 대조하며 모순과 빈칸을 캐묻습니다. 핵심 장치 넷 —
+            ① <b>결정표면 회계</b>: 엔티티마다 4렌즈(구조: 1:N인가? / 행위: 수명주기·동시성 / 기술: 저장·인터페이스 / 계약: 상태값 집합·유일성)를 돌려 답해야 할 결정을 <code>docs/grill/checklist.md</code>에 전부 열거하고 슬롯별 상태를 추적.
+            ② <b>4상태 닫힘</b>: 각 슬롯은 <code>[x]</code> 결정 / <code>[~]</code> 보류 / <code>[&gt;]</code> 실험 대기 / <code>[-]</code> 렌즈 해당없음 중 하나로 닫힘. 빈칸도 미해결 <code>[&gt;]</code>도 없으면 <b>"기능 X 닫힘 — /freeze ready"</b>를 선언.
+            ③ <b>grounds-gate</b>: 질문이 사용자에게 도달하려면 "어느 슬롯 · 왜 기존 재료로 안 풀리나 · 오답의 대가" 3요소를 대야 함 — 노이즈 질문 차단.
+            ④ <b>문서 강등</b>: 외부에서 가져온 기획서는 진실이 아니라 "도전 가능한 재료"로 취급 — 언급(touched)과 규칙으로 서술(covered)을 구분.</div>
+          <div class="row"><span class="lab">산출물</span> <code>docs/grill/checklist.md</code>(결정표면 정산) · <code>CONTEXT.md</code>(용어집) · <code>docs/adr/</code>(결정 기록, 드물게)</div>
+          <div class="row easy">🔥 비유하면 깐깐한 건축사 인터뷰입니다. 다만 아무거나 묻지 않습니다 — 도면에서 유추되는 건 안 묻고, 잘못 추측하면 비싼 결정만 골라 묻습니다. "충분히 물은 느낌"이 아니라 "체크리스트의 모든 칸이 닫혔음"이 종료 조건이며, 닫히면 <code>/freeze</code>로 넘길 수 있습니다.</div>
+        </div>
+      </details>
+
+      <details class="skill" data-cat="p1">
+        <summary>
+          <div class="sk-top"><span class="sk-name">/freeze</span><span class="pill pill-coral">Phase 1</span><span class="pill pill-amber">bespoke</span></div>
+          <div class="sk-one">닫힌 기능 하나를 한 번의 호출로 PRD·계약·이슈·graph-lint까지 봉인하는 sealed 오케스트레이터</div>
+        </summary>
+        <div class="sk-body">
+          <div class="row"><span class="lab">작동 원리</span> grill이 "닫힘"을 선언한 기능을 단 한 번의 호출로 봉인합니다 — <b>이 호출 자체가 유일한 인간 승인점</b>입니다. 내부에서 순서대로 ① <b>2방향 의도감사</b>(비저자 서브에이전트가 처분 + 잔여 항목 열거로 채워진 추측 사냥) → ② <b>to-prd</b>(의도 사진) → ③ <b>spec 생성 / 증분확장</b>(없으면 0→1 생성, 있으면 충돌 검사 후 확장) → ④ <b>to-issues</b>(수직 슬라이스 + depends/risk frontmatter) → ⑤ <b>graph-lint</b>(<code>scripts/issues-graph-check.sh</code>로 순환·dangling 하드 게이트)를 돌립니다. <b>sealed 모드</b>라 번들 도중 사용자에게 되묻지 않습니다 — 모든 미결정은 grill 체크리스트에서 이미 닫혀 있어야 하며, 봉인은 <b>기능 단위(tracer-bullet)</b>로 한 번에 하나씩 찍습니다.</div>
+          <div class="row"><span class="lab">호출</span> Claude: <code>/freeze</code> (Codex 미설치 — 기획 스킬) · 산출물: <code>docs/prd/PRD.md</code> · <code>docs/spec/*</code> · <code>docs/issues/NNN-*.md</code></div>
+          <div class="row easy">📜 비유하면 계약서 묶음(PRD·계약·이슈)에 도장을 <b>한 번</b> 찍는 절차입니다. 도장 직전 제3자가 "정말 합의된 조항입니까?"를 검토하고, 서류끼리 앞뒤가 맞는지(graph-lint)를 기계가 확인합니다. 도장 한 번이 곧 사람의 승인이라, 그 안에서는 더 묻지 않습니다.</div>
         </div>
       </details>
 
@@ -707,6 +715,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span> grill까지의 대화에서 합의된 요구사항을 구조화된 PRD로 추출해 이슈 트래커(이 템플릿에서는 <code>docs/prd/PRD.md</code> 로컬 파일)에 발행합니다. PRD는 "원래 의도"의 고정 사진 — 이후 구현이 바뀌어도 PRD를 고치지 않고, 현재 상태의 권위는 spec이 갖습니다.</div>
+          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님).</div>
           <div class="row"><span class="lab">산출물</span> <code>docs/prd/PRD.md</code></div>
           <div class="row easy">📸 "처음에 무엇을 왜 만들기로 했나"의 기념사진. 항해 중 길을 잃으면 돌아보는 원점이지, 매일 보는 지도(spec)가 아닙니다.</div>
         </div>
@@ -719,6 +728,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span> 승인된 ADR + PRD + 용어집을 읽어 데이터 스키마 · API 계약 · 도메인 타입 등 <b>코드가 반드시 따르는 안정 인터페이스</b>를 추출하고 <code>INDEX.md</code>로 묶습니다. "현재 계약 = INDEX.md가 가리키는 것만"이라는 권위 규칙으로, 구현 에이전트가 무엇을 최우선으로 읽을지 못 헷갈리게 만듭니다. 생성 전용입니다 — 이후 유지보수는 <code>/spec-sync</code> 담당(역할 분리).</div>
+          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님 — 없으면 0→1 생성, 있으면 증분확장).</div>
           <div class="row"><span class="lab">산출물</span> <code>docs/spec/data-schema.md · api-contract.md · domain-types.md … + INDEX.md</code></div>
           <div class="row easy">📜 시공 계약서 작성입니다. 도장 찍은 뒤(동결 후)에는 구현이 이 계약서를 "단일 진실"로 따르고, 현실과 어긋나기 시작하면 spec-sync가 개정 절차를 밟습니다. 이 템플릿 전용으로 만든 스킬이라 공개 출처가 없습니다.</div>
         </div>
@@ -730,7 +740,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">PRD+계약을 수직 슬라이스 이슈 목록으로 분해 (depends/risk frontmatter 포함)</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> tracer-bullet(예광탄 — 끝까지 관통하는 한 발을 먼저 쏘아 조준을 확인하는 방식) 원칙으로, 층(DB→API→UI)이 아니라 <b>동작하는 세로 조각</b>으로 자릅니다. 각 이슈에 기계가 읽는 머리표를 답니다: <code>depends: [선행 이슈]</code>(로드맵 대시보드가 읽음) + <code>risk: RISKY|MECHANICAL|NONE</code>(데이터 무결성·인증·돈·계약 표면을 건드리면 RISKY — fcg-goal이 goal로 운반해 마감 리뷰 강도를 결정).</div>
+          <div class="row"><span class="lab">작동 원리</span> tracer-bullet(예광탄 — 끝까지 관통하는 한 발을 먼저 쏘아 조준을 확인하는 방식) 원칙으로, 층(DB→API→UI)이 아니라 <b>동작하는 세로 조각</b>으로 자릅니다. 각 이슈에 기계가 읽는 머리표를 답니다: <code>depends: [선행 이슈]</code>(로드맵 대시보드가 읽음) + <code>risk: RISKY|MECHANICAL|NONE</code>(데이터 무결성·인증·돈·계약 표면을 건드리면 RISKY — build이 goal로 운반해 마감 리뷰 강도를 결정).</div>
+          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님 — 봉인 마지막에 graph-lint로 순환·dangling 검사).</div>
           <div class="row"><span class="lab">산출물</span> <code>docs/issues/NNN-*.md</code> (001부터 번호)</div>
           <div class="row easy">🍰 케이크를 조각으로 자르는 일 + 조각마다 "위험물 취급 주의" 스티커를 붙이는 일. 위험 스티커가 붙은 조각은 나중에 검수를 한 번 더 받습니다.</div>
         </div>
@@ -750,7 +761,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 
       <details class="skill" data-cat="p2">
         <summary>
-          <div class="sk-top"><span class="sk-name">fcg-goal</span><span class="pill pill-dark">Phase 2 엔진</span></div>
+          <div class="sk-top"><span class="sk-name">build</span><span class="pill pill-dark">Phase 2 엔진</span></div>
           <div class="sk-one">단일 엔진, 3개 모드 — 입력 종류가 곧 모드 선택</div>
         </summary>
         <div class="sk-body">
@@ -763,7 +774,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             </table>
           </div>
           <div class="row"><span class="lab">내장 규율</span> TDD(red→green→refactor 커밋) · 게이트 불변(코드를 고치지 게이트를 고치지 않음) · RISKY goal 마감 시 비저자 diff 대조 리뷰 · 3회 무진전 시 사다리(맥락보강→접근전환→blocker 기록)</div>
-          <div class="row"><span class="lab">호출</span> Claude: <code>/fcg-goal</code> · Codex: "fcg-goal 돌려줘", "PRD를 goals 계약으로 변환해줘"</div>
+          <div class="row"><span class="lab">모드 B 위생검사</span> 변환 시 <b>red-first 검사</b>(<code>scripts/red-first-check.sh</code> — 새 게이트는 구현 전 코드에서 반드시 RED여야 함. 구현 전인데 GREEN이면 비어 있거나 항진명제인 가짜 게이트)와 graph-lint를 함께 돌려 게이트와 의존성 그래프의 무결성을 확인합니다.</div>
+          <div class="row"><span class="lab">호출</span> Claude: <code>/build</code> · Codex: "build 돌려줘", "PRD를 goals 계약으로 변환해줘"</div>
           <div class="row easy">🚦 "검사기 초록불 될 때까지 일하는 기계"입니다. 중요한 건 검사기를 속일 수 없다는 것 — "모든 X가 Y하다"라는 약속이면 게이트가 실제로 X 전부를 순회하며 검사하고, 게이트 자체를 느슨하게 고치는 것은 금지 규율입니다.</div>
         </div>
       </details>
@@ -786,7 +798,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">미해결 findings를 한 세션짜리 루프 구동 문서로 묶는 작성기</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> 열린 findings를 우선순위·의존성으로 정렬해 <code>cycles/&lt;YYMMDD&gt;-&lt;NN&gt;-&lt;slug&gt;.md</code>로 묶습니다. cycle 문서는 goal이 아닙니다 — 게이트 없는 "프롬프트"이며, 실행 규율(처리 순서·품질점검 주기·종료 조건)을 본문에 담습니다. 생성된 문서는 fcg-goal 모드 C로 실행합니다.</div>
+          <div class="row"><span class="lab">작동 원리</span> 열린 findings를 우선순위·의존성으로 정렬해 <code>cycles/&lt;YYMMDD&gt;-&lt;NN&gt;-&lt;slug&gt;.md</code>로 묶습니다. cycle 문서는 goal이 아닙니다 — 게이트 없는 "프롬프트"이며, 실행 규율(처리 순서·품질점검 주기·종료 조건)을 본문에 담습니다. 생성된 문서는 build 모드 C로 실행합니다.</div>
           <div class="row"><span class="lab">호출</span> Claude: <code>/fcg-cycles</code> · Codex: "쌓인 findings 묶어서 cycle 만들어줘", "야간 작업서 만들어줘"</div>
           <div class="row easy">📦 흩어진 메모지들을 "오늘 밤 작업지시서" 한 장으로 정리하는 공정 관리자. 지시서가 좋을수록 무인 야간 작업의 품질이 올라갑니다.</div>
         </div>
@@ -795,11 +807,11 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <details class="skill" data-cat="aux">
         <summary>
           <div class="sk-top"><span class="sk-name">/tdd</span><span class="pill pill-teal">보조</span></div>
-          <div class="sk-one">red-green-refactor 테스트 설계의 깊이를 보강 — fcg-goal과 택일 아님</div>
+          <div class="sk-one">red-green-refactor 테스트 설계의 깊이를 보강 — build과 택일 아님</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> TDD 절차 자체는 fcg-goal에 내장돼 있습니다. 이 스킬이 더하는 건 "어떻게 도는가"가 아니라 <b>"무엇을 왜 그렇게 테스트하나"</b> — 구현 세부가 아닌 공개 동작을 검증해 리팩토링에도 살아남는 테스트, 깊은 모듈 인터페이스 설계, mocking 가이드. 테스트 설계가 까다로운 기능이나 goal 루프 밖 단발 작업(버그 수정, 프로토타입)에서 따로 부릅니다.</div>
-          <div class="row easy">🧰 fcg-goal이 "공정 순서를 아는 작업자"라면, /tdd는 "검사 항목을 어떻게 정해야 하는지 아는 품질 엔지니어"입니다. 평소엔 작업자로 충분하고, 검사 설계가 어려운 부품에서 엔지니어를 부릅니다.</div>
+          <div class="row"><span class="lab">작동 원리</span> TDD 절차 자체는 build에 내장돼 있습니다. 이 스킬이 더하는 건 "어떻게 도는가"가 아니라 <b>"무엇을 왜 그렇게 테스트하나"</b> — 구현 세부가 아닌 공개 동작을 검증해 리팩토링에도 살아남는 테스트, 깊은 모듈 인터페이스 설계, mocking 가이드. 테스트 설계가 까다로운 기능이나 goal 루프 밖 단발 작업(버그 수정, 프로토타입)에서 따로 부릅니다.</div>
+          <div class="row easy">🧰 build이 "공정 순서를 아는 작업자"라면, /tdd는 "검사 항목을 어떻게 정해야 하는지 아는 품질 엔지니어"입니다. 평소엔 작업자로 충분하고, 검사 설계가 어려운 부품에서 엔지니어를 부릅니다.</div>
         </div>
       </details>
 
@@ -847,8 +859,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <h2 style="font-size:32px">스킬은 머신 전역, 자산은 프로젝트별</h2>
       <p class="sec-sub">위 스킬들은 폴더 복사로 따라오지 않습니다 — 전역 설치본이 실행되고, 레포 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">skills/</code>는 정본 백업입니다.</p>
       <div class="grid-3 mt-40">
-        <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 12종</div><h3 style="font-size:18px;margin-top:6px">Claude 전체 세트</h3><p>Phase 1 기획 6종 + 구현 3종 + 보조·정비 3종. 슬래시 명령으로 호출.</p></div>
-        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 4종</div><h3 style="font-size:18px;margin-top:6px">Codex 구현 세트</h3><p>fcg-goal · fcg-findings · fcg-cycles · handoff만. 기획 스킬까지 깔면 컨텍스트 비용만 늘어 제외. 자연어로 호출.</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 13종</div><h3 style="font-size:18px;margin-top:6px">Claude 전체 세트</h3><p>Phase 1 기획 7종(freeze 포함) + 구현 3종 + 보조·정비 3종. 슬래시 명령으로 호출.</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 4종</div><h3 style="font-size:18px;margin-top:6px">Codex 구현 세트</h3><p>build · fcg-findings · fcg-cycles · handoff만. 기획 스킬까지 깔면 컨텍스트 비용만 늘어 제외. 자연어로 호출.</p></div>
         <div class="dark-card"><div class="mono-tag">.claude/skills/ — 프로젝트</div><h3 style="font-size:18px;margin-top:6px">프로젝트 전용 슬롯</h3><p>현재 roadmap 1종. 패턴이 반복 증명될 때만 추가(컨텍스트 비용 절제).</p></div>
       </div>
       <p class="mt-30" style="font-size:14.5px">설치·재배포 명령은 <a href="#update" onclick="showTab('update');return false" style="color:var(--amber)">③ 업데이트 탭</a>에 있습니다.</p>
@@ -874,7 +886,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="ic">🔧</div>
           <h3>채널 1 — 스킬 (동사)</h3>
           <p><b>머신 전역 1회 = 전 프로젝트 동시 반영.</b> 스킬은 <code>~/.claude/skills/</code>·<code>~/.codex/skills/</code>에 살므로, 템플릿에서 한 번 재배포하면 이 컴퓨터의 모든 프로젝트가 즉시 새 스킬을 씁니다.</p>
-          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: 레포 <code>skills/</code> 12종 · 도구: <code>install-skills.sh</code></p>
+          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: 레포 <code>skills/</code> 13종 · 도구: <code>install-skills.sh</code></p>
         </div>
         <div class="feature-card">
           <div class="ic">📦</div>
@@ -1032,8 +1044,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <h4>스킬 출처 (크레딧)</h4>
         <ul>
           <li>Matt Pocock — <a href="https://github.com/mattpocock/skills">mattpocock/skills</a><br><span style="font-size:12px">grill·to-prd·to-issues·prototype·tdd·improve-arch·handoff</span></li>
-          <li>greatSumini — <a href="https://github.com/greatSumini/cc-system">cc-system</a><br><span style="font-size:12px">fcg-goal·fcg-findings·fcg-cycles</span></li>
-          <li>템플릿 bespoke — to-spec·spec-sync·roadmap<br><span style="font-size:12px">레포 사본에 템플릿 전용 수정 포함 — 원 출처 재설치 금지</span></li>
+          <li>greatSumini — <a href="https://github.com/greatSumini/cc-system">cc-system</a><br><span style="font-size:12px">build·fcg-findings·fcg-cycles</span></li>
+          <li>템플릿 bespoke — freeze·to-spec·spec-sync·roadmap<br><span style="font-size:12px">레포 사본에 템플릿 전용 수정 포함 — 원 출처 재설치 금지</span></li>
         </ul>
       </div>
     </div>

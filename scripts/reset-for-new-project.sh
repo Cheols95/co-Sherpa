@@ -43,5 +43,5 @@ if [ -f .claude/settings.local.json.example ] && [ ! -f .claude/settings.local.j
 fi
 
 echo
-echo "Next: plan with /grill-with-docs (Claude), then fill the Architecture"
+echo "Next: plan with /grill (Claude), then fill the Architecture"
 echo "      and Context sections in AGENTS.md."

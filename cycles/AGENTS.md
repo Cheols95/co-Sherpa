@@ -125,17 +125,14 @@ Read before authoring: `docs/goal-design.md` (especially §1.5, §5),
   Minimal-gate rules: `docs/goal-design.md §1.5`.
 - **Design for unattended (overnight) runs.** Put deep, safe queues
   (large per-file work) last; mark items needing design decisions
-  out-of-scope. After 3 TDD cycles with no progress, climb the bounded
-  escalation ladder — one context-reinforced retry, then one
-  approach-switch retry (`guidelines/goal-iteration.md` §When You Are
-  Stuck) — then write a blocker and move to the next target — **never
-  terminate early**. Terminate only when every in-scope target is
-  resolved/partial and the chain is green.
-- **Output discipline (loop mode).** The agent speaks only at (a) a real
-  question, (b) a target/cycle result, (c) a blocker. No transition
-  narration ("now I'll read X", "이제 ~를 하겠습니다") — the tool calls are
-  already visible. No internal jargon in user-facing lines. Output tokens
-  are direct cost; narrating routine steps is waste.
+  out-of-scope. When stuck, climb the bounded escalation ladder
+  (context-reinforced retry → approach-switch retry → write a blocker →
+  next target) and **never terminate early** — terminate only when every
+  in-scope target is resolved/partial and the chain is green. Ladder
+  steps and counts: `guidelines/goal-iteration.md` §When You Are Stuck.
+- **Output discipline (loop mode).** Speak only at a real question, a
+  target/cycle result, or a blocker — no transition narration (tool calls
+  are already visible). Full rule: `skills/build/SKILL.md` §출력 규율.
 
 ---
 

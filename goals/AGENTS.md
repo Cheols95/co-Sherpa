@@ -32,7 +32,7 @@ gate" failure.
 
 **Bootstrap rule — the first conversion replaces `0-example`.**
 `goals/0-example.*` is a **teaching placeholder**, not part of the real
-chain. The **first** `fcg-goal` mode-B conversion (issues/PRD → goals)
+chain. The **first** `build` mode-B conversion (issues/PRD → goals)
 MUST delete the `goals/0-example.{md,gates.sh,next-task.sh}` triplet as it
 writes your first real numbered goal — otherwise the throwaway example
 (name starts with `0`, so it is a live goal) lingers as a permanent
@@ -86,7 +86,7 @@ declared.
 ## Risk tier & RISKY close-out review
 
 - A numbered goal's `.md` MAY open with frontmatter `risk: RISKY | MECHANICAL | NONE`,
-  **carried from the source issue's frontmatter** at conversion (fcg-goal mode B) or judged
+  **carried from the source issue's frontmatter** at conversion (build mode B) or judged
   there by the heuristic in `AGENTS.md` §"Agent-skills configuration". An omitted `risk` is
   **unclassified, NOT mechanical**.
 - **Runtime upgrade-only.** If mid-loop the goal proves more behavioral / multi-file /

@@ -217,5 +217,7 @@ gate fail 여부 — 구현 형태가 아니라 진행 상태에 대한 명제).
 4. `_gate-cache.sh` source + `GATE_INPUTS` + rigor self-check 포함, `chmod +x`.
 5. 횡단 검사(lint/typecheck/test/build)는 이 goal이 아니라 `_meta` 소관.
 6. Forbidden actions에 scope 경계 명시.
-7. 첫 변환이면 `goals/0-example.*` 삭제(부트스트랩 규약) — 이 `EXAMPLE.md`는
+7. gate/`_meta`가 테스트 러너를 호출하면 디렉토리가 아니라 파일/글롭 인자 —
+   디렉토리 발견 의미는 런타임 버전마다 달라 wiring-red 유발(`docs/goal-design.md` §1.5).
+8. 첫 변환이면 `goals/0-example.*` 삭제(부트스트랩 규약) — 이 `EXAMPLE.md`는
    문서라 삭제 대상이 아니다.

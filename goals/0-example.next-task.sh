@@ -9,7 +9,7 @@ if bash "$ROOT/goals/0-example.gates.sh" >/dev/null 2>&1; then
   cat <<'MSG'
 TASK: Goal 0-example is green.
   - This is a teaching example, not a real goal. The normal path is to
-    run fcg-goal on your issues/PRD (mode B): it converts them into
+    run build on your issues/PRD (mode B): it converts them into
     goals/<n>-<name>.{md,gates.sh,next-task.sh} and removes this
     0-example triplet as it does so (goals/AGENTS.md bootstrap rule;
     you can also delete it by hand).

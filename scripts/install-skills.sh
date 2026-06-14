@@ -4,15 +4,15 @@
 #
 # The template ships FCG *assets* in-repo; the workflow *skills* run from
 # global installs and do NOT travel with a folder copy/clone. The repo
-# skills/ directory is the SINGLE SOURCE for all 12 workflow skills
+# skills/ directory is the SINGLE SOURCE for all 13 workflow skills
 # (inert backup -- Claude/Codex never load it directly), and this script
 # deploys it:
 #
-#   skills/<all 12>            -> ~/.claude/skills/   (Claude)
+#   skills/<all 13>            -> ~/.claude/skills/   (Claude)
 #   skills/<CODEX_SET, 4>      -> ~/.codex/skills/    (Codex / GPT)
 #
 # CODEX_SET = the implementation-phase skills Codex actually triggers:
-# fcg-goal, fcg-findings, fcg-cycles, handoff. Phase-1 planning skills
+# build, fcg-findings, fcg-cycles, handoff. Phase-1 planning skills
 # stay Claude-only (listing them in Codex would only cost context).
 #
 # NOTE: several skills carry template-specific fixes (dryforge transplants,
@@ -38,7 +38,7 @@ CODEX_DST="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 FORCE=0
 [ "${1:-}" = "--force" ] && FORCE=1
 
-CODEX_SET="fcg-goal fcg-findings fcg-cycles handoff"
+CODEX_SET="build fcg-findings fcg-cycles handoff"
 
 if [ ! -d "$SRC" ]; then
   echo "[FAIL] no source dir: $SRC"

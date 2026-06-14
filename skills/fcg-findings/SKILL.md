@@ -38,7 +38,7 @@ related:                               # 선택: 다른 finding/goal/소스 경�
 4. (선택) Options/Recommendation · Acceptance signal(닫혔음을 확인할 구체적 테스트/grep) · Migration plan
 
 ## 출력 규율
-큐잉은 조용한 작업이다 — finding을 적는 과정을 내레이션하지 말고, 기록 완료(경로+한 줄 요약)만 보고한다.
+큐잉은 조용한 작업이다 — 기록 완료(경로+한 줄 요약)만 보고하고 과정은 내레이션하지 않는다. (일반 규율: `skills/build/SKILL.md` §출력 규율 — 질문/결과/blocker만 말함.)
 
 ## 정직성 규칙
 - 종결 주장 전 **코드로 검증**: 문서가 "Goal X가 A를 닫는다"고 해도 그건 *계획*이지 사실이 아니다. 해당 file:line을 grep/Read로 확인 후 `resolved: true`.

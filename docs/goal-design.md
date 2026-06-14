@@ -186,6 +186,16 @@ gates.sh 가 _유일하게_ 책임지는 건 세 종류만 남는다:
 스크립트·deep gate(별도 cadence)·`guidelines/품질점검.md` §5 로 검증한다 (exit 0 ≠ 작동). deep
 gate 도 엄연히 gate 다 (아래 § Deep gate split).
 
+#### 테스트 러너를 호출하는 gate: 디렉토리가 아니라 파일/글롭으로
+
+gate(또는 `_meta`)가 테스트 러너를 직접 실행한다면 러너에 **명시적 파일/글롭**을
+넘겨라 — **디렉토리 인자를 피하라.** 러너의 "디렉토리 자동 발견" 의미는 런타임
+버전마다 다르다(예: 일부 런타임은 `runner <dir>` 를 "그 디렉토리를 *모듈로* 실행"
+으로 해석해 `MODULE_NOT_FOUND` 로 죽는다). 그러면 코드가 아무리 옳아도 gate 는
+**실행 자체에서 실패해 영원히 red** 가 된다 — 빈 게이트(항상 green)의 정반대다.
+`scripts/red-first-check.sh` 가 변환 직후 이런 "assertion 이 아니라 wiring 에러로
+인한 red" 를 경고하지만, 애초에 파일/글롭으로 호출하는 게 1차 방어다.
+
 ### 2. 첫 실패 goal = 작업 대상
 
 `completion-check.sh` 가 goal 들을 번호순으로 돌면서 첫 실패만

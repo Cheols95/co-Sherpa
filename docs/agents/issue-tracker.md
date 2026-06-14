@@ -12,5 +12,5 @@
 - **Issue frontmatter:** `depends: [NNN, ...]` (machine-readable dependency contract; beats the
   prose "Blocked by" on disagreement) + `risk: RISKY | MECHANICAL | NONE` (heuristic + carry rules
   in `AGENTS.md`; omitted = unclassified, not MECHANICAL).
-- **Phase 1→2 bridge:** `/fcg-goal` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
+- **Phase 1→2 bridge:** `/build` reads `docs/issues/*.md` (or `docs/prd/PRD.md`) and writes
   `goals/<n>-<name>.{md,gates.sh,next-task.sh}` execution contracts.

@@ -31,16 +31,10 @@ cd "$ROOT"
 mkdir -p "$ROOT/.state"
 ACTIVE_FILE="$ROOT/.state/active-goal"
 
-# Portable sha256 for the rigor-cache fingerprint below. macOS lacks
-# sha256sum by default; minimal Linux/CI images may lack shasum. Mirror
-# the detection in scripts/_gate-cache.sh so the rigor cache works on both.
-if command -v shasum >/dev/null 2>&1; then
-  _RIGOR_SHA="shasum -a 256"
-elif command -v sha256sum >/dev/null 2>&1; then
-  _RIGOR_SHA="sha256sum"
-else
-  _RIGOR_SHA=""
-fi
+# Portable sha256 for the rigor-cache fingerprint: reuse the single detection
+# in _gate-cache.sh (source-only helper) instead of duplicating it. It exports
+# $_GATE_CACHE_SHA_CMD (the external sha command, or "" if none is available).
+. "$ROOT/scripts/_gate-cache.sh"
 
 CONCURRENCY="${GATES_CONCURRENCY:-4}"
 case "$CONCURRENCY" in
@@ -91,7 +85,7 @@ fi
 if [ "$NUM_NUMBERED" -eq 0 ] && [ -n "$META_MD" ]; then
   echo "[completion-check] No numbered goal authored yet (only _meta)."
   echo "  _meta passes vacuously on a fresh template, so this is NOT done."
-  echo "  Convert your spec into the first goal: run fcg-goal on"
+  echo "  Convert your spec into the first goal: run build on"
   echo "  docs/issues/*.md (or docs/prd/PRD.md). Mode B writes"
   echo "  goals/<n>-<name>.{md,gates.sh,next-task.sh} and replaces the"
   echo "  goals/0-example.* placeholder."
@@ -180,8 +174,8 @@ rigor_fingerprint() {
     echo ""
     return
   fi
-  [ -n "$_RIGOR_SHA" ] || { echo ""; return; }
-  cat "${files[@]}" 2>/dev/null | $_RIGOR_SHA 2>/dev/null | awk '{print $1}'
+  [ -n "$_GATE_CACHE_SHA_CMD" ] || { echo ""; return; }
+  cat "${files[@]}" 2>/dev/null | $_GATE_CACHE_SHA_CMD 2>/dev/null | awk '{print $1}'
 }
 
 rigor_cache_fresh() {

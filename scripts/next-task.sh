@@ -31,7 +31,7 @@ fi
 if [ "$ACTIVE" = "NEEDS_FIRST_GOAL" ]; then
   cat <<'EOF'
 TASK: No numbered goal authored yet (only _meta).
-  - Convert your spec into the first goal: run fcg-goal on
+  - Convert your spec into the first goal: run build on
     docs/issues/*.md (or docs/prd/PRD.md). Mode B writes
     goals/<n>-<name>.{md,gates.sh,next-task.sh} and replaces the
     goals/0-example.* placeholder.

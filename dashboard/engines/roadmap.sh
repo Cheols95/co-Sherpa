@@ -10,6 +10,9 @@ mkdir -p "$(dirname "$OUT")"
 OUT="$(cd "$(dirname "$OUT")" && pwd)/$(basename "$OUT")"
 cd "$SOURCE_ROOT"
 
+# shared depends parser (single source of truth, also used by issues-graph-check.sh)
+. "$ROOT/scripts/_deps-lib.sh"
+
 json_escape() {
   sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/ /g' | tr -d '\r\n'
 }
@@ -84,20 +87,10 @@ if [ -d "$SOURCE_ROOT/docs/issues" ]; then
       END{ print body }
     ' "$f" 2>/dev/null)"
 
-    # Dependency source of truth: frontmatter `depends: [NNN, ...]` (inline
-    # list, first frontmatter block) is the machine-readable contract and
-    # wins; the prose "## Blocked by" section is the human-readable fallback
-    # for issues authored before the frontmatter convention.
-    # `tr '\n' ' '` flattens multi-id "Blocked by" blocks to one line BEFORE
-    # the value enters the pipe-delimited FEATURE_ROWS record. Without it, 2+
-    # deps embed a newline that splits the record on read-back (finding
-    # 2026-06-06T0100). Downstream `for d in $deps` handles space separation.
-    deps="$(awk '/^---[[:space:]]*$/{c++; next} c==1 && /^depends:/{sub(/^depends:[[:space:]]*/,""); print; exit}' "$f" 2>/dev/null |
-      grep -oE '\b[0-9]{3}\b' | sort -u | grep -v "^$id$" | tr '\n' ' ' || true)"
-    if [ -z "$deps" ]; then
-      deps="$(awk 'tolower($0) ~ /^##[[:space:]]+blocked by/{flag=1; next} /^##[[:space:]]/{if(flag) exit} flag' "$f" 2>/dev/null |
-        grep -oE '\b[0-9]{3}\b' | sort -u | grep -v "^$id$" | tr '\n' ' ' || true)"
-    fi
+    # depends parser lives in scripts/_deps-lib.sh (single source of truth,
+    # shared with issues-graph-check.sh). frontmatter `depends:` wins, prose
+    # "## Blocked by" is the fallback; space-separated, safe for the record.
+    deps="$(parse_issue_deps "$f" "$id")"
     deps_js=""
     for d in $deps; do
       [ -n "$deps_js" ] && deps_js="$deps_js,"

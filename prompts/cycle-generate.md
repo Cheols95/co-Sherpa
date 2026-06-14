@@ -24,41 +24,25 @@
 - `docs/findings/AGENTS.md` — finding frontmatter schema
 - 프로젝트의 커밋 규약
 
-문서에 **반드시** 포함할 것:
+문서에 **반드시** 포함할 섹션과 그 상세 규격은 `cycles/AGENTS.md` §"A cycle
+document MUST contain"(단일 출처)를 따른다. 그 목록을 빠짐없이 채우되, 이 메타
+프롬프트에서 특히 주의할 점만 아래에 보강한다:
 
-1. **frontmatter** — `cycle` / `title` / `authored_at` / `started_at`
-   (공란) / `completed_at` (공란) / `status: draft`.
-2. **목표 + Target findings** — 닫을 finding 목록과 그들 간 순서/의존성.
-   우선순위(P0→P2)와 가치/위험으로 tier 를 나눈다. 시작 상태(현재 chain
-   green 여부, 최고 goal 번호, 작업 브랜치)를 명시.
-3. **루프 알고리즘** — 대략:
-   1. 미완료 goal 이 있는지 확인. 있으면 TDD 로 완수.
-   2. 모든 goal 이 green 이면, target findings 중 미해결 첫 항목을
-      처리(promote/delegate/direct).
-   3. 모든 target 이 닫혔고 chain 이 green 이면 종료.
-   - 무진전(3 사이클) 시 사다리 2단 — 맥락 보강 재시도 1회 → 접근 전환
-     재시도 1회 (`guidelines/goal-iteration.md` §When You Are Stuck) —
-     후에도 무진전이면 blocker 기록 후 다음 target — **조기 종료 금지**.
-     promote 한 goal 이 막히면 promotion back-out 으로 chain 을 green 복귀.
-4. **Finding 처리 절차** — 읽기 / promote·delegate·direct 판단 / 실행
-   (TDD) / 검증(Acceptance signal) / 마무리(frontmatter + `## Resolution`).
-5. **Goal 화 시 주의점** — minimal gates (rigor + negative universal +
-   구조 앵커만), prior-gate 수정은 §5 케이스 (a)/(b)/(c) 준수.
-6. **Out of scope** — 손대지 않을 항목 (대형 리팩터, 설계 결정 필요,
-   유료/위험 작업). 발견해도 등록만.
-7. **Reference snapshots** — `kind: snapshot`/`append-only-log` finding
-   (force-close 금지).
-8. **Forbidden actions** — HARD STOP 규칙 (hook 우회 금지, 테스트/lint
-   비활성화 금지, coverage threshold 인하 금지, prior invariant 무단
-   약화 금지, destructive git 금지, `.env`/credential 커밋 금지 등).
-9. **Commit / push 프로토콜** — 브랜치, 메시지 포맷, push 실패 대응.
-10. **종료 / 검증** — 진짜 끝났는지 확인하는 명령들 (target finding 상태
-    점검 + `bash scripts/completion-check.sh` exit 0 + `git status` clean +
-    push 완료). 종료 시 frontmatter `completed_at`/`status` 갱신 +
-    `learnings.md` 한 줄 + **종료 보고에 `/spec-sync` 1회 권고**(사이클이
-    코드를 가장 많이 바꾼 직후가 계약 정합의 최적 시점 — Phase 2.5 cadence).
-11. **출력 규율** — 말하는 순간은 (a) 질문 (b) target/사이클 결과 (c)
-    blocker 뿐. 과정 내레이션("이제 ~를 읽겠습니다") 금지 — 도구 호출은
-    이미 화면에 보인다. 출력 토큰은 직접 비용이다.
+- **frontmatter** — `cycle`/`title`/`authored_at`/`started_at`(공란)/
+  `completed_at`(공란)/`status: draft`. (필드 의미: `cycles/AGENTS.md` §Frontmatter.)
+- **목표 + Target findings** — 우선순위(P0→P2)·가치/위험으로 tier 를 나누고,
+  시작 상태(현재 chain green 여부, 최고 goal 번호, 작업 브랜치)를 명시.
+- **루프 알고리즘** — 미완료 goal 마무리 → 다음 미해결 target → 모두 닫히고
+  chain green 이면 종료. 무진전 시 사다리(맥락 보강 → 접근 전환 → blocker →
+  다음 target, **조기 종료 금지**; `guidelines/goal-iteration.md` §When You Are
+  Stuck). promote 한 goal 이 막히면 promotion back-out 으로 chain 을 green 복귀.
+- **Goal 화 시 주의점** — minimal gates (rigor + negative universal + 구조
+  앵커만), prior-gate 수정은 `docs/goal-design.md` §5 케이스 (a)/(b)/(c) 준수.
+- **Reference snapshots** — `kind: snapshot`/`append-only-log` finding 은
+  force-close 금지.
+- **종료 / 검증** — frontmatter `completed_at`/`status` 갱신 + `learnings.md`
+  한 줄 + **`/spec-sync` 1회 권고**(`cycles/AGENTS.md` §"A cycle document
+  MUST contain" — Termination/verification 항).
+- **출력 규율** — `skills/build/SKILL.md` §출력 규율.
 
 모호하거나 논의할 점 있으면 작성 전에 제안해라.

@@ -122,7 +122,7 @@ git log --oneline -5  # 이번 iteration 커밋들이 보여야 함
    복귀.
 
 사다리는 여기서 끝난다 — 2단을 넘겨 재시도 루프를 돌지 마라(무인 루프
-보호). cycle 모드(fcg-goal 모드 C)의 target 처리에도 동일하게 적용된다.
+보호). cycle 모드(build 모드 C)의 target 처리에도 동일하게 적용된다.
 
 ## Working With State Files
 

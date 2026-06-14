@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# goals/0-example.gates.sh -- Worked example. Replaced when fcg-goal
+# goals/0-example.gates.sh -- Worked example. Replaced when build
 # converts your spec into real goals (mode B); see goals/0-example.md.
 # Demonstrates three things every real gate should have:
 #   1. the gate cache (source _gate-cache.sh, declare GATE_INPUTS),

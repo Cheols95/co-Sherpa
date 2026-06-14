@@ -130,6 +130,17 @@ else
 fi
 echo ""
 
+echo "=== Issue dependency graph ==="
+# Advisory only -- never gates. The hard gate is the /freeze pipeline's
+# graph-lint stage (scripts/issues-graph-check.sh, exit code). Here we just
+# surface cycles / dangling deps so they are visible every iteration.
+if [ -d docs/issues ]; then
+  bash "$ROOT/scripts/issues-graph-check.sh" 2>&1 | sed 's/^/  /' || true
+else
+  echo "  (no docs/issues/ directory)"
+fi
+echo ""
+
 # ─── Project signals (add stack-specific sections here) ─────────────────
 # Examples you might add:
 #   - test pass/fail summary from your runner

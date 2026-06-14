@@ -34,6 +34,7 @@ fi
 # DIRTY template falsely reporting "clean".
 mapfile -t prd_leftovers < <(find docs/prd -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
 mapfile -t issue_leftovers < <(find docs/issues -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
+mapfile -t grill_leftovers < <(find docs/grill -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
 mapfile -t goal_leftovers < <(
   find goals -maxdepth 1 -type f 2>/dev/null |
     sed 's#.*/##' |
@@ -44,6 +45,7 @@ mapfile -t goal_leftovers < <(
 
 report_dirty "docs/prd contains project PRD files" "${prd_leftovers[@]}"
 report_dirty "docs/issues contains project issue files" "${issue_leftovers[@]}"
+report_dirty "docs/grill contains project checklist files" "${grill_leftovers[@]}"
 report_dirty "goals contains project goal files" "${goal_leftovers[@]}"
 
 required=(

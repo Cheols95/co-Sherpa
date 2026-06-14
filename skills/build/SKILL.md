@@ -1,9 +1,9 @@
 ---
-name: fcg-goal
-description: "FCG(findings-cycles-goals) 목표 엔진. goals/ 미션 스택을 .gates.sh로 기계 검증하며 게이트를 green으로 만든다. (1) 'goal 돌려줘', 'fcg-goal', '게이트 통과시켜줘', 'active goal 완수' 요청, (2) docs/issues/*.md 또는 docs/prd/PRD.md를 goals/<n>-* 실행계약으로 변환할 때, (3) 'cycles/<파일>.md 완수까지 작업' 처럼 cycle driver 문서를 받아 무한 루프로 실행할 때 활성화. goal 파일과 cycle driver 둘 다 입력으로 받는다."
+name: build
+description: "FCG(findings-cycles-goals) 목표 엔진. goals/ 미션 스택을 .gates.sh로 기계 검증하며 게이트를 green으로 만든다. (1) 'goal 돌려줘', 'build', '게이트 통과시켜줘', 'active goal 완수' 요청, (2) docs/issues/*.md 또는 docs/prd/PRD.md를 goals/<n>-* 실행계약으로 변환할 때, (3) 'cycles/<파일>.md 완수까지 작업' 처럼 cycle driver 문서를 받아 무한 루프로 실행할 때 활성화. goal 파일과 cycle driver 둘 다 입력으로 받는다."
 ---
 
-# fcg-goal — FCG 목표 엔진
+# build — FCG 목표 엔진
 
 `goals/`(미션 스택)를 `.gates.sh`로 기계 검증하며 완수하는 엔진. **goal 파일** 또는 **cycle driver 파일**을 입력으로 받아 같은 FCG 루프를 돌린다. 단일 에이전트(Claude 또는 GPT/Codex)가 직접 실행한다 — 멀티 에이전트 팀 불필요.
 
@@ -64,6 +64,12 @@ goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아
 - 횡단 불변식(lint/typecheck/test/build)은 `_meta` 세트로.
 - 각 gate는 `scripts/_gate-cache.sh`를 source하고 `GATE_INPUTS`를 선언하며, 끝에 `check-gate-rigor.sh`로 자기 `.md` 정합성을 검사.
 - **게이트 ≠ convention police**: 테스트·타입체커·커버리지가 더 정확히 잡는 것은 게이트에 하드코딩하지 않는다. "이 불변식이 깨지면 어떤 테스트가 red가 되나?" → 된다면 그 테스트가 소유, 게이트에서 제거.
+- **red-first 위생검사 (변환 직후 1회)**: 3파일을 다 만든 직후, 구현 전 코드에서
+  `bash scripts/red-first-check.sh`로 새 goal 게이트가 **전부 red인지** 확인한다. 구현 전
+  green인 게이트는 아무것도 안 검사하는 빈 게이트(`exit 0`·tautology) — 그 자리에서 고친다.
+  (근거: 프로젝트 `AGENTS.md` §Gate validity. check-gate-rigor가 못 잡는 빈-게이트 클래스를 잡는다.)
+- **graph-lint (변환 후)**: 이슈 의존성을 옮겼으면 `bash scripts/issues-graph-check.sh`로
+  순환·dangling이 없는지 확인(`/freeze`가 이미 봉인 시 강제하지만, 직접 변환 경로의 안전선).
 
 ---
 
@@ -72,9 +78,9 @@ goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아
 `cycles/<파일>.md`는 한 세션 **loop-driver 프롬프트**다. 그 문서의 알고리즘대로:
 1. 체인 상태 확인 → 미완 goal 마무리 → 다음 finding.
 2. 각 finding: 읽기 → promote(goal로)·직접처리 결정 → TDD 실행 → 코드 대조 검증 → frontmatter/Resolution 갱신.
-3. **무인 운영 규율**: 한 target에서 TDD 3회 연속 무진전이면 사다리 2단을 먼저 — ① 맥락 보강 재시도 1회 ② 접근 전환 재시도 1회(`guidelines/goal-iteration.md` §When You Are Stuck) — 그래도 무진전이면 `blockers.md`에 각 단의 시도·결과를 기록 후 다음 target으로. **절대 조기 종료 금지** — 모든 in-scope가 resolved/partial이고 체인이 green일 때만 종료.
+3. **무인 운영 규율**: 무진전이면 사다리(맥락 보강 → 접근 전환 → blocker 기록 후 다음 target)를 밟고 **절대 조기 종료 금지** — 모든 in-scope가 resolved/partial이고 체인이 green일 때만 종료. 사다리 단계·횟수는 `guidelines/goal-iteration.md` §When You Are Stuck.
 4. out-of-scope로 명시된 항목은 발견해도 건드리지 않는다.
-5. **종료 보고에 `/spec-sync` 1회 권고를 포함**한다 — 사이클 직후가 계약(docs/spec) 정합의 최적 시점.
+5. **종료 보고에 `/spec-sync` 1회 권고를 포함**한다 — 사이클 직후가 계약(docs/spec) 정합의 최적 시점(근거: `cycles/AGENTS.md` §"A cycle document MUST contain" — Termination/verification 항).
 
 ---
 
