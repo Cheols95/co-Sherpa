@@ -41,10 +41,10 @@ bash scripts/update-state.sh    # docs/state/{progress,next-task}.md 재생성
 1. 새 세션·수정 시작 시 반드시 `diagnose.sh`로 active-goal 방향을 먼저 확인.
 2. `active-check.sh`가 green이 될 때까지 코드를 RED→GREEN으로 수정. green이면 엔진이 자동으로 다음 goal로 전진.
 3. 게이트는 직접 고치지 않는다 — 코드를 고쳐 게이트를 통과시킨다. (게이트는 불변 계약)
-4. **RISKY 마감 리뷰**: goal frontmatter가 `risk: RISKY`면 green 후 전진 전에 비저자 서브에이전트 1회가
-   goal `.md` 미션 ↔ 이 goal의 라벨 커밋 raw diff를 대조한다(요약 전달 금지 — 앵커링 방지). 발견은
-   finding으로 큐잉할 뿐 게이트 판정을 막지 않는다. 작업 중 행위 표면이 선언보다 크면 그 자리에서
-   RISKY로 **상향만** 허용(하향은 사용자 승인). 상세: 프로젝트 `goals/AGENTS.md` §Risk tier.
+4. **RISKY 마감 리뷰**: goal frontmatter가 `risk: RISKY`면 green 후 전진 전, 비저자 서브에이전트 1회로
+   goal `.md` ↔ 라벨 커밋 raw diff를 대조(발견은 finding 큐잉 — 게이트 판정은 안 막음). 행위 표면이 선언보다
+   크면 그 자리에서 RISKY **상향**(하향은 사용자 승인). 절차·근거(왜 비저자·왜 raw diff·no-tooling 폴백):
+   프로젝트 `goals/AGENTS.md` §Risk tier & RISKY close-out review.
 
 ---
 
