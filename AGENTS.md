@@ -1,7 +1,8 @@
 # AGENTS.md — Project context & rules
 
-Entry point for Codex/GPT (Claude reads this via `CLAUDE.md`'s `@AGENTS.md` import). This repo runs a
-two-model flow (**Claude = planning+implementation / GPT = implementation**) on the **FCG** harness.
+Entry point for Codex/GPT (Claude reads this via `CLAUDE.md`'s `@AGENTS.md` import). This repo runs on
+the **FCG** harness. **Claude and GPT are interchangeable peers — either model runs the full flow
+(grill → freeze → build); no role split.**
 
 - The **user drives** the slash-command sequence; skills self-trigger from their own descriptions.
 - Full workflow (human reference): `Workflow_Guideline_v1.html`. FCG mechanics: `docs/fcg-system.md`.
