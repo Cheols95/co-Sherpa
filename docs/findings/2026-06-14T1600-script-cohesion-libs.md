@@ -1,9 +1,11 @@
 ---
 title: 스크립트 열거/파싱 로직 라이브러리 추출 (_goals-lib)
 created_at: 2026-06-14T16:00:45Z
-resolved: false
+resolved: true
 priority: P2
+resolved_by: 68468d2
 related:
+  - scripts/_goals-lib.sh
   - scripts/_deps-lib.sh
   - scripts/_gate-cache.sh
   - scripts/completion-check.sh
@@ -44,3 +46,36 @@ goal 열거(`_meta`-first 재정렬)·frontmatter 필드 파싱·issue-id 추출
 1. `_goals-lib.sh` 추출(열거 + frontmatter helper).
 2. completion-check.sh·diagnose.sh부터 교체 → 출력 비교(동일 확인).
 3. 나머지 4개 스크립트 + roadmap.sh `issue_id_for` 교체.
+
+## Resolution
+
+**resolved 2026-06-15 (commit `68468d2`).** `scripts/_goals-lib.sh` 신설
+(source-only, `_deps-lib`/`_gate-cache`와 동일 패턴) — 헬퍼:
+`find_numbered_mds`·`find_goal_mds`·`find_goal_artifacts`·`meta_md_path`·
+`read_active_goal`·`frontmatter_field`.
+
+처리:
+- **`_meta`-first 열거 중복** (completion-check ↔ diagnose): 각 호출처가
+  `meta_md_path` + `find_numbered_mds`로 분리 호출. completion-check의
+  `GATES_SKIP_META` 분기와 diagnose의 무조건 prepend를 **각각 보존**.
+- **bare `find … sort -V` 7곳**: `find_numbered_mds`/`find_goal_mds`로 교체
+  (completion-check 59/219/293, diagnose 63, check-gate-rigor 104, next-task 44,
+  update-state 36).
+- **active-goal 읽기 6곳**: `read_active_goal`로 교체.
+- **roadmap.sh `issue_id_for` 우회**: 인라인 `${base%%-*}` → `issue_id_for "$f"`.
+- **frontmatter awk idiom**: 제네릭 `frontmatter_field`를 lib에 두고
+  `diagnose.sh:128`(resolved)이 사용.
+
+**검증**: 각 헬퍼가 원본 인라인식과 byte-identical(unit-equivalence diff 0),
+6개 스크립트 출력이 변경 전후 동일(diagnose·completion-check은
+`GATES_SKIP_META=1` 포함), `roadmap-selftest.sh` green, `bash -n` 전부 통과.
+
+**의도적으로 남긴 것 (중복 아님 — 각 1회·고유 술어)**:
+- `diagnose.sh:95` `real_goal` (`! -name '0-example.md'` — 부트스트랩 전용).
+- `template-clean-check.sh:39` (goals/ 전체 파일 — 템플릿 위생, goal 열거 아님).
+- `_deps-lib.sh:26` `parse_issue_deps` (depends + 산문 폴백 + id 필터 —
+  graph-lint 게이트가 의존. `frontmatter_field`로 합치면 issues-graph-check·
+  roadmap이 `_goals-lib`에 transitively 의존하게 되므로 결합 회피 위해 미변경).
+
+→ Acceptance: 중복 열거 블록 0(7→0), 남은 `find goals -maxdepth 1`은 위 2개
+고유 술어뿐. completion-check/diagnose 출력 동일.
