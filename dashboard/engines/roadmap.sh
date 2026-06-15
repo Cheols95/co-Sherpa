@@ -62,7 +62,7 @@ if [ -d "$SOURCE_ROOT/docs/issues" ]; then
     [ -z "$f" ] && continue
     ISSUE_COUNT=$((ISSUE_COUNT + 1))
     base="$(basename "$f" .md)"
-    id="${base%%-*}"
+    id="$(issue_id_for "$f")"
     slug="${base#*-}"
     IDS="$IDS $id"
 

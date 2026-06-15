@@ -35,6 +35,7 @@ ACTIVE_FILE="$ROOT/.state/active-goal"
 # in _gate-cache.sh (source-only helper) instead of duplicating it. It exports
 # $_GATE_CACHE_SHA_CMD (the external sha command, or "" if none is available).
 . "$ROOT/scripts/_gate-cache.sh"
+. "$ROOT/scripts/_goals-lib.sh"
 
 CONCURRENCY="${GATES_CONCURRENCY:-4}"
 case "$CONCURRENCY" in
@@ -48,15 +49,11 @@ esac
 # checklists, a scheduled job) override with GATES_SKIP_DEEP=0.
 export GATES_SKIP_DEEP="${GATES_SKIP_DEEP:-1}"
 
+META_MD="$(meta_md_path)"
 GOALS=()
-META_MD=""
 while IFS= read -r f; do
-  if [ "$(basename "$f")" = "_meta.md" ]; then
-    META_MD="$f"
-  else
-    GOALS+=("$f")
-  fi
-done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V)
+  GOALS+=("$f")
+done < <(find_numbered_mds)
 
 # Numbered-goal count BEFORE _meta is folded in below. A stack of only
 # _meta (zero numbered goals) is NOT "done": _meta passes vacuously on a
@@ -160,9 +157,7 @@ RIGOR_CACHE_DIR="$ROOT/.state/gate-cache"
 RIGOR_CACHE_FILE="$RIGOR_CACHE_DIR/_meta-rigor"
 
 rigor_inputs() {
-  find goals -maxdepth 1 -type f \
-    \( -name '[0-9]*.md' -o -name '_meta.md' -o -name '[0-9]*.gates.sh' -o -name '_meta.gates.sh' \) \
-    2>/dev/null | sort -V
+  find_goal_artifacts
 }
 
 rigor_fingerprint() {
@@ -216,7 +211,7 @@ else
       if ! bash "$ROOT/scripts/check-gate-rigor.sh" "$md" >/dev/null 2>&1; then
         FAILED+=("$md")
       fi
-    done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) | sort -V)
+    done < <(find_goal_mds)
   fi
 fi
 echo
@@ -290,7 +285,7 @@ if [ "$OVERALL_PASS" != true ] && [ -z "$FIRST_FAIL_MD" ]; then
   if [ -n "$META_MD" ]; then
     FIRST_FAIL_MD="$META_MD"
   else
-    FIRST_FAIL_MD=$(find goals -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V | head -1)
+    FIRST_FAIL_MD=$(find_numbered_mds | head -1)
   fi
 fi
 

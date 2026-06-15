@@ -25,6 +25,7 @@ workflow-manifest.txt
 # -- FCG 오케스트레이터 (scripts/smoke.sh는 프로젝트별 -- 등재 금지) --
 scripts/_deps-lib.sh
 scripts/_gate-cache.sh
+scripts/_goals-lib.sh
 scripts/active-check.sh
 scripts/check-gate-rigor.sh
 scripts/completion-check.sh

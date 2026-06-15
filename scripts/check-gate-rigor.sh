@@ -25,6 +25,8 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+. "$ROOT/scripts/_goals-lib.sh"
+
 QUANT='(every|all|each)'
 NOUN='(entit(y|ies)|models?|tables?|records?|rows?|routes?|endpoints?|apis?|files?|modules?|packages?|commands?|subcommands?|functions?|methods?|class(es)?|components?|pages?|views?|fields?|columns?|propert(y|ies)|tests?|use ?cases?|rules?|checks?|gates?|invariants?|migrations?|schemas?|types?|interfaces?|handlers?|services?|events?|messages?|quer(y|ies)|mutations?|resolvers?|enums?|configs?|settings?|flags?|verbs?|entrypoints?|scenarios?)'
 UNIVERSAL_RE="${QUANT} ([a-zA-Z-]+ )?${NOUN}"
@@ -101,7 +103,7 @@ case "${1:-}" in
     FAIL=0
     while IFS= read -r md; do
       check_one "$md" || FAIL=1
-    done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) | sort -V)
+    done < <(find_goal_mds)
     if [ "$FAIL" -ne 0 ]; then
       exit 1
     fi
@@ -109,12 +111,7 @@ case "${1:-}" in
     exit 0
     ;;
   '')
-    ACTIVE_FILE="$ROOT/.state/active-goal"
-    if [ -f "$ACTIVE_FILE" ]; then
-      ACTIVE=$(cat "$ACTIVE_FILE")
-    else
-      ACTIVE=""
-    fi
+    ACTIVE="$(read_active_goal)"
     if [ -z "$ACTIVE" ] || [ "$ACTIVE" = ALL_DONE ] || [ ! -f "$ACTIVE" ]; then
       echo "[OK] check-gate-rigor: no failing goal to check"
       exit 0

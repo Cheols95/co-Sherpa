@@ -11,6 +11,8 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+. "$ROOT/scripts/_goals-lib.sh"
+
 echo "=== DEVELOPMENT STATE ==="
 echo "Time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
 echo ""
@@ -28,9 +30,7 @@ fi
 echo ""
 
 echo "=== Active Goal ==="
-ACTIVE_FILE="$ROOT/.state/active-goal"
-ptr=""
-[ -f "$ACTIVE_FILE" ] && ptr=$(cat "$ACTIVE_FILE" 2>/dev/null || true)
+ptr="$(read_active_goal)"
 
 if [ -n "$ptr" ]; then
   echo "  $ptr"
@@ -53,14 +53,10 @@ if [ -d goals ]; then
   # must lead the display too. Raw sort -V pushes _meta last, which would
   # mislabel it "(deferred)" or hide a _meta failure behind green numbers.
   goal_list=()
-  meta_md=""
   while IFS= read -r f; do
-    if [ "$(basename "$f")" = "_meta.md" ]; then
-      meta_md="$f"
-    else
-      goal_list+=("$f")
-    fi
-  done < <(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V)
+    goal_list+=("$f")
+  done < <(find_numbered_mds)
+  meta_md="$(meta_md_path)"
   [ -n "$meta_md" ] && goal_list=("$meta_md" ${goal_list[@]+"${goal_list[@]}"})
 
   seen_active=false
@@ -125,7 +121,7 @@ if [ -d docs/findings ]; then
     base=$(basename "$f")
     case "$base" in AGENTS.md|README.md|CLAUDE.md|EXAMPLE.md) continue ;; esac
     # Read the `resolved:` field from the first frontmatter block.
-    res=$(awk '/^---[[:space:]]*$/{c++; next} c==1 && /^resolved:/{sub(/^resolved:[[:space:]]*/,""); print; exit}' "$f")
+    res=$(frontmatter_field "$f" resolved)
     case "$res" in
       true) : ;;
       *) OPEN=$((OPEN+1)); echo "    - $base (resolved: ${res:-?})" ;;

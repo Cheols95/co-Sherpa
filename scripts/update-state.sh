@@ -6,6 +6,8 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+. "$ROOT/scripts/_goals-lib.sh"
+
 STATE="$ROOT/docs/state"
 mkdir -p "$STATE"
 
@@ -13,10 +15,8 @@ NOW=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 COMMITS=$(git log --oneline 2>/dev/null | wc -l | tr -d ' ')
 LAST=$(git log -1 --pretty='%h %s' 2>/dev/null || echo '(none)')
 
-ACTIVE_GOAL="(unknown - run scripts/completion-check.sh)"
-if [ -f "$ROOT/.state/active-goal" ]; then
-  ACTIVE_GOAL=$(cat "$ROOT/.state/active-goal")
-fi
+ACTIVE_GOAL="$(read_active_goal)"
+[ -n "$ACTIVE_GOAL" ] || ACTIVE_GOAL="(unknown - run scripts/completion-check.sh)"
 
 {
   echo "# Progress"
@@ -33,7 +33,7 @@ fi
   echo ""
   echo "| Goal | Gate script | Next-task hint |"
   echo "| --- | --- | --- |"
-  for f in $(find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V); do
+  for f in $(find_goal_mds); do
     name=$(basename "$f" .md)
     g="goals/${name}.gates.sh"; [ -f "$g" ] && g="ok" || g="missing"
     t="goals/${name}.next-task.sh"; [ -f "$t" ] && t="ok" || t="missing"
