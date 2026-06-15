@@ -1,13 +1,14 @@
 ---
 title: 소규모 정합 — finding kind 노출 · cycle-generate↔cycle · DEEPENING orphan
 created_at: 2026-06-14T16:00:45Z
-resolved: partial
+resolved: true
 priority: P2
 status_notes: |
   (a) finding kind 노출 — CLOSED 2026-06-15 (skills/finding/SKILL.md frontmatter에 kind 필드 추가).
   (c) DEEPENING orphan — CLOSED 2026-06-15 (improve-codebase-architecture/SKILL.md Grilling 루프에서 링크).
-  (b) cycle-generate↔cycle — 부분: 역할 분담 노트만 추가(스킬=트리거, generate=raw 붙여넣기용,
-      둘 다 cycles/AGENTS.md 위임). 절차 전문 통합/축소는 보류 — 둘 다 이미 AGENTS 위임이라 중복 경미.
+  (b) cycle-generate↔cycle — WONTFIX 2026-06-15 (사용자 결정): 둘 다 이미 cycles/AGENTS.md에
+      위임하고 절차 전문이 아니라 보강 불릿만 겹쳐 중복이 경미 → 추가 통합/축소 안 함.
+      (역할 분담 노트는 이미 추가됨: 스킬=트리거, generate=raw 붙여넣기용.) → 세 항목 모두 종결.
 related:
   - skills/finding/SKILL.md
   - skills/cycle/SKILL.md
