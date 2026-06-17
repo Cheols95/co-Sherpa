@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bash scripts/diagnose.sh)",
+      "Bash(bash scripts/active-check.sh)",
+      "Bash(bash scripts/completion-check.sh)",
+      "Bash(bash scripts/update-state.sh)"
+    ]
+  }
+}

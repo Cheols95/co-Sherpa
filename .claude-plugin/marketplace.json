@@ -1,0 +1,14 @@
+{
+  "name": "ironman",
+  "description": "concept, freeze, and build workflow harness.",
+  "owner": { "name": "Cheols95" },
+  "plugins": [
+    {
+      "name": "ironman",
+      "description": "Install and route the ironman workflow harness.",
+      "author": { "name": "Cheols95" },
+      "source": "./claude",
+      "homepage": "https://github.com/Cheols95/project_template_mpfcg"
+    }
+  ]
+}

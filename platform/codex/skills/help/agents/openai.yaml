@@ -1,0 +1,7 @@
+interface:
+  display_name: "ironman help"
+  short_description: "Inspect workflow state and recommend the next command."
+  default_prompt: "Use ironman help to tell me the next step."
+
+policy:
+  allow_implicit_invocation: true

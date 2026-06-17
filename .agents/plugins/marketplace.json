@@ -1,0 +1,20 @@
+{
+  "name": "ironman",
+  "interface": {
+    "displayName": "Ironman"
+  },
+  "plugins": [
+    {
+      "name": "ironman",
+      "source": {
+        "source": "local",
+        "path": "./plugins/ironman"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

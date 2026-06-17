@@ -1,0 +1,10 @@
+# Normalize line endings for every text file: the repo stores LF; Windows
+# checkouts get CRLF transparently. Without this, a Windows (often non-dev)
+# user sees a wall of "LF will be replaced by CRLF" warnings on every commit.
+# git auto-detects binary content (NUL bytes) and leaves it untouched.
+* text=auto
+
+# Shell scripts must stay LF on ALL platforms. On Windows, CRLF on a .sh makes
+# bash fail on the trailing \r ("$'\r': command not found"). This more-specific
+# rule overrides text=auto. The template is distributed by clone/copy.
+*.sh text eol=lf

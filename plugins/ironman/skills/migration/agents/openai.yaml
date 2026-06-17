@@ -1,0 +1,7 @@
+interface:
+  display_name: "ironman migration"
+  short_description: "Onboard an existing codebase into the ironman harness."
+  default_prompt: "Use ironman migration to fill project context from this codebase."
+
+policy:
+  allow_implicit_invocation: false

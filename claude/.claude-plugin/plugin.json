@@ -1,0 +1,8 @@
+{
+  "name": "ironman",
+  "description": "concept, freeze, and build workflow harness for Claude Code.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "keywords": ["workflow", "concept", "freeze", "build", "fcg"],
+  "author": { "name": "Cheols95" }
+}
