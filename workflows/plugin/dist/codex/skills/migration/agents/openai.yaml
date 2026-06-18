@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use ironman migration to fill project context from this codebase."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

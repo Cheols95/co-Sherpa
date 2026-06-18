@@ -4,4 +4,4 @@ interface:
   default_prompt: "Use ironman init to install the workflow here."
 
 policy:
-  allow_implicit_invocation: false
+  allow_implicit_invocation: true

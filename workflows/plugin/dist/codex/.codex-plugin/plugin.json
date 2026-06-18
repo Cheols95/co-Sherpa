@@ -5,8 +5,8 @@
   "author": {
     "name": "Cheols95"
   },
-  "homepage": "https://github.com/Cheols95/project_template_mpfcg",
-  "repository": "https://github.com/Cheols95/project_template_mpfcg",
+  "homepage": "https://github.com/Cheols95/project_workflow_ironman",
+  "repository": "https://github.com/Cheols95/project_workflow_ironman",
   "license": "MIT",
   "keywords": ["workflow", "concept", "freeze", "build", "fcg"],
   "skills": "./skills/",

@@ -14,24 +14,27 @@
 # Relative paths preserve byte-identical output with the pre-extraction inline
 # finds -- do not switch to absolute.
 
-# find_numbered_mds -> numbered goal .md only (goals/<n>-*.md), sort -V.
+_GOALS_LIB_ROOT="${ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+. "$_GOALS_LIB_ROOT/scripts/_portable.sh"
+
+# find_numbered_mds -> numbered goal .md only (goals/<n>-*.md), version-sorted.
 # `[0-9]*` matches 0-example.md (starts with a digit); excludes _meta.md.
 find_numbered_mds() {
-  find goals -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V
+  find goals -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | portable_version_sort
 }
 
-# find_goal_mds -> numbered goal .md PLUS _meta.md, sort -V.
+# find_goal_mds -> numbered goal .md PLUS _meta.md, version-sorted.
 # The combined list every goal-iterating consumer walks.
 find_goal_mds() {
-  find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | sort -V
+  find goals -maxdepth 1 -type f \( -name '[0-9]*.md' -o -name '_meta.md' \) 2>/dev/null | portable_version_sort
 }
 
-# find_goal_artifacts -> goal .md AND .gates.sh (numbered + _meta), sort -V.
+# find_goal_artifacts -> goal .md AND .gates.sh (numbered + _meta), version-sorted.
 # The fingerprint surface for completion-check's rigor-sweep cache.
 find_goal_artifacts() {
   find goals -maxdepth 1 -type f \
     \( -name '[0-9]*.md' -o -name '_meta.md' -o -name '[0-9]*.gates.sh' -o -name '_meta.gates.sh' \) \
-    2>/dev/null | sort -V
+    2>/dev/null | portable_version_sort
 }
 
 # meta_md_path -> goals/_meta.md if present, else empty string.

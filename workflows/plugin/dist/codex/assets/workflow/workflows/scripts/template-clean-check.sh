@@ -7,6 +7,8 @@ WORKFLOW_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROJECT_ROOT="$(cd "$WORKFLOW_ROOT/.." && pwd)"
 cd "$WORKFLOW_ROOT"
 
+. "$WORKFLOW_ROOT/scripts/_portable.sh"
+
 PASS=true
 
 report_dirty() {
@@ -33,16 +35,31 @@ fi
 # basename with sed where a basename is needed. -printf errors on BSD/
 # macOS and, with 2>/dev/null, would silently yield empty arrays -> a
 # DIRTY template falsely reporting "clean".
-mapfile -t prd_leftovers < <(find docs/prd -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
-mapfile -t issue_leftovers < <(find docs/issues -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
-mapfile -t concept_leftovers < <(
+prd_leftovers=()
+while IFS= read -r item; do
+  [ -n "$item" ] && prd_leftovers+=("$item")
+done < <(find docs/prd -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
+
+issue_leftovers=()
+while IFS= read -r item; do
+  [ -n "$item" ] && issue_leftovers+=("$item")
+done < <(find docs/issues -maxdepth 1 -type f ! -name 'README.md' 2>/dev/null | sort)
+
+concept_leftovers=()
+while IFS= read -r item; do
+  [ -n "$item" ] && concept_leftovers+=("$item")
+done < <(
   find docs/design -maxdepth 1 -type f 2>/dev/null |
     sed 's#.*/##' |
     grep -Ev '^(AGENTS\.md|CLAUDE\.md|README\.md)$' |
     sort |
     sed 's#^#docs/design/#'
 )
-mapfile -t goal_leftovers < <(
+
+goal_leftovers=()
+while IFS= read -r item; do
+  [ -n "$item" ] && goal_leftovers+=("$item")
+done < <(
   find goals -maxdepth 1 -type f 2>/dev/null |
     sed 's#.*/##' |
     grep -Ev '^(AGENTS\.md|CLAUDE\.md|EXAMPLE\.md|0-example\.(md|gates\.sh|next-task\.sh)|_meta\.(md|gates\.sh|next-task\.sh))$' |

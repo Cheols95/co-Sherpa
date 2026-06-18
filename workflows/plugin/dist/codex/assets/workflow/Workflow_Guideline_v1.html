@@ -393,16 +393,17 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <!-- Phase 0 -->
       <div class="phase-block">
         <div class="phase-head"><h3>Phase 0 — 부트스트랩</h3><span class="pill pill-cream">새 프로젝트 시작</span></div>
-        <p class="phase-desc">플러그인을 설치한 뒤 <code>/ironman:init</code>으로 현재 프로젝트에 하네스와 전역 daily skills를 동기화하는 단계. 첫 설치와 업데이트 후 재동기화가 같은 명령입니다.</p>
+        <p class="phase-desc">플러그인을 설치한 뒤 Claude Code는 <code>/ironman:init</code>, Codex는 <code>Use ironman init to install the workflow here.</code>로 현재 프로젝트에 하네스와 전역 daily skills를 동기화하는 단계. 첫 설치와 업데이트 후 재동기화가 같은 역할입니다.</p>
         <div class="steps">
           <details class="step">
             <summary><span class="num">1</span><span class="s-cmd">플러그인 설치</span><span class="s-out">ironman marketplace</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">절차</span>
                 <ul>
-                  <li>Claude Code: <code>claude plugin marketplace add Cheols95/project_template_mpfcg</code> → <code>claude plugin install ironman@ironman</code></li>
-                  <li>Codex: <code>codex plugin marketplace add Cheols95/project_template_mpfcg --ref main</code> → <code>codex plugin add ironman@ironman</code></li>
-                  <li>플러그인 명령은 네임스페이스가 붙습니다: <code>/ironman:init</code> · <code>/ironman:help</code> · <code>/ironman:migration</code></li>
+                  <li>Claude Code: <code>claude plugin marketplace add Cheols95/project_workflow_ironman</code> → <code>claude plugin install ironman@ironman</code></li>
+                  <li>Codex: <code>codex plugin marketplace add Cheols95/project_workflow_ironman --ref main</code> → <code>codex plugin add ironman@ironman</code></li>
+                  <li>Claude Code lifecycle surface: <code>/ironman:init</code> · <code>/ironman:help</code> · <code>/ironman:migration</code></li>
+                  <li>Codex lifecycle surface: <code>Use ironman init to install the workflow here.</code>처럼 plugin skill을 명시 호출합니다. Host가 plugin skill picker를 노출하면 <code>ironman:init</code>을 선택합니다.</li>
                 </ul>
               </div>
               <div class="row easy">🏠 <b>쉬운 풀이</b> — 템플릿 폴더를 직접 복사하지 않고, 플러그인이 필요한 재료와 공구를 현재 프로젝트로 배달하게 합니다.</div>
@@ -902,20 +903,20 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="cw-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
             <span class="cw-title">Claude Code</span><button class="copy-btn" onclick="copyCode(this)">복사</button></div>
           <pre><span class="k">$</span> claude plugin update ironman
-<span class="c"># 새 세션을 연 뒤, 대상 프로젝트 루트에서</span>
+<span class="c"># 새 Claude Code 세션을 연 뒤, 대상 프로젝트 루트에서</span>
 <span class="k">/</span>ironman:init</pre>
         </div>
         <div class="code-window">
           <div class="cw-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
-            <span class="cw-title">Codex</span><button class="copy-btn" onclick="copyCode(this)">복사</button></div>
+<span class="cw-title">Codex</span><button class="copy-btn" onclick="copyCode(this)">복사</button></div>
           <pre><span class="k">$</span> codex plugin marketplace upgrade ironman
 <span class="k">$</span> codex plugin add ironman@ironman
-<span class="c"># 새 세션을 연 뒤, 대상 프로젝트 루트에서</span>
-<span class="k">/</span>ironman:init</pre>
+<span class="c"># 새 Codex 세션을 연 뒤, 대상 프로젝트 루트에서</span>
+Use ironman init to install the workflow here.</pre>
         </div>
       </div>
       <div class="callout callout-warn"><span class="mark">✍️</span>
-        <div><b><code>/ironman:init</code>의 역할</b>: 첫 설치와 업데이트 후 동기화를 모두 맡습니다. 내부적으로 <code>workflows/scripts/install-skills.sh --force</code>를 실행해 Claude·Codex 전역 daily skills와 Codex slash shim까지 맞춥니다.</div>
+        <div><b>ironman init의 역할</b>: 첫 설치와 업데이트 후 동기화를 모두 맡습니다. 내부적으로 <code>workflows/scripts/install-skills.sh --force</code>를 실행해 Claude·Codex 전역 daily skills와 Codex slash shim까지 맞춥니다.</div>
       </div>
     </div>
   </section>

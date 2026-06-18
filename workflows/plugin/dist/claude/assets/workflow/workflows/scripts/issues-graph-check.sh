@@ -21,29 +21,57 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 . "$ROOT/scripts/_deps-lib.sh"
+. "$ROOT/scripts/_portable.sh"
 
-declare -A ADJ ISSET COLOR
+IDS=""
 CYCLE_HIT=0
 CYCLE_EDGE=""
+
+_set_adj() {
+  local key="$1" value="$2"
+  eval "ADJ_$key=\"\$value\""
+}
+
+_get_adj() {
+  local key="$1"
+  eval "printf '%s' \"\${ADJ_$key:-}\""
+}
+
+_set_color() {
+  local key="$1" value="$2"
+  eval "COLOR_$key=\"\$value\""
+}
+
+_get_color() {
+  local key="$1"
+  eval "printf '%s' \"\${COLOR_$key:-0}\""
+}
+
+_is_issue_id() {
+  case " $IDS " in
+    *" $1 "*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 # depth-first search with three-coloring; a gray (on-stack) target = back-edge = cycle.
 _dfs() {
   local u="$1" v
-  COLOR[$u]=1
-  for v in ${ADJ[$u]:-}; do
-    [ -z "${ISSET[$v]:-}" ] && continue   # dangling target is not a real node
-    case "${COLOR[$v]:-0}" in
+  _set_color "$u" 1
+  for v in $(_get_adj "$u"); do
+    _is_issue_id "$v" || continue   # dangling target is not a real node
+    case "$(_get_color "$v")" in
       1) CYCLE_HIT=1; CYCLE_EDGE="$u -> $v"; return ;;
       0) _dfs "$v"; [ "$CYCLE_HIT" = 1 ] && return ;;
     esac
   done
-  COLOR[$u]=2
+  _set_color "$u" 2
 }
 
 # check_dir <dir> -> prints a report, returns 0 (clean) or 1 (defect).
 check_dir() {
   local dir="$1" ids="" id deps f d n=0 edges=0 dangling="" rc=0
-  ADJ=(); ISSET=(); COLOR=(); CYCLE_HIT=0; CYCLE_EDGE=""
+  IDS=""; CYCLE_HIT=0; CYCLE_EDGE=""
 
   if [ ! -d "$dir" ]; then
     echo "issues-graph-check: no such dir: $dir (OK -- nothing to lint)"
@@ -53,11 +81,12 @@ check_dir() {
   while IFS= read -r f; do
     [ -z "$f" ] && continue
     id="$(issue_id_for "$f")"
-    ISSET[$id]=1
     ids="$ids $id"
+    IDS="$ids"
+    _set_color "$id" 0
     n=$((n + 1))
   done <<EOF
-$(find "$dir" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V)
+$(find "$dir" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | portable_version_sort)
 EOF
 
   if [ "$n" -eq 0 ]; then
@@ -69,17 +98,17 @@ EOF
     f="$(find "$dir" -maxdepth 1 -type f -name "${id}-*.md" 2>/dev/null | head -1)"
     [ -z "$f" ] && f="$(find "$dir" -maxdepth 1 -type f -name "${id}.md" 2>/dev/null | head -1)"
     deps="$(parse_issue_deps "$f" "$id")"
-    ADJ[$id]="$deps"
+    _set_adj "$id" "$deps"
     for d in $deps; do
       edges=$((edges + 1))
-      if [ -z "${ISSET[$d]:-}" ]; then
+      if ! _is_issue_id "$d"; then
         dangling="${dangling}  ${id} -> ${d} (no such issue)"$'\n'
       fi
     done
   done
 
   for id in $ids; do
-    [ "${COLOR[$id]:-0}" = 0 ] && _dfs "$id"
+    [ "$(_get_color "$id")" = 0 ] && _dfs "$id"
     [ "$CYCLE_HIT" = 1 ] && break
   done
 
@@ -98,7 +127,7 @@ EOF
 
 self_test() {
   local tmp rc=0
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   trap 'rm -rf "$tmp"' RETURN
 
   mkdir -p "$tmp/clean"

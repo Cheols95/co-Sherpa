@@ -54,10 +54,15 @@ _gate_cache_dir() {
   echo "$root/.state/gate-cache"
 }
 
+_GATE_CACHE_ROOT="${ROOT:-$(pwd)}"
+if [ -f "$_GATE_CACHE_ROOT/scripts/_portable.sh" ]; then
+  . "$_GATE_CACHE_ROOT/scripts/_portable.sh"
+fi
+
 # Pick a portable sha256 command once. macOS lacks `sha256sum` by default;
 # `shasum -a 256` exists on both macOS and Linux. We use this name as a
-# literal string with xargs below, so it must resolve to an external
-# program — not a shell function.
+# literal string with intentional word splitting, so it must resolve to an
+# external program -- not a shell function.
 if command -v shasum >/dev/null 2>&1; then
   _GATE_CACHE_SHA_CMD="shasum -a 256"
 elif command -v sha256sum >/dev/null 2>&1; then
@@ -83,7 +88,11 @@ _gate_cache_is_glob() {
 # Emits the fingerprint hex on stdout; empty string on hard error.
 _gate_cache_fingerprint() {
   local manifest
-  manifest=$(mktemp 2>/dev/null) || return 1
+  if command -v portable_mktemp_file >/dev/null 2>&1; then
+    manifest=$(portable_mktemp_file) || return 1
+  else
+    manifest=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || return 1
+  fi
 
   local pattern p
   for pattern in "$@"; do
@@ -111,7 +120,11 @@ _gate_cache_fingerprint() {
         fi
       elif [ -d "$p" ]; then
         local listing
-        listing=$(mktemp 2>/dev/null) || { rm -f "$manifest"; return 1; }
+        if command -v portable_mktemp_file >/dev/null 2>&1; then
+          listing=$(portable_mktemp_file) || { rm -f "$manifest"; return 1; }
+        else
+          listing=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || { rm -f "$manifest"; return 1; }
+        fi
         find "$p" \
               -type d \( \
                   -name node_modules -o \
@@ -126,10 +139,12 @@ _gate_cache_fingerprint() {
                   -name __pycache__ -o \
                   -name .venv \
               \) -prune -o \
-              -type f -print0 2>/dev/null \
-          | LC_ALL=C sort -z \
-          | xargs -0 $_GATE_CACHE_SHA_CMD -- 2>/dev/null \
-          > "$listing"
+              -type f -print 2>/dev/null \
+          | LC_ALL=C sort \
+          | while IFS= read -r file; do
+              [ -n "$file" ] || continue
+              _gate_cache_sha256 "$file" 2>/dev/null
+            done > "$listing"
         local dh
         dh=$(_gate_cache_sha256 < "$listing" | awk '{print $1}')
         rm -f "$listing"
