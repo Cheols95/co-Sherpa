@@ -41,6 +41,9 @@ usage() {
 
 ROOT="$(pwd)"
 MARKER="$ROOT/workflows/.ironman/workflow-version"
+if [ -f "$ROOT/workflows/scripts/_portable.sh" ]; then
+  . "$ROOT/workflows/scripts/_portable.sh"
+fi
 
 FROM="" APPLY=0 SETBASE=0 FORCE_DIRTY=0
 while [ $# -gt 0 ]; do
@@ -79,7 +82,11 @@ CLEANUP=""
 if [ -d "$SRC" ]; then
   TPL="$SRC"
 else
-  TPL=$(mktemp -d) || exit 2
+  if command -v portable_mktemp_dir >/dev/null 2>&1; then
+    TPL=$(portable_mktemp_dir) || exit 2
+  else
+    TPL=$(mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/ironman.XXXXXX") || exit 2
+  fi
   CLEANUP="$TPL"
   echo "[..] cloning template: $SRC"
   if ! git clone --quiet "$SRC" "$TPL"; then
@@ -204,7 +211,7 @@ apply_file() {
   local f="$1" dest tmp mode
   dest="$ROOT/$f"
   mkdir -p "$(dirname "$dest")"
-  tmp=$(mktemp "$ROOT/.wf-update.XXXXXX") || return 1
+  tmp=$(mktemp "$ROOT/.wf-update.XXXXXX" 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || return 1
   if ! git -C "$TPL" show "$TPL_HEAD:$f" > "$tmp"; then
     rm -f "$tmp"; return 1
   fi

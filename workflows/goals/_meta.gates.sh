@@ -18,6 +18,7 @@ cd "$ROOT"
 
 # shellcheck source=../scripts/_gate-cache.sh
 source "$ROOT/scripts/_gate-cache.sh"
+source "$ROOT/scripts/_portable.sh"
 
 # --- CONFIGURE: your cross-cutting checks --------------------------------
 # Each entry is "Label::shell command". The command runs from the repo
@@ -97,7 +98,7 @@ if [ "${#META_CHECKS[@]}" -eq 0 ]; then
 fi
 
 PASS=true
-LOG_DIR=$(mktemp -d)
+LOG_DIR=$(portable_mktemp_dir)
 cleanup_meta_logs() {
   if [ "$PASS" = true ]; then
     rm -rf "$LOG_DIR"

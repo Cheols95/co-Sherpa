@@ -6,6 +6,7 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 GEN="$ROOT/dashboard/engines/roadmap.sh"
 GROUP="${1:-all}"
+. "$ROOT/scripts/_portable.sh"
 
 fail() {
   echo "FAIL: $*" >&2
@@ -153,7 +154,7 @@ assert_has() {
 
 test_deps() {
   local tmp data
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   make_fixture "$tmp"
   data="$(emit_fixture "$tmp")"
   assert_has "$data" '"id":"002","title":"Active","issueStatus":"ready-for-agent","gate":"active","goal":"2-active","accDone":0,"accTotal":1,"deps":["001"],"ready":false,"danglingDeps":[]'
@@ -168,7 +169,7 @@ test_deps() {
 
 test_ready() {
   local tmp data
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   make_fixture "$tmp"
   data="$(emit_fixture "$tmp")"
   assert_has "$data" '"readyCount":1'
@@ -180,7 +181,7 @@ test_ready() {
 
 test_shading() {
   local tmp data
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   make_fixture "$tmp"
   data="$(emit_fixture "$tmp")"
   assert_has "$data" '"id":"001","title":"Base","issueStatus":"ready-for-agent","gate":"green"'
@@ -204,7 +205,7 @@ test_shading() {
 # DATA.service contract: docs/spec/service-flow.md → {nodes,groups}.
 test_service() {
   local tmp data
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   make_service_fixture "$tmp"
   data="$(emit_fixture "$tmp")"
 
@@ -237,7 +238,7 @@ test_service() {
 # finding file is tracked in the cleaned template).
 test_render() {
   local tmp out
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   make_fixture "$tmp"
   out="$tmp/roadmap.html"
   ROADMAP_SOURCE_ROOT="$tmp" bash "$GEN" "$out" >/dev/null || fail "generator failed"

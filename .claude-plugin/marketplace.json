@@ -8,7 +8,7 @@
       "description": "Install and route the ironman workflow harness.",
       "author": { "name": "Cheols95" },
       "source": "./workflows/plugin/dist/claude",
-      "homepage": "https://github.com/Cheols95/project_template_mpfcg"
+      "homepage": "https://github.com/Cheols95/project_workflow_ironman"
     }
   ]
 }

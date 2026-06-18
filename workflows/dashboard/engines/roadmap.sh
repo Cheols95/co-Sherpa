@@ -12,6 +12,7 @@ cd "$SOURCE_ROOT"
 
 # shared depends parser (single source of truth, also used by issues-graph-check.sh)
 . "$ROOT/scripts/_deps-lib.sh"
+. "$ROOT/scripts/_portable.sh"
 
 json_escape() {
   sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e 's/\t/ /g' | tr -d '\r\n'
@@ -108,7 +109,7 @@ if [ -d "$SOURCE_ROOT/docs/issues" ]; then
     row="${id}|${deps}|${gate}|${goal_stem}|${title}|${issue_status}|${acc_done}|${acc_total}|${desc}"
     FEATURE_ROWS="${FEATURE_ROWS}${row}"$'\n'
   done <<EOF
-$(find "$SOURCE_ROOT/docs/issues" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V)
+$(find "$SOURCE_ROOT/docs/issues" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | portable_version_sort)
 EOF
 fi
 
@@ -288,7 +289,7 @@ SERVICE_JSON="{\"nodes\":[${SERVICE_NODES_JSON}],\"groups\":[${SERVICE_GROUPS_JS
 
 NEXT_TASK=""
 if [ -f "$SOURCE_ROOT/scripts/next-task.sh" ]; then
-  NEXT_TASK="$(timeout 5 bash "$SOURCE_ROOT/scripts/next-task.sh" 2>/dev/null | head -3 | json_escape || true)"
+  NEXT_TASK="$(portable_timeout 5 bash "$SOURCE_ROOT/scripts/next-task.sh" 2>/dev/null | head -3 | json_escape || true)"
 fi
 [ -z "$NEXT_TASK" ] && NEXT_TASK="No next-task output."
 

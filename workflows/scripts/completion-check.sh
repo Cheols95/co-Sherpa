@@ -96,7 +96,7 @@ if [ "${#GOALS[@]}" -eq 0 ]; then
   exit 1
 fi
 
-STAGE_DIR=$(mktemp -d)
+STAGE_DIR=$(portable_mktemp_dir)
 trap 'rm -rf "$STAGE_DIR"' EXIT
 
 # Parallel arrays indexed by goal position.
@@ -274,7 +274,7 @@ if [ "${#FAILED[@]}" -gt 0 ]; then
     fi
   done
   if [ -z "$FIRST_FAIL_MD" ]; then
-    FIRST_FAIL_MD=$(printf '%s\n' "${FAILED[@]}" | sort -V | head -1)
+    FIRST_FAIL_MD=$(printf '%s\n' "${FAILED[@]}" | portable_version_sort | head -1)
   fi
 fi
 

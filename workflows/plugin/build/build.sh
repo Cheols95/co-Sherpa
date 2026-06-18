@@ -10,29 +10,7 @@ SRC="$PLUGIN_ROOT/src"
 CLAUDE_OUT="$PLUGIN_ROOT/dist/claude"
 CODEX_OUT="$PLUGIN_ROOT/dist/codex"
 
-copy_workflow_assets() {
-  local dest="$1/assets/workflow"
-  rm -rf "$dest"
-  mkdir -p "$dest"
-
-  while IFS= read -r line; do
-    line="${line%%#*}"
-    line="${line%"${line##*[![:space:]]}"}"
-    [ -n "$line" ] || continue
-    if [[ "$line" == */ ]]; then
-      [ -d "$REPO_ROOT/$line" ] || continue
-      mkdir -p "$dest/$line"
-      cp -R "$REPO_ROOT/$line/." "$dest/$line/"
-    else
-      [ -f "$REPO_ROOT/$line" ] || { echo "[FAIL] manifest path missing: $line" >&2; exit 2; }
-      mkdir -p "$dest/$(dirname "$line")"
-      cp "$REPO_ROOT/$line" "$dest/$line"
-    fi
-  done < "$WORKFLOW_ROOT/workflow-manifest.txt"
-
-  mkdir -p "$dest/workflows"
-  cp -R "$WORKFLOW_ROOT/skills" "$dest/workflows/skills"
-}
+. "$PLUGIN_ROOT/build/package-lib.sh"
 
 echo "=== build: claude plugin ==="
 rm -rf "$CLAUDE_OUT"
@@ -50,7 +28,8 @@ if "disable-model-invocation:" not in text:
     text = text.replace("---\n\n#", "disable-model-invocation: true\nallowed-tools: Bash\n---\n\n#", 1)
 path.write_text(text, encoding="utf-8")
 PY
-copy_workflow_assets "$CLAUDE_OUT"
+package_copy_workflow_assets "$CLAUDE_OUT"
+package_normalize_release_tree "$CLAUDE_OUT"
 
 echo "=== build: codex plugin ==="
 rm -rf "$CODEX_OUT"
@@ -60,6 +39,7 @@ cp -R "$SRC/skills/." "$CODEX_OUT/skills/"
 cp -R "$PLUGIN_ROOT/platform/codex/skills/." "$CODEX_OUT/skills/"
 cp -R "$SRC/bin/." "$CODEX_OUT/bin/"
 chmod +x "$CODEX_OUT/bin/"* 2>/dev/null || true
-copy_workflow_assets "$CODEX_OUT"
+package_copy_workflow_assets "$CODEX_OUT"
+package_normalize_release_tree "$CODEX_OUT"
 
 echo "=== done: workflows/plugin/dist/{claude,codex} regenerated ==="

@@ -16,6 +16,11 @@
 
 > Windows에서는 Claude(Bash 도구)·Codex(셸) 모두 `bash workflows/scripts/<name>.sh` 형태로 호출한다(git-bash).
 
+지원 기준: macOS 기본 Bash 3.2+, Windows Git Bash/WSL, Linux/WSL Bash. PowerShell/CMD 네이티브 실행은
+대상이 아니다. 스크립트는 `workflows/scripts/_portable.sh`의 fallback을 통해 GNU `sort -V`, `timeout`,
+BSD/GNU `mktemp` 차이를 흡수한다. 필수 도구는 `bash`, `git`, `find`, `awk`, `sed`, `grep`, `sort`,
+`cp`, `mkdir`, `shasum` 또는 `sha256sum`이다.
+
 ## 환경변수
 
 | Env | 의미 | 기본 |

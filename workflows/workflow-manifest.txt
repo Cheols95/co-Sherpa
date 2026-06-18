@@ -27,6 +27,7 @@ workflows/workflow-manifest.txt
 workflows/scripts/_deps-lib.sh
 workflows/scripts/_gate-cache.sh
 workflows/scripts/_goals-lib.sh
+workflows/scripts/_portable.sh
 workflows/scripts/active-check.sh
 workflows/scripts/check-gate-rigor.sh
 workflows/scripts/completion-check.sh

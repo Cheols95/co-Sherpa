@@ -6,7 +6,7 @@
 
 ## Context (왜)
 
-현재 `project_template_mpfcg`는 **새 프로젝트 시작 시 템플릿 폴더를 복사-붙여넣기**해야 하고, 기존 코드베이스를 온보딩하는 길이 없으며, "지금 어디까지 왔고 다음에 뭘 해야 하는지" 안내 장치가 없다. dryforge / bmad-test를 참고해 세 구멍을 메운다:
+현재 `project_workflow_ironman`는 **새 프로젝트 시작 시 템플릿 폴더를 복사-붙여넣기**해야 하고, 기존 코드베이스를 온보딩하는 길이 없으며, "지금 어디까지 왔고 다음에 뭘 해야 하는지" 안내 장치가 없다. dryforge / bmad-test를 참고해 세 구멍을 메운다:
 
 1. **migration 스킬** — dryforge `/migration`처럼 기존 코드베이스를 스캔·elicit해서 하네스 문서를 채우는 1회성 온보딩.
 2. **터미널 설치 명령** — 복붙 대신 명령 한 줄로 새/기존 프로젝트에 설치. **Claude Code 플러그인 배포**(dryforge와 동일 형식, `/plugin update`로 갱신 용이).
@@ -14,7 +14,7 @@
 
 **확정 결정:**
 - **브랜드 = `ironman`** (우산 이름). `FCG(findings-cycles-goals)`는 **goal-engine 서브시스템 용어로 존치** — 전면 개명 아님. ironman = Matt Pocock 기획 워크플로우 + cc-system FCG 결합.
-- **레포·폴더 개명: `project_template_mpfcg` → `project_workflow_ironman`** (GitHub 레포 + 로컬 폴더 둘 다). Claude 메모리 폴더도 이전해 연속성 유지.
+- **레포·폴더 이름: `project_workflow_ironman`** (GitHub 레포 + 로컬 폴더 둘 다). Claude 메모리 폴더도 이전해 연속성 유지.
 - **배포 = 혼합형 Claude Code(+Codex) 플러그인.** 플러그인에는 lifecycle 스킬만 둔다(`/ironman:init`·`/ironman:help`·`/ironman:migration`). 매일 쓰는 스킬은 `/ironman:init`이 전역 skill home에 설치해 짧은 명령(`/concept`·`/freeze`·`/build` 등)을 보존한다.
 - **설치/동기화 명령 = `/ironman:init`**. 첫 설치와 업데이트 후 재동기화를 모두 맡는다. 자산 트리를 cwd로 스캐폴딩하고, `workflows/scripts/install-skills.sh --force`로 Claude/Codex 전역 스킬과 Codex slash shim을 갱신한다.
 - **migration 범위 = 린(FCG 하네스만 채움)** — 산출물: `AGENTS.md §Architecture/§Context` 채우기 + 루트 `CONTEXT.md` 생성 + 확정 트레이드오프 `workflows/docs/adr/` 시드. **새 문서 분류 안 만듦**(doc-hygiene 준수).

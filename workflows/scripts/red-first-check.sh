@@ -29,6 +29,7 @@
 
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+. "$ROOT/scripts/_portable.sh"
 export GATES_SKIP_DEEP="${GATES_SKIP_DEEP:-1}"
 
 # Stack-agnostic signatures of a gate that FAILS TO RUN (vs. fails an
@@ -68,7 +69,7 @@ check_dir() {
     elif printf '%s' "$out" | grep -qiE "$WIRING_RE"; then
       broken="${broken}  BROKEN WIRING: ${name} (red from a run error, not an assertion -- may never go green)"$'\n'
     fi
-  done < <(find "$gdir" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | sort -V)
+  done < <(find "$gdir" -maxdepth 1 -type f -name '[0-9]*.md' 2>/dev/null | portable_version_sort)
 
   if [ "$n" -eq 0 ]; then
     echo "red-first-check: no convertible goals in $gdir (run after /build mode B)"
@@ -96,7 +97,7 @@ check_dir() {
 
 self_test() {
   local tmp fails=0 out rc
-  tmp="$(mktemp -d)"
+  tmp="$(portable_mktemp_dir)"
   trap 'rm -rf "$tmp"' RETURN
 
   mkdir -p "$tmp/red"
