@@ -8,7 +8,7 @@
       "name": "ironman",
       "source": {
         "source": "local",
-        "path": "./plugins/ironman"
+        "path": "./workflows/plugin/dist/codex"
       },
       "policy": {
         "installation": "AVAILABLE",
