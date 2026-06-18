@@ -1,11 +1,11 @@
 {
-  "name": "ironman",
+  "name": "cosherpa",
   "interface": {
-    "displayName": "Ironman"
+    "displayName": "co-Sherpa"
   },
   "plugins": [
     {
-      "name": "ironman",
+      "name": "cosherpa",
       "source": {
         "source": "local",
         "path": "./workflows/plugin/dist/codex"

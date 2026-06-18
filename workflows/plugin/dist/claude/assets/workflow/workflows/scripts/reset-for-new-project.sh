@@ -6,7 +6,7 @@
 #
 # Removes:
 #   - workflows/.state/                      FCG runtime: active-goal pointer + gate cache
-#   - workflows/.ironman/                    plugin sync status + backups
+#   - workflows/.cosherpa/                    plugin sync status + backups
 #   - workflows/docs/state/next-task.md      auto-generated; regenerates on first run
 #   - workflows/docs/state/progress.md       auto-generated; regenerates on first run
 #   - .claude/settings.local.json  the previous owner's machine-local Claude
@@ -25,12 +25,12 @@ cd "$PROJECT_ROOT"
 removed=()
 for p in \
   workflows/.state \
-  workflows/.ironman \
+  workflows/.cosherpa \
   workflows/docs/state/next-task.md \
   workflows/docs/state/progress.md \
   .claude/settings.local.json \
   .state \
-  .ironman \
+  .cosherpa \
   docs/state/next-task.md \
   docs/state/progress.md \
   .workflow-version

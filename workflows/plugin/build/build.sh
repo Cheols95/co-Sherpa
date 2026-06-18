@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# build.sh -- regenerate Claude and Codex ironman plugins from shared sources.
+# build.sh -- regenerate Claude and Codex cosherpa plugins from shared sources.
 
 set -euo pipefail
 

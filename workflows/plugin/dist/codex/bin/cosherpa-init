@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# ironman-init -- install or sync the ironman workflow harness into cwd.
+# cosherpa-init -- install or sync the cosherpa workflow harness into cwd.
 
 set -euo pipefail
 
@@ -14,9 +14,9 @@ if [ ! -d "$ASSETS" ]; then
 fi
 
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
-IRONMAN_HOME="$TARGET/workflows"
-backup_dir="$IRONMAN_HOME/.ironman/backup/$timestamp"
-template_repo="$IRONMAN_HOME/.ironman/template"
+COSHERPA_HOME="$TARGET/workflows"
+backup_dir="$COSHERPA_HOME/.cosherpa/backup/$timestamp"
+template_repo="$COSHERPA_HOME/.cosherpa/template"
 reconcile_rc=0
 
 copy_one() {
@@ -67,8 +67,8 @@ seed_template_repo() {
     rm -rf "$template_repo"
     mkdir -p "$template_repo"
     git -C "$template_repo" init --quiet
-    git -C "$template_repo" config user.name "ironman"
-    git -C "$template_repo" config user.email "ironman@example.invalid"
+    git -C "$template_repo" config user.name "cosherpa"
+    git -C "$template_repo" config user.email "cosherpa@example.invalid"
   fi
   git -C "$template_repo" config core.autocrlf false
   git -C "$template_repo" config core.safecrlf false
@@ -77,12 +77,12 @@ seed_template_repo() {
   cp -R "$ASSETS/." "$template_repo/"
   git -C "$template_repo" add -A
   if ! git -C "$template_repo" diff --cached --quiet; then
-    git -C "$template_repo" commit --quiet -m "ironman workflow bundle $timestamp"
+    git -C "$template_repo" commit --quiet -m "cosherpa workflow bundle $timestamp"
   fi
 }
 
 had_harness=0
-[ -f "$TARGET/AGENTS.md" ] && [ -d "$IRONMAN_HOME/goals" ] && had_harness=1
+[ -f "$TARGET/AGENTS.md" ] && [ -d "$COSHERPA_HOME/goals" ] && had_harness=1
 
 preexisting_foreign_count=$(find "$TARGET" -maxdepth 2 -type f \
   ! -path "$TARGET/.git/*" \
@@ -130,23 +130,23 @@ if [ -d "$ASSETS/workflows/skills" ]; then
   copy_one "workflows/skills"
 fi
 
-if [ -f "$IRONMAN_HOME/scripts/install-skills.sh" ]; then
-  bash "$IRONMAN_HOME/scripts/install-skills.sh" --force
+if [ -f "$COSHERPA_HOME/scripts/install-skills.sh" ]; then
+  bash "$COSHERPA_HOME/scripts/install-skills.sh" --force
 else
   echo "[WARN] workflows/scripts/install-skills.sh missing after copy; daily skills were not installed" >&2
 fi
 
-mkdir -p "$IRONMAN_HOME/.ironman" "$IRONMAN_HOME/.state"
+mkdir -p "$COSHERPA_HOME/.cosherpa" "$COSHERPA_HOME/.state"
 {
   echo "version=0.1.0"
   echo "synced_at=$timestamp"
-  echo "source=ironman-plugin"
-} > "$IRONMAN_HOME/.ironman/status"
+  echo "source=cosherpa-plugin"
+} > "$COSHERPA_HOME/.cosherpa/status"
 
 if [ -d "$backup_dir" ]; then
-  echo "[OK] ironman synced. Backups: $backup_dir"
+  echo "[OK] cosherpa synced. Backups: $backup_dir"
 else
-  echo "[OK] ironman synced."
+  echo "[OK] cosherpa synced."
 fi
 
 if [ "$reconcile_rc" -eq 1 ]; then
@@ -157,7 +157,7 @@ if [ "$had_harness" -eq 1 ]; then
   echo "Next: continue with /concept, /freeze, or /build."
 else
   if [ "${preexisting_foreign_count:-0}" -gt 0 ]; then
-    echo "Next: run /ironman:migration to fill AGENTS.md, CONTEXT.md, and ADRs from the existing codebase."
+    echo "Next: run /cosherpa:migration to fill AGENTS.md, CONTEXT.md, and ADRs from the existing codebase."
   else
     echo "Next: run /concept to plan the first feature."
   fi

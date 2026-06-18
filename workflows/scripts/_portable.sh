@@ -29,11 +29,11 @@ portable_version_sort() {
 }
 
 portable_mktemp_file() {
-  mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX"
+  mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX"
 }
 
 portable_mktemp_dir() {
-  mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/ironman.XXXXXX"
+  mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/cosherpa.XXXXXX"
 }
 
 portable_timeout() {

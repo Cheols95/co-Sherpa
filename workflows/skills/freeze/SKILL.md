@@ -73,7 +73,7 @@ bash workflows/scripts/issues-graph-check.sh
 
 ## 완료
 - `workflows/docs/design/checklist.md`의 그 기능을 **`FROZEN (날짜, freeze 완료 → issues NNN~MMM)`**로 표기.
-- 보고: "기능 X 동결 완료 → issues NNN~MMM. 다음: `/build`으로 구현(변환 모드 B)." 사용자 언어로 간결히.
+- 보고: "기능 X 동결 완료 → issues NNN~MMM. 다음: `/build workflows/docs/issues/<NNN>-*.md`로 계약화 후 구현." 사용자 언어로 간결히.
 
 ## 동결 후 (일방향)
 - 새 기획거리 → `workflows/docs/findings/`(체크리스트 재오픈 아님).

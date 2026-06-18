@@ -1,30 +1,34 @@
 ---
 name: build
-description: "FCG(findings-cycles-goals) 목표 엔진. workflows/goals/ 미션 스택을 .gates.sh로 기계 검증하며 게이트를 green으로 만든다. (1) 'goal 돌려줘', 'build', '게이트 통과시켜줘', 'active goal 완수' 요청, (2) workflows/docs/issues/*.md 또는 workflows/docs/prd/PRD.md를 workflows/goals/N-* 실행계약으로 변환할 때, (3) 'workflows/cycles/파일.md 완수까지 작업' 처럼 cycle driver 문서를 받아 무한 루프로 실행할 때 활성화. goal 파일과 cycle driver 둘 다 입력으로 받는다."
+description: "FCG(findings-cycles-goals) 목표 엔진. workflows/docs/issues/*.md 또는 workflows/docs/prd/PRD.md 입력을 받으면 먼저 workflows/goals/N-* 실행계약으로 변환한 뒤 곧바로 gate green까지 구현한다. 입력이 없거나 workflows/goals/<n>-*.md면 active goal을 green으로 만들고, workflows/cycles/파일.md면 cycle driver 문서를 완수할 때까지 실행한다. 'build', '이슈 구현', 'goal 돌려줘', '게이트 통과시켜줘', 'active goal 완수', 'workflows/cycles/파일.md 완수까지 작업' 요청 시 활성화."
 ---
 
 # build — FCG 목표 엔진
 
-`workflows/goals/`(미션 스택)를 `.gates.sh`로 기계 검증하며 완수하는 엔진. **goal 파일** 또는 **cycle driver 파일**을 입력으로 받아 같은 FCG 루프를 돌린다. 단일 에이전트(Claude 또는 GPT/Codex)가 직접 실행한다 — 멀티 에이전트 팀 불필요.
+`workflows/goals/`(미션 스택)를 `.gates.sh`로 기계 검증하며 완수하는 엔진. **issue/PRD 파일**을 입력받으면
+그 자체를 "계약화하고 구현해도 된다"는 승인으로 해석해, goal 3파일 계약 생성 후 즉시 같은 FCG 구현 루프를
+돈다. **goal 파일** 또는 **cycle driver 파일**도 입력으로 받는다.
 
 > 상세 규약은 프로젝트의 `workflows/goals/AGENTS.md`, `workflows/cycles/AGENTS.md`, `workflows/docs/goal-design.md`, `workflows/guidelines/goal-iteration.md`에 있다. 이 스킬은 그 진입점이다.
 
-## 모드 판별
+## 입력 라우팅
 
-| 입력 | 모드 |
+| 입력 | 동작 |
 |---|---|
-| 없음 / `workflows/goals/<n>-*.md` | **A. 게이트 루프** — active goal을 green으로 |
-| `workflows/docs/issues/*.md` 또는 `workflows/docs/prd/PRD.md` | **B. 변환** — 슬라이스/PRD → `workflows/goals/<n>-*` 3파일 계약 생성 |
-| `workflows/cycles/<파일>.md` | **C. 사이클 실행** — loop-driver 문서대로 findings 소진까지 |
+| `workflows/docs/issues/*.md` 또는 `workflows/docs/prd/PRD.md` | **계약화 + 구현** — 슬라이스/PRD → `workflows/goals/<n>-*` 3파일 계약 생성 → 생성된 goal을 gate green까지 구현 |
+| 없음 / `workflows/goals/<n>-*.md` | **구현 루프** — active goal을 gate green까지 구현 |
+| `workflows/cycles/<파일>.md` | **사이클 실행** — loop-driver 문서대로 findings 소진까지 구현 |
 
-> **경로 없는 변환/사이클 의도는 되묻는다.** 입력이 모드를 정한다. "변환해줘"·
-> "사이클 돌려줘"처럼 B(변환)/C(사이클) 의도인데 경로(`workflows/docs/issues/*.md`·
-> `workflows/docs/prd/PRD.md`·`workflows/cycles/<파일>.md`)가 빠지면, 모드 A로 빠지지 말고 어떤
-> 입력인지 되묻는다. (자연어로 트리거하는 Codex에서 특히 중요.)
+> **issue/PRD 경로는 구현 승인이다.** 사용자가 `workflows/docs/issues/*.md` 또는 `workflows/docs/prd/PRD.md`
+> 경로를 넘기면, 별도 "변환만 할까요?" 질문 없이 계약 생성 후 구현까지 이어간다. 사용자가 명시적으로
+> "변환만", "dry-run", "계약만 만들고 멈춰"라고 말한 경우에만 구현 루프에 진입하지 않는다.
+>
+> **경로 없는 사이클 의도는 되묻는다.** "사이클 돌려줘"처럼 cycle 의도인데
+> `workflows/cycles/<파일>.md`가 빠지면 어떤 입력인지 되묻는다.
 
 ---
 
-## 모드 A — 게이트 루프 (기본)
+## 구현 루프 (기본)
 
 항상 진단부터:
 ```bash
@@ -41,14 +45,17 @@ bash workflows/scripts/update-state.sh    # workflows/docs/state/{progress,next-
 1. 새 세션·수정 시작 시 반드시 `diagnose.sh`로 active-goal 방향을 먼저 확인.
 2. `active-check.sh`가 green이 될 때까지 코드를 RED→GREEN으로 수정. green이면 엔진이 자동으로 다음 goal로 전진.
 3. 게이트는 직접 고치지 않는다 — 코드를 고쳐 게이트를 통과시킨다. (게이트는 불변 계약)
-4. **RISKY 마감 리뷰**: goal frontmatter가 `risk: RISKY`면 green 후 전진 전, 비저자 서브에이전트 1회로
+4. **필요시 서브에이전트 위임**: 탐색 범위가 넓거나, 독립 파일/모듈 단위로 나눌 수 있거나, 비저자 검토가
+   필요한 경우 subagent를 적절히 스폰한다. 위임 단위는 파일/책임 범위가 겹치지 않게 작게 자르고, 결과는
+   메인 에이전트가 빠르게 검토·통합한다. 같은 파일을 여러 에이전트가 동시에 고치게 하지 않는다.
+5. **RISKY 마감 리뷰**: goal frontmatter가 `risk: RISKY`면 green 후 전진 전, 비저자 서브에이전트 1회로
    goal `.md` ↔ 라벨 커밋 raw diff를 대조(발견은 finding 큐잉 — 게이트 판정은 안 막음). 행위 표면이 선언보다
    크면 그 자리에서 RISKY **상향**(하향은 사용자 승인). 절차·근거(왜 비저자·왜 raw diff·no-tooling 폴백):
    프로젝트 `workflows/goals/AGENTS.md` §Risk tier & RISKY close-out review.
 
 ---
 
-## 모드 B — 변환 (Phase 1 → 2 다리)
+## issue/PRD 입력 — 계약화 후 즉시 구현
 
 `workflows/docs/issues/*.md`(또는 `workflows/docs/prd/PRD.md`)를 읽어 각 수직 슬라이스를 **3파일 계약**으로 만든다(`workflows/goals/AGENTS.md` 준수):
 ```
@@ -63,7 +70,7 @@ workflows/goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절�
   MECHANICAL이 아니라 미판정**이며, 행위 표면이 보이면 강한 검증 쪽으로 기운다.
 - **횡단 불변식 = `_meta` 세트 — 첫 변환에서 이빨을 켠다 (자동, 사용자 개입 불필요).**
   `workflows/goals/_meta.gates.sh`의 `META_CHECKS`는 비어 출하되어 "vacuously pass"(아무것도 검증 안 함)다.
-  첫 모드 B 변환에서 — `0-example` 삭제와 같은 시점에 — **반드시**:
+  첫 계약화에서 — `0-example` 삭제와 같은 시점에 — **반드시**:
   (1) 스택 감지(`package.json`·`pyproject.toml`·`Cargo.toml`·`go.mod`·`*.csproj` 등 설정 파일),
   (2) 그 스택의 lint·typecheck·test·build 실제 명령을 `META_CHECKS`에 `"label::command"`로 채운다
   (`_meta.gates.sh` 상단 주석의 스택별 예시 참조 — 해당 없는 축은 생략),
@@ -79,10 +86,12 @@ workflows/goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절�
   (근거: `workflows/goals/AGENTS.md` §Gate validity. check-gate-rigor가 못 잡는 빈-게이트 클래스를 잡는다.)
 - **graph-lint (변환 후)**: 이슈 의존성을 옮겼으면 `bash workflows/scripts/issues-graph-check.sh`로
   순환·dangling이 없는지 확인(`/freeze`가 이미 봉인 시 강제하지만, 직접 변환 경로의 안전선).
+- **즉시 구현 진입**: 계약 생성, red-first, graph-lint가 끝나면 곧바로 `completion-check.sh`로 첫 실패 goal을
+  active로 잡고 위 **구현 루프**를 실행한다. 사용자가 issue 경로를 준 것은 이 계약을 구현해도 된다는 승인이다.
 
 ---
 
-## 모드 C — 사이클 실행 (무한 루프)
+## 사이클 실행 (무한 루프)
 
 `workflows/cycles/<파일>.md`는 한 세션 **loop-driver 프롬프트**다. 그 문서의 알고리즘대로:
 1. 체인 상태 확인 → 미완 goal 마무리 → 다음 finding.

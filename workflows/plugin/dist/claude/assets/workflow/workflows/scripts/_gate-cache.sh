@@ -91,7 +91,7 @@ _gate_cache_fingerprint() {
   if command -v portable_mktemp_file >/dev/null 2>&1; then
     manifest=$(portable_mktemp_file) || return 1
   else
-    manifest=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || return 1
+    manifest=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || return 1
   fi
 
   local pattern p
@@ -123,7 +123,7 @@ _gate_cache_fingerprint() {
         if command -v portable_mktemp_file >/dev/null 2>&1; then
           listing=$(portable_mktemp_file) || { rm -f "$manifest"; return 1; }
         else
-          listing=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || { rm -f "$manifest"; return 1; }
+          listing=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || { rm -f "$manifest"; return 1; }
         fi
         find "$p" \
               -type d \( \

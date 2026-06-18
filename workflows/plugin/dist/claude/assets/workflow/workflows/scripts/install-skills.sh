@@ -49,7 +49,7 @@ CODEX_DST="${CODEX_SKILLS_DIR:-$HOME/.codex/skills}"
 CODEX_PROMPTS="${CODEX_PROMPTS_DIR:-$HOME/.codex/prompts}"
 FORCE=0
 [ "${1:-}" = "--force" ] && FORCE=1
-BACKUP_ROOT="${IRONMAN_SKILL_BACKUP_DIR:-$HOME/.ironman/skill-backups/$(date -u +%Y%m%dT%H%M%SZ)}"
+BACKUP_ROOT="${COSHERPA_SKILL_BACKUP_DIR:-$HOME/.cosherpa/skill-backups/$(date -u +%Y%m%dT%H%M%SZ)}"
 
 # User-facing skills that get a Codex slash-command shim (command == skill).
 # Sub-skills to-prd/to-spec/to-issues are invoked by freeze, not directly, so
@@ -167,6 +167,6 @@ Codex slash-commands are GENERATED from the skill set (never go stale):
   /fcg-goal /fcg-cycles /fcg-findings                (legacy aliases -> build/cycle/finding)
 
 Verify:  ls ~/.claude/skills ~/.codex/skills ~/.codex/prompts
-Backups: overwritten or stale global skills are copied under ~/.ironman/skill-backups/
+Backups: overwritten or stale global skills are copied under ~/.cosherpa/skill-backups/
 Matrix:  see Workflow_Guideline_v1.html (tab 2 "설치 위치" / tab 3 "채널 1")
 EOF

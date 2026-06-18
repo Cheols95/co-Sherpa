@@ -316,8 +316,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 <span class="s">/concept</span> → <span class="s">/freeze</span> → <span class="s">/handoff</span>
    <span class="c">└ 체크리스트 정산   봉인(PRD·계약·이슈·graph-lint)   인계</span>
 
-<span class="c"># 경계 · 변환 — 정확히 한 번</span>
-<span class="s">/build</span> workflows/docs/issues/*.md  →  <span class="o">workflows/goals/&lt;n&gt;-*</span> 3파일 실행계약
+<span class="c"># build intake · 계약화 후 구현</span>
+<span class="s">/build</span> workflows/docs/issues/*.md  →  <span class="o">goal 계약 생성</span> → <span class="g">GREEN</span>
 
 <span class="c"># Phase 2 · 구현 (자연어 트리거)</span>
 <span class="k">$</span> bash workflows/scripts/diagnose.sh
@@ -393,34 +393,34 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <!-- Phase 0 -->
       <div class="phase-block">
         <div class="phase-head"><h3>Phase 0 — 부트스트랩</h3><span class="pill pill-cream">새 프로젝트 시작</span></div>
-        <p class="phase-desc">플러그인을 설치한 뒤 Claude Code는 <code>/ironman:init</code>, Codex는 <code>Use ironman init to install the workflow here.</code>로 현재 프로젝트에 하네스와 전역 daily skills를 동기화하는 단계. 첫 설치와 업데이트 후 재동기화가 같은 역할입니다.</p>
+        <p class="phase-desc">플러그인을 설치한 뒤 Claude Code는 <code>/cosherpa:init</code>, Codex는 <code>Use cosherpa init to install the workflow here.</code>로 현재 프로젝트에 하네스와 전역 daily skills를 동기화하는 단계. 첫 설치와 업데이트 후 재동기화가 같은 역할입니다.</p>
         <div class="steps">
           <details class="step">
-            <summary><span class="num">1</span><span class="s-cmd">플러그인 설치</span><span class="s-out">ironman marketplace</span><span class="chev">▶</span></summary>
+            <summary><span class="num">1</span><span class="s-cmd">플러그인 설치</span><span class="s-out">cosherpa marketplace</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">절차</span>
                 <ul>
-                  <li>Claude Code: <code>claude plugin marketplace add Cheols95/project_workflow_ironman</code> → <code>claude plugin install ironman@ironman</code></li>
-                  <li>Codex: <code>codex plugin marketplace add Cheols95/project_workflow_ironman --ref main</code> → <code>codex plugin add ironman@ironman</code></li>
-                  <li>Claude Code lifecycle surface: <code>/ironman:init</code> · <code>/ironman:help</code> · <code>/ironman:migration</code></li>
-                  <li>Codex lifecycle surface: <code>Use ironman init to install the workflow here.</code>처럼 plugin skill을 명시 호출합니다. Host가 plugin skill picker를 노출하면 <code>ironman:init</code>을 선택합니다.</li>
+                  <li>Claude Code: <code>claude plugin marketplace add Cheols95/co-Sherpa</code> → <code>claude plugin install cosherpa@cosherpa</code></li>
+                  <li>Codex: <code>codex plugin marketplace add Cheols95/co-Sherpa --ref main</code> → <code>codex plugin add cosherpa@cosherpa</code></li>
+                  <li>Claude Code lifecycle surface: <code>/cosherpa:init</code> · <code>/cosherpa:help</code> · <code>/cosherpa:migration</code></li>
+                  <li>Codex lifecycle surface: <code>Use cosherpa init to install the workflow here.</code>처럼 plugin skill을 명시 호출합니다. Host가 plugin skill picker를 노출하면 <code>cosherpa:init</code>을 선택합니다.</li>
                 </ul>
               </div>
               <div class="row easy">🏠 <b>쉬운 풀이</b> — 템플릿 폴더를 직접 복사하지 않고, 플러그인이 필요한 재료와 공구를 현재 프로젝트로 배달하게 합니다.</div>
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">2</span><span class="s-cmd">하네스 + daily skills 동기화</span><span class="s-out">/ironman:init</span><span class="chev">▶</span></summary>
+            <summary><span class="num">2</span><span class="s-cmd">하네스 + daily skills 동기화</span><span class="s-out">/cosherpa:init</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">절차</span>
                 <ul>
-                  <li>현재 프로젝트 루트에서 <code>/ironman:init</code> 실행</li>
-                  <li>하네스 파일은 현재 프로젝트로 복사하고, 기존 파일은 <code>workflows/.ironman/backup/</code>에 백업합니다</li>
+                  <li>현재 프로젝트 루트에서 <code>/cosherpa:init</code> 실행</li>
+                  <li>하네스 파일은 현재 프로젝트로 복사하고, 기존 파일은 <code>workflows/.cosherpa/backup/</code>에 백업합니다</li>
                   <li>매일 쓰는 스킬은 Claude·Codex 전역 skill home에 설치합니다: <code>/concept</code> · <code>/freeze</code> · <code>/build</code> 등</li>
-                  <li>업데이트 때도 플러그인을 갱신한 뒤 새 세션에서 <code>/ironman:init</code>을 다시 실행합니다</li>
+                  <li>업데이트 때도 플러그인을 갱신한 뒤 새 세션에서 <code>/cosherpa:init</code>을 다시 실행합니다</li>
                 </ul>
               </div>
-              <div class="row easy">🔧 <b>쉬운 풀이</b> — <code>/ironman:init</code>은 첫 셋업 명령이면서 업데이트 동기화 명령입니다. 프로젝트 안 파일과 전역 공구를 한 번에 맞춥니다.</div>
+              <div class="row easy">🔧 <b>쉬운 풀이</b> — <code>/cosherpa:init</code>은 첫 셋업 명령이면서 업데이트 동기화 명령입니다. 프로젝트 안 파일과 전역 공구를 한 번에 맞춥니다.</div>
             </div>
           </details>
         </div>
@@ -468,7 +468,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             <summary><span class="num">4</span><span class="s-cmd">/handoff</span><span class="s-out">→ 인계 문서 (Phase 1 마무리)</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> 현재 대화를 다른 에이전트(또는 미래의 세션)가 이어받을 수 있는 압축 문서로 만듭니다. 모델 전환(Claude → Codex)이나 긴 세션 교체 전에 항상 실행합니다.</div>
-              <div class="row"><span class="lab">필수 명시</span> 인계 문서에 <b><code>workflows/goals/</code> 변환 상태(미변환 | 변환완료)</b>를 반드시 적습니다 — 누락하면 다음 에이전트가 이중 변환하거나 빈 goals에 구현 모드를 돌리는 사고가 납니다.</div>
+              <div class="row"><span class="lab">필수 명시</span> 인계 문서에 <b><code>/build</code> 진행 상태(이슈만 있음 | goal 생성됨 | 구현 진행 중 | 완료)</b>를 반드시 적습니다 — 누락하면 다음 에이전트가 같은 이슈를 다시 계약화하거나 빈 goals에 구현 루프를 돌리는 사고가 납니다.</div>
               <div class="row easy">📋 <b>쉬운 풀이</b> — 교대 근무자의 인수인계 노트. "여기까지 했고, 다음은 이것, 함정은 저것"을 한 장으로.</div>
             </div>
           </details>
@@ -492,15 +492,15 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 
       <!-- 경계 -->
       <div class="phase-block">
-        <div class="phase-head"><h3>경계 — 변환</h3><span class="pill pill-amber">정확히 한 번</span></div>
-        <p class="phase-desc">Phase 1의 이슈 "목록"을 Phase 2의 goal "실행계약"으로 바꾸는 단 하나의 작업입니다.</p>
+        <div class="phase-head"><h3>경계 — build intake</h3><span class="pill pill-amber">계약화 후 구현</span></div>
+        <p class="phase-desc">Phase 1의 이슈 "목록"을 <code>/build</code>에 넘기면 goal "실행계약"으로 바꾸고 곧바로 gate green 구현 루프로 들어갑니다.</p>
         <div class="steps">
           <details class="step">
-            <summary><span class="num">★</span><span class="s-cmd">/build workflows/docs/issues/*.md</span><span class="s-out">→ workflows/goals/&lt;n&gt;-* 3파일 실행계약 (모드 B)</span><span class="chev">▶</span></summary>
+            <summary><span class="num">★</span><span class="s-cmd">/build workflows/docs/issues/*.md</span><span class="s-out">→ goal 3파일 계약 → gate GREEN 구현</span><span class="chev">▶</span></summary>
             <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> 각 수직 슬라이스를 <code>workflows/goals/&lt;n&gt;-&lt;이름&gt;.{md, gates.sh, next-task.sh}</code> 3파일 계약으로 변환합니다. 이슈의 <code>risk:</code> 등급도 goal로 운반됩니다. 첫 변환은 교육용 예제 <code>workflows/goals/0-example.*</code>을 제거하고 실제 goal로 교체합니다.</div>
-              <div class="row"><span class="lab">⚠ 함정</span> 변환은 <b>경계에서 정확히 한 번</b> — handoff 전(기획 쪽)이나 handoff 후(구현 쪽) 둘 중 하나입니다. 그래서 handoff 문서에 변환 상태를 반드시 명시합니다. 층위 구분: 이슈 "목록" ≠ goal "3파일 실행계약" ≠ spec "계약 인터페이스".</div>
-              <div class="row easy">📑 <b>쉬운 풀이</b> — 할 일 목록(이슈)을 "검사기가 딸린 계약서"(goal)로 바꾸는 공증 절차입니다. 같은 목록을 두 번 공증하면 서류가 꼬이니 딱 한 번만.</div>
+              <div class="row"><span class="lab">무엇을</span> 각 수직 슬라이스를 <code>workflows/goals/&lt;n&gt;-&lt;이름&gt;.{md, gates.sh, next-task.sh}</code> 3파일 계약으로 변환한 뒤, 생성된 goal을 기준으로 TDD 구현 루프에 바로 들어갑니다. 이슈의 <code>risk:</code> 등급도 goal로 운반됩니다. 첫 계약화는 교육용 예제 <code>workflows/goals/0-example.*</code>을 제거하고 실제 goal로 교체합니다.</div>
+              <div class="row"><span class="lab">승인 의미</span> 사용자가 <code>workflows/docs/issues/*.md</code> 또는 <code>workflows/docs/prd/PRD.md</code> 경로를 <code>/build</code>에 넘기는 것은 "계약화하고 구현해도 된다"는 승인으로 봅니다. 변환만 원하면 "변환만"이라고 명시합니다.</div>
+              <div class="row easy">📑 <b>쉬운 풀이</b> — 할 일 목록(이슈)을 "검사기가 딸린 계약서"(goal)로 바꾸고, 바로 그 검사기를 초록불로 만드는 작업까지 이어집니다.</div>
             </div>
           </details>
         </div>
@@ -524,7 +524,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
             </div>
           </details>
           <details class="step">
-            <summary><span class="num">2</span><span class="s-cmd">"build 돌려줘"</span><span class="s-out">모드 A — active goal을 GREEN으로</span><span class="chev">▶</span></summary>
+            <summary><span class="num">2</span><span class="s-cmd">"build 돌려줘"</span><span class="s-out">active goal을 GREEN으로</span><span class="chev">▶</span></summary>
             <div class="s-body">
               <div class="row"><span class="lab">무엇을</span> active goal의 게이트를 통과시킬 때까지 TDD로 자율 반복합니다. 커밋도 규율대로: <code>red(id):</code> → <code>green(id):</code> → <code>refactor(id):</code>. 초록불이 되면 다음 goal로 자동 전진합니다.</div>
               <div class="row"><span class="lab">RISKY 마감 리뷰</span> 위험 등급이 RISKY인 goal은 초록불 후 전진 전에 <b>작성에 관여하지 않은 서브에이전트가 미션 ↔ 실제 코드 변경분(raw diff)을 1회 대조</b>합니다. 발견은 finding 큐로 가고, 게이트 판정 자체는 막지 않습니다(게이트가 유일한 "완료" 권위).</div>
@@ -637,12 +637,12 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <tr><td><code>workflows/docs/state/</code></td><td>진행 상태 — 자동생성(progress·next-task) + append-only(blockers·learnings)</td></tr>
         <tr><td><code>workflows/goals/</code> · <code>workflows/cycles/</code></td><td>FCG 미션 스택(3파일 계약) · 루프 구동 문서</td></tr>
         <tr><td><code>workflows/scripts/</code></td><td>FCG 오케스트레이터(diagnose·completion-check 등) + install-skills + update-workflow + reset</td></tr>
-        <tr><td><code>workflows/skills/</code></td><td>전역 daily skills의 <b>소스 백업</b>(정본) — <code>/ironman:init</code>이 설치·갱신</td></tr>
+        <tr><td><code>workflows/skills/</code></td><td>전역 daily skills의 <b>소스 백업</b>(정본) — <code>/cosherpa:init</code>이 설치·갱신</td></tr>
         <tr><td><code>.claude/workflows/skills/</code></td><td>이 프로젝트 <b>전용</b> 스킬 슬롯 (현재 roadmap 1종)</td></tr>
         <tr><td><code>workflows/dashboard/</code></td><td>로드맵 대시보드 엔진 + self-test</td></tr>
         <tr><td><code>workflows/guidelines/</code> · <code>workflows/prompts/</code></td><td>iteration 운영 매뉴얼·품질점검 / 메타 프롬프트(cycle 생성, 테스트 점검)</td></tr>
-        <tr><td><code>workflows/workflow-manifest.txt</code></td><td><code>/ironman:init</code>이 대상 프로젝트로 복사하는 하네스 파일 목록</td></tr>
-        <tr><td><code>workflows/.ironman/workflow-version</code></td><td>(프로젝트 사본에만) 마지막 수용한 템플릿 SHA — 3-way 기준점</td></tr>
+        <tr><td><code>workflows/workflow-manifest.txt</code></td><td><code>/cosherpa:init</code>이 대상 프로젝트로 복사하는 하네스 파일 목록</td></tr>
+        <tr><td><code>workflows/.cosherpa/workflow-version</code></td><td>(프로젝트 사본에만) 마지막 수용한 템플릿 SHA — 3-way 기준점</td></tr>
         <tr><td><code>workflows/docs/fcg-system.md</code> · <code>workflows/docs/goal-design.md</code></td><td>FCG 3-자산 모델 설명 · goal/게이트 설계 노트 (심화 레퍼런스)</td></tr>
       </table>
       </div>
@@ -756,7 +756,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">현재 대화를 다른 에이전트가 이어받을 인계 문서로 압축</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> 대화에서 "다음 에이전트가 모르면 틀리는 것"만 추려 압축합니다 — 한 일, 현재 상태, 다음 작업(우선순위순), 함정·규약. 모델 전환(Claude→Codex)이나 긴 세션 교체 전 필수. 이 템플릿에서는 <b>workflows/goals/ 변환 상태(미변환|완료) 명시</b>가 추가 규약입니다(이중 변환 사고 방지).</div>
+          <div class="row"><span class="lab">작동 원리</span> 대화에서 "다음 에이전트가 모르면 틀리는 것"만 추려 압축합니다 — 한 일, 현재 상태, 다음 작업(우선순위순), 함정·규약. 모델 전환(Claude→Codex)이나 긴 세션 교체 전 필수. 이 템플릿에서는 <b><code>/build</code> 진행 상태(이슈만 있음 | goal 생성됨 | 구현 진행 중 | 완료) 명시</b>가 추가 규약입니다(중복 계약화 사고 방지).</div>
           <div class="row"><span class="lab">호출</span> <code>/handoff</code> (Claude·Codex 공통) · Codex는 "핸드오프 문서 만들어줘" 자연어도 가능</div>
           <div class="row easy">📋 교대 근무 인수인계 노트. 잘 쓴 인계는 "다 적은 것"이 아니라 "틀리기 쉬운 것만 적은 것"입니다.</div>
         </div>
@@ -765,20 +765,20 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <details class="skill" data-cat="p2">
         <summary>
           <div class="sk-top"><span class="sk-name">build</span><span class="pill pill-dark">Phase 2 엔진</span></div>
-          <div class="sk-one">단일 엔진, 3개 모드 — 입력 종류가 곧 모드 선택</div>
+          <div class="sk-one">issue/PRD를 계약화하고 곧바로 gate GREEN 구현까지 진행</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> FCG의 심장입니다. 무엇을 건네느냐로 모드가 자동 판별됩니다:
+          <div class="row"><span class="lab">작동 원리</span> FCG의 심장입니다. 무엇을 건네느냐로 흐름이 자동 판별됩니다:
             <table>
-              <tr><th>입력</th><th>모드</th><th>결과</th></tr>
-              <tr><td><code>workflows/docs/issues/*.md</code> 또는 PRD</td><td><b>B 변환</b></td><td>슬라이스 → goal 3파일 계약 생성 (첫 변환은 0-example 교체)</td></tr>
-              <tr><td>(없음) 또는 goal 파일</td><td><b>A 게이트 루프</b></td><td>active goal RED→GREEN, 통과 시 다음 goal로 자동 전진</td></tr>
-              <tr><td><code>workflows/cycles/&lt;파일&gt;.md</code></td><td><b>C 사이클 실행</b></td><td>findings 소진까지 무인 루프 (조기 종료 금지)</td></tr>
+              <tr><th>입력</th><th>동작</th><th>결과</th></tr>
+              <tr><td><code>workflows/docs/issues/*.md</code> 또는 PRD</td><td><b>계약화 + 구현</b></td><td>슬라이스 → goal 3파일 계약 생성 → gate GREEN 구현</td></tr>
+              <tr><td>(없음) 또는 goal 파일</td><td><b>구현 루프</b></td><td>active goal RED→GREEN, 통과 시 다음 goal로 자동 전진</td></tr>
+              <tr><td><code>workflows/cycles/&lt;파일&gt;.md</code></td><td><b>사이클 실행</b></td><td>findings 소진까지 무인 루프 (조기 종료 금지)</td></tr>
             </table>
           </div>
-          <div class="row"><span class="lab">내장 규율</span> TDD(red→green→refactor 커밋) · 게이트 불변(코드를 고치지 게이트를 고치지 않음) · RISKY goal 마감 시 비저자 diff 대조 리뷰 · 3회 무진전 시 사다리(맥락보강→접근전환→blocker 기록)</div>
-          <div class="row"><span class="lab">모드 B 위생검사</span> 변환 시 <b>red-first 검사</b>(<code>workflows/scripts/red-first-check.sh</code> — 새 게이트는 구현 전 코드에서 반드시 RED여야 함. 구현 전인데 GREEN이면 비어 있거나 항진명제인 가짜 게이트)와 graph-lint를 함께 돌려 게이트와 의존성 그래프의 무결성을 확인합니다.</div>
-          <div class="row"><span class="lab">호출</span> Claude: <code>/build</code> · Codex: "build 돌려줘", "PRD를 goals 계약으로 변환해줘"</div>
+          <div class="row"><span class="lab">내장 규율</span> TDD(red→green→refactor 커밋) · 게이트 불변(코드를 고치지 게이트를 고치지 않음) · 필요시 서브에이전트 위임 · RISKY goal 마감 시 비저자 diff 대조 리뷰 · 3회 무진전 시 사다리(맥락보강→접근전환→blocker 기록)</div>
+          <div class="row"><span class="lab">계약화 위생검사</span> issue/PRD 입력 시 <b>red-first 검사</b>(<code>workflows/scripts/red-first-check.sh</code> — 새 게이트는 구현 전 코드에서 반드시 RED여야 함. 구현 전인데 GREEN이면 비어 있거나 항진명제인 가짜 게이트)와 graph-lint를 함께 돌려 게이트와 의존성 그래프의 무결성을 확인한 뒤 구현 루프로 이어집니다.</div>
+          <div class="row"><span class="lab">호출</span> Claude: <code>/build</code> · Codex: "build 돌려줘", "이 issue를 계약화하고 구현해줘"</div>
           <div class="row easy">🚦 "검사기 초록불 될 때까지 일하는 기계"입니다. 중요한 건 검사기를 속일 수 없다는 것 — "모든 X가 Y하다"라는 약속이면 게이트가 실제로 X 전부를 순회하며 검사하고, 게이트 자체를 느슨하게 고치는 것은 금지 규율입니다.</div>
         </div>
       </details>
@@ -867,7 +867,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
   <header class="wrap" style="padding-top:72px;padding-bottom:24px">
     <div class="kicker">업데이트 · Migration</div>
     <h1 style="font-size:48px">템플릿은 진화한다.<br>프로젝트는 따라온다.</h1>
-    <p class="sec-sub">이 템플릿을 여러 프로젝트에서 써도, 표준 업데이트는 플러그인을 갱신한 뒤 <code>/ironman:init</code>을 다시 실행하는 한 흐름입니다. 프로젝트의 내용물(코드·문서·이력)은 덮기 전에 백업됩니다.</p>
+    <p class="sec-sub">이 템플릿을 여러 프로젝트에서 써도, 표준 업데이트는 플러그인을 갱신한 뒤 <code>/cosherpa:init</code>을 다시 실행하는 한 흐름입니다. 프로젝트의 내용물(코드·문서·이력)은 덮기 전에 백업됩니다.</p>
   </header>
 
   <!-- 업데이트 흐름 -->
@@ -877,18 +877,18 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <div class="feature-card">
           <div class="ic">🔧</div>
           <h3>1단계 — 플러그인 갱신</h3>
-          <p><b>lifecycle 명령을 최신으로 받습니다.</b> Claude는 <code>claude plugin update ironman</code>, Codex는 marketplace upgrade 후 add로 플러그인 캐시를 갱신합니다.</p>
-          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: <code>/ironman:init</code> · <code>/ironman:help</code> · <code>/ironman:migration</code></p>
+          <p><b>lifecycle 명령을 최신으로 받습니다.</b> Claude는 <code>claude plugin update cosherpa</code>, Codex는 marketplace upgrade 후 add로 플러그인 캐시를 갱신합니다.</p>
+          <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: <code>/cosherpa:init</code> · <code>/cosherpa:help</code> · <code>/cosherpa:migration</code></p>
         </div>
         <div class="feature-card">
           <div class="ic">📦</div>
-          <h3>2단계 — /ironman:init 재실행</h3>
+          <h3>2단계 — /cosherpa:init 재실행</h3>
           <p><b>프로젝트 하네스와 전역 daily skills를 함께 맞춥니다.</b> 번들된 <code>workflows/workflow-manifest.txt</code> 자산을 현재 프로젝트로 복사하고, <code>workflows/skills/</code>를 Claude·Codex 전역 skill home에 재배포합니다.</p>
           <p class="mt-20" style="font-size:13.5px;color:var(--muted)">대상: 하네스 파일 + <code>/concept</code> · <code>/freeze</code> · <code>/build</code> 등 daily skills</p>
         </div>
       </div>
       <div class="callout callout-info"><span class="mark">💡</span>
-        <div><b>혼합형 표면</b> — lifecycle은 네임스페이스 명령(<code>/ironman:*</code>)이고, 매일 쓰는 작업 명령은 전역 스킬(<code>/concept</code>·<code>/freeze</code>·<code>/build</code>)입니다. <code>/ironman:init</code>이 두 세계를 동기화합니다.</div>
+        <div><b>혼합형 표면</b> — lifecycle은 네임스페이스 명령(<code>/cosherpa:*</code>)이고, 매일 쓰는 작업 명령은 전역 스킬(<code>/concept</code>·<code>/freeze</code>·<code>/build</code>)입니다. <code>/cosherpa:init</code>이 두 세계를 동기화합니다.</div>
       </div>
     </div>
   </section>
@@ -897,26 +897,26 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
   <section class="section-tight band-soft">
     <div class="wrap">
       <div class="kicker">표준 업데이트</div>
-      <h2 style="font-size:32px">plugin update → /ironman:init</h2>
+      <h2 style="font-size:32px">plugin update → /cosherpa:init</h2>
       <div class="grid-2 mt-30" style="align-items:start">
         <div class="code-window">
           <div class="cw-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
             <span class="cw-title">Claude Code</span><button class="copy-btn" onclick="copyCode(this)">복사</button></div>
-          <pre><span class="k">$</span> claude plugin update ironman
+          <pre><span class="k">$</span> claude plugin update cosherpa
 <span class="c"># 새 Claude Code 세션을 연 뒤, 대상 프로젝트 루트에서</span>
-<span class="k">/</span>ironman:init</pre>
+<span class="k">/</span>cosherpa:init</pre>
         </div>
         <div class="code-window">
           <div class="cw-bar"><span class="dot"></span><span class="dot"></span><span class="dot"></span>
 <span class="cw-title">Codex</span><button class="copy-btn" onclick="copyCode(this)">복사</button></div>
-          <pre><span class="k">$</span> codex plugin marketplace upgrade ironman
-<span class="k">$</span> codex plugin add ironman@ironman
+          <pre><span class="k">$</span> codex plugin marketplace upgrade cosherpa
+<span class="k">$</span> codex plugin add cosherpa@cosherpa
 <span class="c"># 새 Codex 세션을 연 뒤, 대상 프로젝트 루트에서</span>
-Use ironman init to install the workflow here.</pre>
+Use cosherpa init to install the workflow here.</pre>
         </div>
       </div>
       <div class="callout callout-warn"><span class="mark">✍️</span>
-        <div><b>ironman init의 역할</b>: 첫 설치와 업데이트 후 동기화를 모두 맡습니다. 내부적으로 <code>workflows/scripts/install-skills.sh --force</code>를 실행해 Claude·Codex 전역 daily skills와 Codex slash shim까지 맞춥니다.</div>
+        <div><b>cosherpa init의 역할</b>: 첫 설치와 업데이트 후 동기화를 모두 맡습니다. 내부적으로 <code>workflows/scripts/install-skills.sh --force</code>를 실행해 Claude·Codex 전역 daily skills와 Codex slash shim까지 맞춥니다.</div>
       </div>
     </div>
   </section>
@@ -926,7 +926,7 @@ Use ironman init to install the workflow here.</pre>
     <div class="wrap">
       <div class="kicker">수동 복구 경로</div>
       <h2>update-workflow.sh — 3-way 동기화</h2>
-      <p class="sec-sub">표준 경로는 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">/ironman:init</code>입니다. 템플릿 소스 폴더를 직접 들고 있는 특수 상황에서는 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">update-workflow.sh</code>로 파일별 3-way 판정을 볼 수 있습니다.</p>
+      <p class="sec-sub">표준 경로는 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">/cosherpa:init</code>입니다. 템플릿 소스 폴더를 직접 들고 있는 특수 상황에서는 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">update-workflow.sh</code>로 파일별 3-way 판정을 볼 수 있습니다.</p>
 
       <div class="grid-2 mt-40" style="align-items:start">
         <div class="code-window" style="border:1px solid #2c2a26">
@@ -988,12 +988,12 @@ Use ironman init to install the workflow here.</pre>
   <!-- Migration placeholder -->
   <section class="section-tight">
     <div class="wrap">
-      <div class="kicker">/ironman:migration — 기존 코드베이스 온보딩</div>
+      <div class="kicker">/cosherpa:migration — 기존 코드베이스 온보딩</div>
       <div class="outline-card" style="background:var(--surface-cream-strong);border-style:dashed;border-color:var(--muted-soft)">
         <span class="pill pill-coral">lifecycle</span>
         <h3 style="margin:16px 0 10px">brownfield onboarding</h3>
-        <p style="max-width:760px">템플릿 없이 시작된 <b>기존 코드베이스</b>를 이 워크플로우에 태우는 온보딩 스킬입니다. <code>/ironman:init</code>으로 하네스를 깐 뒤 <code>/ironman:migration</code>을 실행합니다.</p>
-        <p style="max-width:760px;margin-top:12px;color:var(--muted);font-size:14.5px">골격: <b>SCAN</b>(스택·모듈·검증 명령·git 이력 파악) → <b>위험가중 ELICIT</b>(코드가 증언하지 못하는 것만 질문) → <b>산출</b>(AGENTS.md 2섹션 + CONTEXT.md 초안 + 필요한 ADR 시드) → <b>REVIEW</b>(하네스 관점 독립 검토). 그리니필드는 <code>/ironman:migration</code> 없이 <code>/concept</code>으로 시작합니다.</p>
+        <p style="max-width:760px">템플릿 없이 시작된 <b>기존 코드베이스</b>를 이 워크플로우에 태우는 온보딩 스킬입니다. <code>/cosherpa:init</code>으로 하네스를 깐 뒤 <code>/cosherpa:migration</code>을 실행합니다.</p>
+        <p style="max-width:760px;margin-top:12px;color:var(--muted);font-size:14.5px">골격: <b>SCAN</b>(스택·모듈·검증 명령·git 이력 파악) → <b>위험가중 ELICIT</b>(코드가 증언하지 못하는 것만 질문) → <b>산출</b>(AGENTS.md 2섹션 + CONTEXT.md 초안 + 필요한 ADR 시드) → <b>REVIEW</b>(하네스 관점 독립 검토). 그리니필드는 <code>/cosherpa:migration</code> 없이 <code>/concept</code>으로 시작합니다.</p>
       </div>
     </div>
   </section>

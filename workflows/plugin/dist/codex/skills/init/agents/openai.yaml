@@ -1,7 +1,7 @@
 interface:
-  display_name: "ironman init"
-  short_description: "Install or sync the ironman workflow harness."
-  default_prompt: "Use ironman init to install the workflow here."
+  display_name: "co-Sherpa init"
+  short_description: "Install or sync the co-Sherpa workflow harness."
+  default_prompt: "Use cosherpa init to install the workflow here."
 
 policy:
   allow_implicit_invocation: true

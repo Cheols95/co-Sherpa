@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# release-check.sh -- one release interface for the ironman plugin package.
+# release-check.sh -- one release interface for the cosherpa plugin package.
 #
 # Runs the checks that must be true before publishing the Claude/Codex plugin:
 # package regeneration, artifact mode/LF audit, host validators, Codex install
@@ -15,7 +15,7 @@ REPO_ROOT="$(cd "$WORKFLOW_ROOT/.." && pwd)"
 if [ -f "$WORKFLOW_ROOT/scripts/_portable.sh" ]; then
   . "$WORKFLOW_ROOT/scripts/_portable.sh"
 else
-  portable_mktemp_dir() { mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/ironman.XXXXXX"; }
+  portable_mktemp_dir() { mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/cosherpa.XXXXXX"; }
 fi
 
 STAGE_DIR=$(portable_mktemp_dir) || exit 2
@@ -135,7 +135,7 @@ smoke_codex_plugin_install() {
     cat "$log"
     return 1
   fi
-  if ! CODEX_HOME="$home" codex plugin add ironman@ironman --json >>"$log" 2>&1; then
+  if ! CODEX_HOME="$home" codex plugin add cosherpa@cosherpa --json >>"$log" 2>&1; then
     cat "$log"
     return 1
   fi
@@ -150,13 +150,13 @@ smoke_scratch_init() {
     CLAUDE_SKILLS_DIR="$STAGE_DIR/claude-skills" \
       CODEX_SKILLS_DIR="$STAGE_DIR/codex-skills" \
       CODEX_PROMPTS_DIR="$STAGE_DIR/codex-prompts" \
-      IRONMAN_SKILL_BACKUP_DIR="$STAGE_DIR/skill-backups" \
-      "$PLUGIN_ROOT/dist/codex/bin/ironman-init" >/dev/null
+      COSHERPA_SKILL_BACKUP_DIR="$STAGE_DIR/skill-backups" \
+      "$PLUGIN_ROOT/dist/codex/bin/cosherpa-init" >/dev/null
   ) || return 1
 
   [ -f "$project/AGENTS.md" ] || { echo "scratch init did not create AGENTS.md"; return 1; }
   [ -f "$project/workflows/scripts/diagnose.sh" ] || { echo "scratch init did not create diagnose.sh"; return 1; }
-  [ -f "$project/workflows/.ironman/status" ] || { echo "scratch init did not write status"; return 1; }
+  [ -f "$project/workflows/.cosherpa/status" ] || { echo "scratch init did not write status"; return 1; }
 }
 
 check_template_clean() {
@@ -168,9 +168,10 @@ json_version() {
 }
 
 audit_release_metadata() {
-  local claude_version codex_version init_version bad_file stale_repo_name
+  local claude_version codex_version init_version bad_file stale_repo_name old_plugin_name
   bad_file="$STAGE_DIR/release-metadata.txt"
   stale_repo_name="$(printf '%s_%s_%s' project template mpfcg)"
+  old_plugin_name="$(printf '%s%s' iron man)"
   : > "$bad_file"
 
   if [ ! -f "$REPO_ROOT/LICENSE" ] && [ ! -f "$REPO_ROOT/LICENSE.md" ]; then
@@ -179,7 +180,7 @@ audit_release_metadata() {
 
   claude_version=$(json_version "$PLUGIN_ROOT/platform/claude/plugin.json")
   codex_version=$(json_version "$PLUGIN_ROOT/platform/codex/plugin.json")
-  init_version=$(sed -n 's/.*echo "version=\([^"]*\)".*/\1/p' "$PLUGIN_ROOT/src/bin/ironman-init" | head -1)
+  init_version=$(sed -n 's/.*echo "version=\([^"]*\)".*/\1/p' "$PLUGIN_ROOT/src/bin/cosherpa-init" | head -1)
   if [ -z "$claude_version" ] || [ -z "$codex_version" ] || [ -z "$init_version" ]; then
     echo "could not read all release versions" >> "$bad_file"
   elif [ "$claude_version" != "$codex_version" ] || [ "$claude_version" != "$init_version" ]; then
@@ -196,6 +197,17 @@ audit_release_metadata() {
     echo "stale repository name remains: $stale_repo_name" >> "$bad_file"
   fi
 
+  if grep -R "$old_plugin_name" \
+    "$REPO_ROOT/README.md" \
+    "$REPO_ROOT/Workflow_Guideline_v1.html" \
+    "$REPO_ROOT/.claude-plugin/marketplace.json" \
+    "$REPO_ROOT/.agents/plugins/marketplace.json" \
+    "$PLUGIN_ROOT/platform" \
+    "$PLUGIN_ROOT/src" \
+    "$PLUGIN_ROOT/dist" >/dev/null 2>&1; then
+    echo "old plugin name remains in release surface: $old_plugin_name" >> "$bad_file"
+  fi
+
   if [ -s "$bad_file" ]; then
     sed 's/^/  - /' "$bad_file"
     return 1
@@ -203,7 +215,7 @@ audit_release_metadata() {
   return 0
 }
 
-echo "=== ironman release check ==="
+echo "=== cosherpa release check ==="
 echo "repo: $REPO_ROOT"
 
 run_checked "Regenerate plugin dist" build_plugins
@@ -211,7 +223,7 @@ run_checked "Audit artifact executable modes" audit_artifact_modes
 run_checked "Audit release text LF endings" audit_text_lf
 run_checked "Validate Claude marketplace and plugin manifests" validate_claude_plugin
 run_checked "Smoke Codex marketplace add + plugin add" smoke_codex_plugin_install
-run_checked "Smoke scratch ironman-init" smoke_scratch_init
+run_checked "Smoke scratch cosherpa-init" smoke_scratch_init
 run_checked "Check template is clean for copy/distribution" check_template_clean
 run_checked "Audit release metadata" audit_release_metadata
 

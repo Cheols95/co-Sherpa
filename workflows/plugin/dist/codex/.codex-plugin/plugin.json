@@ -1,26 +1,26 @@
 {
-  "name": "ironman",
+  "name": "cosherpa",
   "version": "0.1.0",
   "description": "concept, freeze, and build workflow harness for Codex.",
   "author": {
     "name": "Cheols95"
   },
-  "homepage": "https://github.com/Cheols95/project_workflow_ironman",
-  "repository": "https://github.com/Cheols95/project_workflow_ironman",
+  "homepage": "https://github.com/Cheols95/co-Sherpa",
+  "repository": "https://github.com/Cheols95/co-Sherpa",
   "license": "MIT",
   "keywords": ["workflow", "concept", "freeze", "build", "fcg"],
   "skills": "./skills/",
   "interface": {
-    "displayName": "Ironman",
-    "shortDescription": "Install and route the ironman workflow harness.",
-    "longDescription": "Ironman installs a concept, freeze, and build workflow harness into a project, keeps daily Claude and Codex skills in sync, and helps onboard brownfield codebases.",
+    "displayName": "co-Sherpa",
+    "shortDescription": "Shape concepts, freeze decisions, and build software with Sherpa.",
+    "longDescription": "co-Sherpa installs a concept, freeze, and build workflow harness into a project, keeps daily Claude and Codex skills in sync, and helps onboard brownfield codebases.",
     "developerName": "Cheols95",
     "category": "Productivity",
     "capabilities": ["Interactive", "Write"],
     "defaultPrompt": [
-      "Use ironman init to install the workflow here.",
-      "Use ironman help to tell me the next step.",
-      "Use ironman migration to onboard this codebase."
+      "Use cosherpa init to install the workflow here.",
+      "Use cosherpa help to tell me the next step.",
+      "Use cosherpa migration to onboard this codebase."
     ],
     "brandColor": "#2563EB"
   }

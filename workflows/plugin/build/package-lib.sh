@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# package-lib.sh -- shared packaging implementation for ironman plugin builds.
+# package-lib.sh -- shared packaging implementation for cosherpa plugin builds.
 #
 # Source-only. The public interface is:
 #   package_copy_workflow_assets <dest-plugin-root>
@@ -10,7 +10,7 @@ package_normalize_lf_if_needed() {
   LC_ALL=C grep -Iq . "$file" 2>/dev/null || return 0
   cr=$(printf '\r')
   if LC_ALL=C grep -q "$cr" "$file" 2>/dev/null; then
-    tmp=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || return 1
+    tmp=$(mktemp 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || return 1
     tr -d '\r' < "$file" > "$tmp"
     mv -f "$tmp" "$file"
   fi

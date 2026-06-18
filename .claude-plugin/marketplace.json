@@ -1,14 +1,14 @@
 {
-  "name": "ironman",
+  "name": "cosherpa",
   "description": "concept, freeze, and build workflow harness.",
   "owner": { "name": "Cheols95" },
   "plugins": [
     {
-      "name": "ironman",
-      "description": "Install and route the ironman workflow harness.",
+      "name": "cosherpa",
+      "description": "Shape concepts, freeze decisions, and build software with Sherpa.",
       "author": { "name": "Cheols95" },
       "source": "./workflows/plugin/dist/claude",
-      "homepage": "https://github.com/Cheols95/project_workflow_ironman"
+      "homepage": "https://github.com/Cheols95/co-Sherpa"
     }
   ]
 }

@@ -1,18 +1,18 @@
 ---
 name: migration
-description: Onboard an existing brownfield codebase into the ironman harness. Use when the user invokes '/ironman:migration', after '/ironman:init' on an existing project, or when AGENTS.md Architecture/Context and CONTEXT.md need to be filled from code and user intent.
+description: Onboard an existing brownfield codebase into the co-Sherpa harness. Use when the user invokes '/cosherpa:migration', after '/cosherpa:init' on an existing project, or when AGENTS.md Architecture/Context and CONTEXT.md need to be filled from code and user intent.
 ---
 
 # migration — brownfield onboarding
 
-Convert an existing codebase into useful ironman project context. This skill writes harness content; it
+Convert an existing codebase into useful co-Sherpa project context. This skill writes harness content; it
 does not commit.
 
 ## Preconditions
 
 - The current directory is a git repo. If not, ask before running `git init`.
-- ironman structure exists. If `workflows/scripts/diagnose.sh` or `workflows/goals/AGENTS.md` is missing, run
-  `/ironman:init` first.
+- co-Sherpa structure exists. If `workflows/scripts/diagnose.sh` or `workflows/goals/AGENTS.md` is missing, run
+  `/cosherpa:init` first.
 - Existing code is present. For a greenfield project, route to `/concept` instead.
 
 ## Process

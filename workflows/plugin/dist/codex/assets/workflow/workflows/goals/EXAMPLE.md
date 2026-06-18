@@ -5,8 +5,8 @@
 > 영향이 없고, `0-example`과 달리 첫 변환 후에도 **영구히 남는다**.
 >
 > **역할 분담** — `workflows/goals/0-example.*` = *실행되는* 교육용 placeholder(새 템플릿에서
-> 체인이 green 되는 걸 관찰; 첫 모드 B 변환이 삭제). 이 문서 = *변환 품질의 기준*
-> (모드 B 변환 전, finding을 goal로 promote하기 전에 1회 참조).
+> 체인이 green 되는 걸 관찰; 첫 계약화가 삭제). 이 문서 = *계약화 품질의 기준*
+> (issue/PRD 계약화 전, finding을 goal로 promote하기 전에 1회 참조).
 >
 > 규약 본체는 `workflows/goals/AGENTS.md` · `workflows/docs/goal-design.md` §1·§1.5 — 이 문서는 예시일
 > 뿐 규약을 재정의하지 않는다. **모양을 베끼되 단어를 베끼지 마라** — 아래의 스택·
@@ -209,7 +209,7 @@ gate fail 여부 — 구현 형태가 아니라 진행 상태에 대한 명제).
 
 ---
 
-## 변환 체크리스트 (모드 B — 슬라이스 하나마다)
+## 계약화 체크리스트 (슬라이스 하나마다)
 
 1. 이슈 frontmatter `risk:` 운반 — 없으면 휴리스틱 판정(미지정 ≠ MECHANICAL).
 2. Mission의 universal claim ↔ gate enumeration이 짝을 이루는가.
@@ -217,7 +217,7 @@ gate fail 여부 — 구현 형태가 아니라 진행 상태에 대한 명제).
 4. `_gate-cache.sh` source + `GATE_INPUTS` + rigor self-check 포함, `chmod +x`.
 5. 횡단 검사(lint/typecheck/test/build)는 이 goal이 아니라 `_meta` 소관 —
    **첫 변환이면 `workflows/goals/_meta.gates.sh`의 `META_CHECKS`/`GATE_INPUTS`를 스택에 맞게 채우고
-   `bash workflows/goals/_meta.gates.sh`로 1회 실행 검증**(build 스킬 모드 B 절차). 안 채우면 _meta가
+   `bash workflows/goals/_meta.gates.sh`로 1회 실행 검증**(build 스킬 계약화 절차). 안 채우면 _meta가
    vacuous-pass = 회귀 안전망 부재 → `diagnose.sh`가 경고.
 6. Forbidden actions에 scope 경계 명시.
 7. gate/`_meta`가 테스트 러너를 호출하면 디렉토리가 아니라 파일/글롭 인자 —

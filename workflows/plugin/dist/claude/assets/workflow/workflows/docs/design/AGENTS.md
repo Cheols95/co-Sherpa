@@ -12,6 +12,11 @@
 
 ## 규칙
 
+- **Start by shaping the idea, not by writing issues.** On concept entry, first ORIENT around the
+  project character: purpose, users, success signal, scale, hard constraints, and whether existing
+  code already constrains the answer. Then DECOMPOSE the input into domain concepts, user actions,
+  data, policy/authorization, failures/edges, technical choices, external systems, and out-of-scope.
+  A thin input raises the bar: a one-line idea means more hidden decisions, not fewer.
 - **Surface load-bearing choices before freezing the spec.** Persistence, delivery shape
   (service / library / CLI / UI), and stack are decisions the whole plan rests on — state them to
   the user **explicitly, with the trade-off**, never silently default. A silently-defaulted
@@ -34,6 +39,11 @@
   their checklist **notation** (`[x]` / `[~]` / `[>]` / `[-]`) is owned by `README.md`
   (the single source for the symbols). Enumerate exhaustively, ask minimally — never ask what is
   derivable. concept ends when no **un-grounded** slot survives — not when it "feels like enough".
+- **Track presence, not optimism.** A slot that is merely mentioned is not closed; it is closed only
+  when rules exist. "Payment exists" is presence; "cancelled payment is voided/refunded/held under
+  these conditions" is coverage. For each closed slot, name the user-model basis: goal, value,
+  constraint, or domain fact. Main domain concepts must answer: what it is, what it does, what it
+  cannot do, and how it ends.
 - **Filter candidate questions through a grounds-gate.** A question — or a new checklist item — may
   reach the user only when it can state three things: its **site** (which entity/slot), **why** the
   material at hand doesn't already settle it, and the **consequence** of guessing wrong. **The *why*
@@ -43,6 +53,11 @@
   don't spray "have you considered X?". The gate filters noise only — it is never a license to drop a
   load-bearing slot by under-arguing. When genuinely unsure whether a slot is load-bearing, ask: one
   question costs a beat, an un-surfaced decision costs a wrong build.
+- **Ask as a design tree.** Parent decisions precede child decisions: user type before authorization,
+  authorization before failure policy, failure policy before test seam. Ask one independent decision
+  at a time. Every question carries a recommended answer, the reason for the recommendation, and a
+  visible way for the user to reject or replace it; domain multiple-choice questions must include an
+  open option.
 - **Demote incoming documents to material — track presence, not coverage.** A spec/plan/notes file
   brought from elsewhere enters as challengeable material, not ground truth: a document's existence
   is no evidence of the concept conversation behind it. While accounting the surface, distinguish a
@@ -62,6 +77,9 @@
   subagent tooling (e.g. a Codex session) → run both as an explicit self-review pass and surface the
   list. This audit is **no license for shallow concept work** — a finding here means the dialogue was
   closed too early.
+- **Run a fidelity pass before declaring ready.** Checklist, `CONTEXT.md`, and ADR/rationale text
+  must neither add claims the user did not decide nor weaken decisions the user did make. If the
+  document is stronger or weaker than the conversation, fix it before declaring `/freeze ready`.
 - **Freeze is one-way.** Once `/freeze` seals a feature, a *new* concept idea about it goes to
   `workflows/docs/findings/` (not a checklist re-open); only a *fundamental error in a frozen decision* re-opens
   Phase 1, and only with explicit user approval. Routing: simple addition / conflict → findings; the

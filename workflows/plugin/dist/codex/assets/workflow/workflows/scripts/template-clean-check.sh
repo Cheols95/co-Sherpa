@@ -96,20 +96,20 @@ done
 # Machine-local / runtime state that .gitignore cannot strip on a folder
 # copy (vs git clone). A copy-ready template must not carry these; they
 # regenerate on first run. Clear with scripts/reset-for-new-project.sh.
-# workflows/.ironman/workflow-version belongs to PROJECT copies (template-SHA reconcile marker,
+# workflows/.cosherpa/workflow-version belongs to PROJECT copies (template-SHA reconcile marker,
 # written by workflows/scripts/update-workflow.sh) -- the template itself must not
 # carry one, or every copied project starts with a bogus baseline.
 leaked=()
 for p in \
   .state \
-  .ironman \
-  .ironman/workflow-version \
+  .cosherpa \
+  .cosherpa/workflow-version \
   docs/state/next-task.md \
   docs/state/progress.md \
   "$PROJECT_ROOT/.claude/settings.local.json" \
   "$PROJECT_ROOT/.workflow-version" \
   "$PROJECT_ROOT/.state" \
-  "$PROJECT_ROOT/.ironman" \
+  "$PROJECT_ROOT/.cosherpa" \
   "$PROJECT_ROOT/docs/state/next-task.md" \
   "$PROJECT_ROOT/docs/state/progress.md"
 do

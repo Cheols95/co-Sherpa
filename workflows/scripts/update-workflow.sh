@@ -8,7 +8,7 @@
 # Project content (workflows/docs bodies, numbered goals, cycles history, CONTEXT.md,
 # workflows/docs/state/*, scripts/smoke.sh) is NEVER touched.
 #
-# 3-way logic, keyed on the workflows/.ironman/workflow-version marker (template SHA this
+# 3-way logic, keyed on the workflows/.cosherpa/workflow-version marker (template SHA this
 # project last reconciled with):
 #   local == template                       -> [OK]        in sync
 #   local missing, not in base              -> [NEW]       create on --apply
@@ -40,7 +40,7 @@ usage() {
 }
 
 ROOT="$(pwd)"
-MARKER="$ROOT/workflows/.ironman/workflow-version"
+MARKER="$ROOT/workflows/.cosherpa/workflow-version"
 if [ -f "$ROOT/workflows/scripts/_portable.sh" ]; then
   . "$ROOT/workflows/scripts/_portable.sh"
 fi
@@ -73,7 +73,7 @@ fi
 # -- resolve template source ---------------------------------------------------
 SRC="${FROM:-${MARKER_SRC:-${WORKFLOW_TEMPLATE_DIR:-}}}"
 if [ -z "$SRC" ]; then
-  echo "[FAIL] no template source. Pass --from <path|git-url> (it is remembered in workflows/.ironman/workflow-version)."
+  echo "[FAIL] no template source. Pass --from <path|git-url> (it is remembered in workflows/.cosherpa/workflow-version)."
   exit 2
 fi
 SRC="${SRC//\\//}"   # tolerate Windows backslash paths
@@ -85,7 +85,7 @@ else
   if command -v portable_mktemp_dir >/dev/null 2>&1; then
     TPL=$(portable_mktemp_dir) || exit 2
   else
-    TPL=$(mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/ironman.XXXXXX") || exit 2
+    TPL=$(mktemp -d 2>/dev/null || mktemp -d "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || exit 2
   fi
   CLEANUP="$TPL"
   echo "[..] cloning template: $SRC"
@@ -121,9 +121,9 @@ fi
 
 # -- clean-tree guard (apply only) ---------------------------------------------
 if [ "$APPLY" -eq 1 ] && [ "$FORCE_DIRTY" -ne 1 ] && [ -n "$proj_top" ]; then
-  # workflows/.ironman/workflow-version is this tool's own bookkeeping file -- an uncommitted
+  # workflows/.cosherpa/workflow-version is this tool's own bookkeeping file -- an uncommitted
   # marker (e.g. right after --set-baseline) must not trip the guard.
-  if [ -n "$(git -C "$ROOT" status --porcelain 2>/dev/null | grep -vE '^.. workflows/\.ironman/workflow-version$')" ]; then
+  if [ -n "$(git -C "$ROOT" status --porcelain 2>/dev/null | grep -vE '^.. workflows/\.cosherpa/workflow-version$')" ]; then
     echo "[FAIL] project working tree is dirty -- commit/stash first, or --force-dirty."
     exit 2
   fi
@@ -211,7 +211,7 @@ apply_file() {
   local f="$1" dest tmp mode
   dest="$ROOT/$f"
   mkdir -p "$(dirname "$dest")"
-  tmp=$(mktemp "$ROOT/.wf-update.XXXXXX" 2>/dev/null || mktemp "${TMPDIR:-/tmp}/ironman.XXXXXX") || return 1
+  tmp=$(mktemp "$ROOT/.wf-update.XXXXXX" 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || return 1
   if ! git -C "$TPL" show "$TPL_HEAD:$f" > "$tmp"; then
     rm -f "$tmp"; return 1
   fi
@@ -239,7 +239,7 @@ mode_label="dry-run (report only; use --apply)"
 echo "=== update-workflow: $mode_label ==="
 echo "  template: $SRC @ ${TPL_HEAD:0:12}"
 if [ "$HAVE_BASE" -eq 1 ]; then
-  echo "  baseline: ${BASE_SHA:0:12} (workflows/.ironman/workflow-version)"
+  echo "  baseline: ${BASE_SHA:0:12} (workflows/.cosherpa/workflow-version)"
 else
   echo "  baseline: (none -- first run)"
 fi
@@ -284,7 +284,7 @@ if [ "$APPLY" -eq 1 ]; then
       # the sha line is written only once everything is reconciled.
       mkdir -p "$(dirname "$MARKER")"
       printf 'source=%s\n' "$SRC" > "$MARKER"
-      echo "[..] template source remembered in workflows/.ironman/workflow-version (sha pending reconcile)"
+      echo "[..] template source remembered in workflows/.cosherpa/workflow-version (sha pending reconcile)"
     fi
     echo "[..] baseline NOT updated ($pending pending) -- resolve, then run --set-baseline."
   fi
