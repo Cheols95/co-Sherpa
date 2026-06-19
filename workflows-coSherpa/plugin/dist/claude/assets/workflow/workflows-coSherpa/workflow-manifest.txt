@@ -1,0 +1,84 @@
+# workflow-manifest.txt -- 워크플로우 "하네스" 파일 목록 (workflows-coSherpa/scripts/update-workflow.sh가 읽는다)
+#
+# 규칙:
+#   - 한 줄 = 프로젝트 루트 기준 경로. 끝이 '/'면 그 디렉토리의 (HEAD에 커밋된) 파일 전부.
+#   - '#' 이후는 주석. update-workflow.sh는 항상 "템플릿 HEAD의 이 파일"을 읽는다
+#     (프로젝트 로컬 사본이 아니라) -- 새 항목이 자동 반영되는 이유.
+#   - 여기 등재된 파일만 동기화 대상이다. 프로젝트 상태(workflows-coSherpa/docs 내용물, 번호 goal,
+#     cycles 이력, CONTEXT.md, workflows-coSherpa/docs/state/*, scripts/smoke.sh, workflows-coSherpa/.state/)는 절대
+#     등재하지 않는다 -- 불가침.
+#   - 템플릿에 새 하네스 파일을 만들면 여기에 추가하고 커밋할 것.
+#   - 스킬(workflows-coSherpa/skills/)은 이 채널이 아니다 -- 머신-전역 채널(workflows-coSherpa/scripts/install-skills.sh)이
+#     담당한다 (스킬은 머신당 1회 설치 = 전 프로젝트 공유).
+
+# -- 진입점·규약 (프로젝트가 내용을 채우는 혼합 파일은 3-way가 보호: 템플릿이
+#    안 바뀌면 조용, 양쪽 다 바뀌면 CONFLICT 보고) --
+AGENTS.md
+CLAUDE.md
+Workflow_Guideline_v1.html
+.gitattributes
+.gitignore
+workflows-coSherpa/workflow-manifest.txt
+.claude/settings.local.json.example
+.claude/skills/roadmap/SKILL.md
+.agents/skills/roadmap/SKILL.md
+
+# -- FCG 오케스트레이터 (scripts/smoke.sh는 프로젝트별 -- 등재 금지) --
+workflows-coSherpa/scripts/_deps-lib.sh
+workflows-coSherpa/scripts/_gate-cache.sh
+workflows-coSherpa/scripts/_goals-lib.sh
+workflows-coSherpa/scripts/_portable.sh
+workflows-coSherpa/scripts/active-check.sh
+workflows-coSherpa/scripts/check-gate-rigor.sh
+workflows-coSherpa/scripts/completion-check.sh
+workflows-coSherpa/scripts/diagnose.sh
+workflows-coSherpa/scripts/install-skills.sh
+workflows-coSherpa/scripts/issues-graph-check.sh
+workflows-coSherpa/scripts/next-task.sh
+workflows-coSherpa/scripts/red-first-check.sh
+workflows-coSherpa/scripts/reset-for-new-project.sh
+workflows-coSherpa/scripts/template-clean-check.sh
+workflows-coSherpa/scripts/update-state.sh
+workflows-coSherpa/scripts/update-workflow.sh
+
+# -- 대시보드 엔진 --
+workflows-coSherpa/dashboard/engines/
+workflows-coSherpa/dashboard/README.md
+
+# -- 운영 매뉴얼·메타 프롬프트 --
+workflows-coSherpa/guidelines/
+workflows-coSherpa/prompts/
+
+# -- goals 하네스 (번호 goal은 프로젝트 것 -- 등재 금지. 0-example은 템플릿
+#    교육용: 프로젝트가 부트스트랩으로 지웠으면 LOCAL-DEL로 존중된다) --
+workflows-coSherpa/goals/AGENTS.md
+workflows-coSherpa/goals/CLAUDE.md
+workflows-coSherpa/goals/EXAMPLE.md
+workflows-coSherpa/goals/_meta.md
+workflows-coSherpa/goals/_meta.gates.sh
+workflows-coSherpa/goals/_meta.next-task.sh
+workflows-coSherpa/goals/0-example.md
+workflows-coSherpa/goals/0-example.gates.sh
+workflows-coSherpa/goals/0-example.next-task.sh
+
+# -- cycles/findings 규약 (실제 cycle 문서·finding 문서는 프로젝트 이력) --
+workflows-coSherpa/cycles/AGENTS.md
+workflows-coSherpa/cycles/CLAUDE.md
+workflows-coSherpa/cycles/EXAMPLE.md
+workflows-coSherpa/docs/findings/AGENTS.md
+workflows-coSherpa/docs/findings/CLAUDE.md
+workflows-coSherpa/docs/findings/EXAMPLE.md
+
+# -- 문서 구조 설명서·설정 스텁 --
+workflows-coSherpa/docs/fcg-system.md
+workflows-coSherpa/docs/goal-design.md
+workflows-coSherpa/docs/adr/README.md
+workflows-coSherpa/docs/design/AGENTS.md
+workflows-coSherpa/docs/design/CLAUDE.md
+workflows-coSherpa/docs/design/README.md
+workflows-coSherpa/docs/issues/README.md
+workflows-coSherpa/docs/prd/README.md
+workflows-coSherpa/docs/spec/README.md
+workflows-coSherpa/docs/agents/domain.md
+workflows-coSherpa/docs/agents/issue-tracker.md
+workflows-coSherpa/docs/agents/triage-labels.md

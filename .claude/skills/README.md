@@ -7,5 +7,5 @@
 - 형식: `<skill-name>/SKILL.md` (frontmatter `name` + `description`).
 
 현재 들어 있는 것: **`roadmap/`** — 로컬 로드맵 대시보드 생성·열기 스킬. 이 워크플로우
-시스템(`workflows/dashboard/engines/`·`workflows/goals/`·`workflows/scripts/`)이 갖춰져야만 동작하므로 전역이 아닌
-프로젝트 전용으로 둔다. `workflows/scripts/template-clean-check.sh`가 필수 산출물로 강제한다.
+시스템(`workflows-coSherpa/dashboard/engines/`·`workflows-coSherpa/goals/`·`workflows-coSherpa/scripts/`)이 갖춰져야만 동작하므로 전역이 아닌
+프로젝트 전용으로 둔다. `workflows-coSherpa/scripts/template-clean-check.sh`가 필수 산출물로 강제한다.

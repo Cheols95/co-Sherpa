@@ -7,7 +7,7 @@
       "name": "cosherpa",
       "description": "Shape concepts, freeze decisions, and build software with Sherpa.",
       "author": { "name": "Cheols95" },
-      "source": "./workflows/plugin/dist/claude",
+      "source": "./workflows-coSherpa/plugin/dist/claude",
       "homepage": "https://github.com/Cheols95/co-Sherpa"
     }
   ]

@@ -1,0 +1,278 @@
+#!/usr/bin/env bash
+# cosherpa-init -- install or sync the cosherpa workflow harness into cwd.
+
+set -euo pipefail
+
+usage() {
+  cat <<'EOF'
+cosherpa-init -- install or sync the co-Sherpa workflow harness into cwd.
+
+Usage:
+  cosherpa-init
+  cosherpa-init --help
+  cosherpa-init --version
+
+Installs project-local harness files under workflows-coSherpa/.
+Existing .gitignore rules are preserved; co-Sherpa ignore rules are appended
+when missing.
+EOF
+}
+
+case "${1:-}" in
+  -h|--help) usage; exit 0 ;;
+  --version) echo "version=0.1.0"; exit 0 ;;
+  "")
+    ;;
+  *)
+    echo "[FAIL] unknown argument: $1" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PLUGIN_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ASSETS="$PLUGIN_ROOT/assets/workflow"
+TARGET="$(/bin/pwd)"
+COSHERPA_DIR="${COSHERPA_DIR:-workflows-coSherpa}"
+
+if [ ! -d "$ASSETS" ]; then
+  echo "[FAIL] missing bundled workflow assets: $ASSETS" >&2
+  exit 2
+fi
+
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+COSHERPA_HOME="$TARGET/$COSHERPA_DIR"
+backup_dir="$COSHERPA_HOME/.cosherpa/backup/$timestamp"
+template_repo="$COSHERPA_HOME/.cosherpa/template"
+reconcile_rc=0
+
+merge_gitignore() {
+  local src="$1"
+  local dst="$2"
+  local line added=0
+
+  if [ ! -e "$dst" ]; then
+    cp "$src" "$dst"
+    return 0
+  fi
+
+  mkdir -p "$backup_dir"
+  cp "$dst" "$backup_dir/.gitignore"
+
+  while IFS= read -r line; do
+    case "$line" in
+      "$COSHERPA_DIR/"*|"$COSHERPA_DIR."*|"$COSHERPA_DIR"/*)
+        if ! grep -Fx -- "$line" "$dst" >/dev/null 2>&1; then
+          if [ "$added" -eq 0 ]; then
+            {
+              echo ""
+              echo "# co-Sherpa runtime/generated files"
+            } >> "$dst"
+          fi
+          printf '%s\n' "$line" >> "$dst"
+          added=1
+        fi
+        ;;
+    esac
+  done < "$src"
+}
+
+preserve_agents_sections() {
+  local old="$1" new="$2" tmp arch context
+  [ -f "$old" ] && [ -f "$new" ] || return 0
+
+  arch=$(awk '
+    /^## Architecture[[:space:]]*$/ { cap=1; next }
+    /^## Context[[:space:]]*$/ { cap=0 }
+    cap { print }
+  ' "$old" | sed '/^[[:space:]]*$/d')
+  context=$(awk '
+    /^## Context[[:space:]]*$/ { cap=1; next }
+    cap && /^---[[:space:]]*$/ { cap=0 }
+    cap && /^## / { cap=0 }
+    cap { print }
+  ' "$old" | sed '/^[[:space:]]*$/d')
+
+  [ -n "$arch$context" ] || return 0
+
+  tmp=$(mktemp "${TMPDIR:-/tmp}/cosherpa-agents.XXXXXX") || return 0
+  awk -v arch="$arch" -v context="$context" '
+    BEGIN {
+      split(arch, arch_lines, "\n")
+      split(context, context_lines, "\n")
+    }
+    /^## Architecture[[:space:]]*$/ {
+      print
+      if (arch != "") {
+        for (i = 1; i in arch_lines; i++) if (arch_lines[i] != "") print arch_lines[i]
+      }
+      skip = "arch"
+      next
+    }
+    /^## Context[[:space:]]*$/ {
+      print
+      if (context != "") {
+        for (i = 1; i in context_lines; i++) if (context_lines[i] != "") print context_lines[i]
+      }
+      skip = "context"
+      next
+    }
+    /^--- project-doc ---[[:space:]]*$/ { skip = ""; print; next }
+    /^---[[:space:]]*$/ { skip = ""; print; next }
+    /^## / { skip = ""; print; next }
+    skip == "arch" || skip == "context" { next }
+    { print }
+  ' "$new" > "$tmp" && mv -f "$tmp" "$new"
+}
+
+copy_one() {
+  local rel="$1"
+  local src="$ASSETS/$rel"
+  local dst="$TARGET/$rel"
+  [ -e "$src" ] || return 0
+  mkdir -p "$(dirname "$dst")"
+  if [ "$rel" = ".gitignore" ]; then
+    merge_gitignore "$src" "$dst"
+    return 0
+  fi
+  if [ -e "$dst" ]; then
+    mkdir -p "$backup_dir/$(dirname "$rel")"
+    cp -R "$dst" "$backup_dir/$rel"
+    rm -rf "$dst"
+  fi
+  cp -R "$src" "$dst"
+  if [ "$rel" = "AGENTS.md" ] && [ -f "$backup_dir/AGENTS.md" ]; then
+    preserve_agents_sections "$backup_dir/AGENTS.md" "$dst"
+  fi
+}
+
+copy_manifest() {
+  local manifest="$ASSETS/$COSHERPA_DIR/workflow-manifest.txt"
+  if [ ! -f "$manifest" ]; then
+    echo "[FAIL] missing manifest in assets: $manifest" >&2
+    exit 2
+  fi
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    line="${line%"${line##*[![:space:]]}"}"
+    [ -n "$line" ] || continue
+    case "$line" in
+      */)
+        if [ -d "$ASSETS/$line" ]; then
+          while IFS= read -r -d '' file; do
+            rel="${file#"$ASSETS/"}"
+            copy_one "$rel"
+          done < <(find "$ASSETS/$line" -type f -print0)
+        fi
+        ;;
+      *) copy_one "$line" ;;
+    esac
+  done < "$manifest"
+}
+
+seed_template_repo() {
+  if ! command -v git >/dev/null 2>&1; then
+    echo "[FAIL] git is required to reconcile workflow updates" >&2
+    exit 2
+  fi
+
+  if [ ! -d "$template_repo/.git" ]; then
+    rm -rf "$template_repo"
+    mkdir -p "$template_repo"
+    git -C "$template_repo" init --quiet
+    git -C "$template_repo" config user.name "cosherpa"
+    git -C "$template_repo" config user.email "cosherpa@example.invalid"
+  fi
+  git -C "$template_repo" config core.autocrlf false
+  git -C "$template_repo" config core.safecrlf false
+
+  find "$template_repo" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+  cp -R "$ASSETS/." "$template_repo/"
+  git -C "$template_repo" add -A
+  if ! git -C "$template_repo" diff --cached --quiet; then
+    git -C "$template_repo" commit --quiet -m "cosherpa workflow bundle $timestamp"
+  fi
+}
+
+had_harness=0
+[ -f "$TARGET/AGENTS.md" ] && [ -d "$COSHERPA_HOME/goals" ] && had_harness=1
+
+preexisting_foreign_count=$(find "$TARGET" -maxdepth 2 -type f \
+  ! -path "$TARGET/.git/*" \
+  ! -path "$TARGET/.claude/*" \
+  ! -path "$TARGET/.agents/*" \
+  ! -path "$TARGET/$COSHERPA_DIR/*" \
+  ! -name "AGENTS.md" \
+  ! -name "CLAUDE.md" \
+  ! -name "README.md" \
+  ! -name "Workflow_Guideline_v1.html" \
+  ! -name ".gitignore" \
+  | wc -l | tr -d ' ')
+
+if [ "$had_harness" -eq 1 ]; then
+  seed_template_repo
+  if [ -f "$ASSETS/$COSHERPA_DIR/scripts/update-workflow.sh" ]; then
+    set +e
+    (
+      cd "$TARGET"
+      bash "$ASSETS/$COSHERPA_DIR/scripts/update-workflow.sh" --from "$template_repo" --apply --force-dirty
+    )
+    reconcile_rc=$?
+    set -e
+    if [ "$reconcile_rc" -eq 2 ]; then
+      echo "[FAIL] workflow reconcile failed" >&2
+      exit 2
+    fi
+  else
+    echo "[FAIL] missing bundled reconcile script: $ASSETS/$COSHERPA_DIR/scripts/update-workflow.sh" >&2
+    exit 2
+  fi
+else
+  copy_manifest
+  seed_template_repo
+  (
+    cd "$TARGET"
+    bash "$ASSETS/$COSHERPA_DIR/scripts/update-workflow.sh" --from "$template_repo" --set-baseline
+  )
+fi
+
+# Daily skills are not part of workflow-manifest because they are installed into
+# machine-global skill homes. The target keeps a source copy so future syncs can
+# reinstall without the plugin present.
+if [ -d "$ASSETS/$COSHERPA_DIR/skills" ]; then
+  copy_one "$COSHERPA_DIR/skills"
+fi
+
+if [ -f "$COSHERPA_HOME/scripts/install-skills.sh" ]; then
+  bash "$COSHERPA_HOME/scripts/install-skills.sh" --force
+else
+  echo "[WARN] $COSHERPA_DIR/scripts/install-skills.sh missing after copy; daily skills were not installed" >&2
+fi
+
+mkdir -p "$COSHERPA_HOME/.cosherpa" "$COSHERPA_HOME/.state"
+{
+  echo "version=0.1.0"
+  echo "synced_at=$timestamp"
+  echo "source=cosherpa-plugin"
+} > "$COSHERPA_HOME/.cosherpa/status"
+
+if [ -d "$backup_dir" ]; then
+  echo "[OK] cosherpa synced. Backups: $backup_dir"
+else
+  echo "[OK] cosherpa synced."
+fi
+
+if [ "$reconcile_rc" -eq 1 ]; then
+  echo "[WARN] Some workflow files need manual reconcile. See the [CONFLICT]/[REVIEW] report above."
+fi
+
+if [ "$had_harness" -eq 1 ]; then
+  echo "Next: continue with /concept, /freeze, or /build."
+else
+  if [ "${preexisting_foreign_count:-0}" -gt 0 ]; then
+    echo "Next: run /cosherpa:migration to fill AGENTS.md, CONTEXT.md, and ADRs from the existing codebase."
+  else
+    echo "Next: run /concept to plan the first feature."
+  fi
+fi

@@ -16,8 +16,8 @@
 - **브랜드 = `cosherpa`** (우산 이름). `FCG(findings-cycles-goals)`는 **goal-engine 서브시스템 용어로 존치** — 전면 개명 아님. cosherpa = Matt Pocock 기획 워크플로우 + cc-system FCG 결합.
 - **레포·폴더 이름: `cosherpa`** (GitHub 레포 + 로컬 폴더 둘 다). Claude 메모리 폴더도 이전해 연속성 유지.
 - **배포 = 혼합형 Claude Code(+Codex) 플러그인.** 플러그인에는 lifecycle 스킬만 둔다(`/cosherpa:init`·`/cosherpa:help`·`/cosherpa:migration`). 매일 쓰는 스킬은 `/cosherpa:init`이 전역 skill home에 설치해 짧은 명령(`/concept`·`/freeze`·`/build` 등)을 보존한다.
-- **설치/동기화 명령 = `/cosherpa:init`**. 첫 설치와 업데이트 후 재동기화를 모두 맡는다. 자산 트리를 cwd로 스캐폴딩하고, `workflows/scripts/install-skills.sh --force`로 Claude/Codex 전역 스킬과 Codex slash shim을 갱신한다.
-- **migration 범위 = 린(FCG 하네스만 채움)** — 산출물: `AGENTS.md §Architecture/§Context` 채우기 + 루트 `CONTEXT.md` 생성 + 확정 트레이드오프 `workflows/docs/adr/` 시드. **새 문서 분류 안 만듦**(doc-hygiene 준수).
+- **설치/동기화 명령 = `/cosherpa:init`**. 첫 설치와 업데이트 후 재동기화를 모두 맡는다. 자산 트리를 cwd로 스캐폴딩하고, `workflows-coSherpa/scripts/install-skills.sh --force`로 Claude/Codex 전역 스킬과 Codex slash shim을 갱신한다.
+- **migration 범위 = 린(FCG 하네스만 채움)** — 산출물: `AGENTS.md §Architecture/§Context` 채우기 + 루트 `CONTEXT.md` 생성 + 확정 트레이드오프 `workflows-coSherpa/docs/adr/` 시드. **새 문서 분류 안 만듦**(doc-hygiene 준수).
 - **help 범위 = 라우터 + 워크플로우 Q&A.** 명령 = `/cosherpa:help`.
 
 **핵심 플로우 (dryforge 대응):**
@@ -54,46 +54,46 @@ cosherpa :  /cosherpa:init      →  /cosherpa:migration        →  /concept �
   > 본 워크플로우 시스템은 Matt Pocock의 기획 워크플로우와 cc-system의 findings-cycles-goals 시스템을 조합한 시스템이다.
   이어서 시스템 1단락 소개 + 설치(`/plugin marketplace add …` → `/plugin install cosherpa`) + 플로우(`/cosherpa:init`·`/cosherpa:migration`·`concept→freeze→build`·`/cosherpa:help`).
   - 메모리상 README는 과거 의도적 삭제(가이드로 일원화)였음 → 이번엔 **GitHub 랜딩+크레디트 전용**으로 목적 분리해 부활(가이드와 역할 안 겹침).
-- **브랜드 도입**: `AGENTS.md`·`CLAUDE.md` 헤더, `Workflow_Guideline_v1.html` 1탭에 "cosherpa = 우산 시스템(MP기획 + cc-system FCG)" 한 줄. **FCG 용어·`workflows/docs/fcg-system.md`·스크립트·메모리는 그대로**(전면 개명 아님).
+- **브랜드 도입**: `AGENTS.md`·`CLAUDE.md` 헤더, `Workflow_Guideline_v1.html` 1탭에 "cosherpa = 우산 시스템(MP기획 + cc-system FCG)" 한 줄. **FCG 용어·`workflows-coSherpa/docs/fcg-system.md`·스크립트·메모리는 그대로**(전면 개명 아님).
 
 ## Phase B — 플러그인 섀시 (dryforge 구조 참고)
 
-dryforge 검증 레이아웃: `src/workflows/skills/`(단일 소스) → `build.sh` → `claude/`·`codex/plugin/`(빌드 산출, 커밋) + 루트 `.claude-plugin/marketplace.json`·`.agents/plugins/marketplace.json`.
+dryforge 검증 레이아웃: `src/workflows-coSherpa/skills/`(단일 소스) → `build.sh` → `claude/`·`codex/plugin/`(빌드 산출, 커밋) + 루트 `.claude-plugin/marketplace.json`·`.agents/plugins/marketplace.json`.
 
 - **마켓플레이스 매니페스트**: 루트 `.claude-plugin/marketplace.json`(Claude) + `.agents/plugins/marketplace.json`(Codex). `plugins[].name = cosherpa`, `source` = 플러그인 디렉토리(`./경로` 또는 github 객체).
-- **플러그인 디렉토리**: `plugin.json` + `workflows/skills/`(lifecycle 3종: init/help/migration) + **번들 자산 트리**(`assets/workflow/` = `/cosherpa:init`이 cwd로 복사할 하네스 + daily `workflows/skills/`) + **`bin/cosherpa-init`** self-locating 실행파일.
-- **자산 목록의 단일 소스 = 기존 `workflows/workflow-manifest.txt`** 재사용(무엇을 번들/스캐폴딩할지).
+- **플러그인 디렉토리**: `plugin.json` + `workflows-coSherpa/skills/`(lifecycle 3종: init/help/migration) + **번들 자산 트리**(`assets/workflow/` = `/cosherpa:init`이 cwd로 복사할 하네스 + daily `workflows-coSherpa/skills/`) + **`bin/cosherpa-init`** self-locating 실행파일.
+- **자산 목록의 단일 소스 = 기존 `workflows-coSherpa/workflow-manifest.txt`** 재사용(무엇을 번들/스캐폴딩할지).
 - **Claude+Codex parity**: dryforge `build.sh` 패턴 차용(단일 소스 → 두 플랫폼 빌드, 버전 일관성 가드). ⚠ **Codex 플러그인 메커니즘은 Anthropic 공식문서에 없음** — dryforge의 실제 `.agents/plugins/marketplace.json`+`codex/plugin/`(`.codex-plugin/plugin.json`+`agents/openai.yaml`) 구조를 **정본 예시**로 차용. self-locating bin(아래 C)이 plugin-root 변수에 비의존이라 이식 안전. Phase F에서 실제 Codex 설치로 검증.
 - **명령 표면**: 플러그인 lifecycle은 네임스페이스 강제 → `/cosherpa:init`·`/cosherpa:help`·`/cosherpa:migration`. Daily skills는 `/cosherpa:init`이 전역 설치하므로 `/concept`·`/freeze`·`/build`·`/finding`·`/cycle`·`/handoff`·`/prototype`·`/spec-sync`·`/improve-codebase-architecture`, 프로젝트 local `/roadmap`으로 사용한다.
-- **번들 자산 (확인됨)**: 플러그인은 `assets/`·`workflows/scripts/`·`bin/` 등 임의 파일 번들 가능(설치 시 캐시로 복사). 버전은 **생략**(활발 개발 → 매 push가 업데이트로 인식), 안정화 시 `plugin.json`에 명시.
+- **번들 자산 (확인됨)**: 플러그인은 `assets/`·`workflows-coSherpa/scripts/`·`bin/` 등 임의 파일 번들 가능(설치 시 캐시로 복사). 버전은 **생략**(활발 개발 → 매 push가 업데이트로 인식), 안정화 시 `plugin.json`에 명시.
 
-> ⚠ **자산 배치**: 플러그인은 어차피 캐시로 복사되므로 `assets/` 번들이 깔끔. 자산 목록 단일 소스는 기존 `workflows/workflow-manifest.txt` 유지. (repo 루트=라이브 프로젝트 도그푸드성은 플러그인 채택으로 비중↓ → scratch 폴더 `/cosherpa:init`으로 대체 검증.)
+> ⚠ **자산 배치**: 플러그인은 어차피 캐시로 복사되므로 `assets/` 번들이 깔끔. 자산 목록 단일 소스는 기존 `workflows-coSherpa/workflow-manifest.txt` 유지. (repo 루트=라이브 프로젝트 도그푸드성은 플러그인 채택으로 비중↓ → scratch 폴더 `/cosherpa:init`으로 대체 검증.)
 
 ## Phase C — `/cosherpa:init` (스캐폴더, 요구 2)
 
-- 동작: 대상(cwd) 판별 → 자산 복사/갱신(기존 파일은 `workflows/.cosherpa/backup/<timestamp>/`에 백업) → daily `workflows/skills/` 소스 복사 → `workflows/scripts/install-skills.sh --force` 실행 → `workflows/.cosherpa/status` 기록 → 다음 단계 안내.
-  - **브라운필드 충돌**: 대상에 기존 `CLAUDE.md`/`AGENTS.md`가 있으면 dryforge식으로 **백업 후 덮기**(`workflows/.cosherpa/backup/` 등). git 없으면 `git init` 제안.
+- 동작: 대상(cwd) 판별 → 자산 복사/갱신(기존 파일은 `workflows-coSherpa/.cosherpa/backup/<timestamp>/`에 백업) → daily `workflows-coSherpa/skills/` 소스 복사 → `workflows-coSherpa/scripts/install-skills.sh --force` 실행 → `workflows-coSherpa/.cosherpa/status` 기록 → 다음 단계 안내.
+  - **브라운필드 충돌**: 대상에 기존 `CLAUDE.md`/`AGENTS.md`가 있으면 dryforge식으로 **백업 후 덮기**(`workflows-coSherpa/.cosherpa/backup/` 등). git 없으면 `git init` 제안.
   - 안내 분기: 그리니필드 → `/concept`; 브라운필드(외부 코드 있음) → `/cosherpa:migration`.
 - **메커니즘 (claude-code-guide 확인 반영 — 중요)**: `${CLAUDE_PLUGIN_ROOT}`는 **hook/MCP/bin 컨텍스트에서만** 치환되고 **스킬/명령 마크다운 본문에선 못 씀**. 그래서 스캐폴딩 로직을 **플러그인 `bin/` 실행파일**(플러그인 활성 시 Bash PATH에 올라감)로 싣고, 그 스크립트가 **자기 경로 기준으로 번들 `assets/`를 self-locate**(`SCRIPT_DIR/../assets`)해 복사한다 — env-var 비의존 → **Codex에도 이식 가능**. `/cosherpa:init` 스킬(`disable-model-invocation: true`)은 이 bin을 호출하는 얇은 래퍼.
-- **재사용(신규 코드 최소화)**: daily skill 설치는 기존 `workflows/scripts/install-skills.sh --force`가 맡는다. 업데이트 흐름은 plugin update/marketplace refresh 후 `/cosherpa:init`을 다시 실행해 하네스와 전역 스킬을 함께 동기화한다.
+- **재사용(신규 코드 최소화)**: daily skill 설치는 기존 `workflows-coSherpa/scripts/install-skills.sh --force`가 맡는다. 업데이트 흐름은 plugin update/marketplace refresh 후 `/cosherpa:init`을 다시 실행해 하네스와 전역 스킬을 함께 동기화한다.
 
 ## Phase D — `/cosherpa:migration` 스킬 (요구 1, 린)
 
-신규 `src/workflows/skills/migration/SKILL.md` + `references/`. dryforge migration의 **방법**을 이식하되 **FCG 하네스에만** 산출:
+신규 `src/workflows-coSherpa/skills/migration/SKILL.md` + `references/`. dryforge migration의 **방법**을 이식하되 **FCG 하네스에만** 산출:
 
-- **전제 체크**: cosherpa 구조 존재(예: `workflows/scripts/diagnose.sh`/`workflows/goals/AGENTS.md`)·기존 코드·git. 구조 없으면 "`/cosherpa:init` 먼저", 그리니필드면 "`/concept`로" 안내.
+- **전제 체크**: cosherpa 구조 존재(예: `workflows-coSherpa/scripts/diagnose.sh`/`workflows-coSherpa/goals/AGENTS.md`)·기존 코드·git. 구조 없으면 "`/cosherpa:init` 먼저", 그리니필드면 "`/concept`로" 안내.
 - **SCAN**: 코드 인라인 정독 → 모듈/엔티티·패턴·보안면·외부의존·갭의 **원장(ledger)**.
 - **ELICIT**: 위험가중(추론 우선, 틀리면 위험한 것[비즈니스모델·도메인 불변식·보안정책]만 깊게 확인). 원장 전 항목 `confirmed/asked-answered/N/A-사유`로 닫힘. dryforge `migration-elicit.md` 이식(스택·언어 불문, 네이티브 언어 출력).
-- **GENERATE (린 타깃)**: `AGENTS.md §Architecture/§Context` 채움 + 루트 `CONTEXT.md`(용어집) 생성 + 확정 트레이드오프 `workflows/docs/adr/<NNNN>-*.md` 시드. **포맷은 기존 `workflows/skills/concept/CONTEXT-FORMAT.md`·`workflows/skills/concept/ADR-FORMAT.md`를 인용**(doc-hygiene: 재서술 금지, one-canonical-home). 새 문서 taxonomy 안 만듦.
+- **GENERATE (린 타깃)**: `AGENTS.md §Architecture/§Context` 채움 + 루트 `CONTEXT.md`(용어집) 생성 + 확정 트레이드오프 `workflows-coSherpa/docs/adr/<NNNN>-*.md` 시드. **포맷은 기존 `workflows-coSherpa/skills/concept/CONTEXT-FORMAT.md`·`workflows-coSherpa/skills/concept/ADR-FORMAT.md`를 인용**(doc-hygiene: 재서술 금지, one-canonical-home). 새 문서 taxonomy 안 만듦.
 - **REVIEW**: 작성 안 한 **독립 general-purpose 서브에이전트 1명**이 cosherpa 하네스 루브릭(`references/harness-review.md`, dryforge 이식+FCG 맞춤)으로 검증. 이 스킬 유일 dispatch.
 - **GATE**: 핵심 결정 walk-through → 승인. **커밋 안 함**(사용자 몫). 완료 후 세션 클리어 → `/concept`(신규 기능) 또는 `/build`(이슈 존재).
 - 참조 파일: `references/migration-elicit.md`(이식), `references/harness-review.md`(이식+맞춤). harness-format은 concept의 기존 포맷 문서 인용으로 대체(중복 회피).
 
 ## Phase E — `/cosherpa:help` 스킬 (요구 3, 라우터+Q&A)
 
-신규 `src/workflows/skills/help/SKILL.md`:
+신규 `src/workflows-coSherpa/skills/help/SKILL.md`:
 
-- **상태 감지**: `bash workflows/scripts/diagnose.sh`(Phase 2: active goal·findings·spec drift·issue graph·next-task) + Phase 1 직접 판독(`workflows/docs/design/checklist.md` 닫힘 슬롯 [x]/[~]/[>], `workflows/docs/prd/PRD.md`, `workflows/docs/spec/INDEX.md`, `workflows/docs/issues/*.md`, `workflows/goals/` 0-example만=미변환).
+- **상태 감지**: `bash workflows-coSherpa/scripts/diagnose.sh`(Phase 2: active goal·findings·spec drift·issue graph·next-task) + Phase 1 직접 판독(`workflows-coSherpa/docs/design/checklist.md` 닫힘 슬롯 [x]/[~]/[>], `workflows-coSherpa/docs/prd/PRD.md`, `workflows-coSherpa/docs/spec/INDEX.md`, `workflows-coSherpa/docs/issues/*.md`, `workflows-coSherpa/goals/` 0-example만=미변환).
 - **라우팅 표 (FCG 상태머신)**:
   - 구조 없음 → `/cosherpa:init`
   - 브라운필드(§Arch/§Context 비었고 외부 코드 있음) → `/cosherpa:migration`
@@ -101,7 +101,7 @@ dryforge 검증 레이아웃: `src/workflows/skills/`(단일 소스) → `build.
   - concept 체크리스트 전부 닫힘 → `/freeze`
   - 이슈 있고 goal 미변환 → `/build`(mode B 변환)
   - active goal 실패 중 → `/build`
-  - ALL_DONE + 열린 findings → `/cycle` → `/build workflows/cycles/<f>.md`
+  - ALL_DONE + 열린 findings → `/cycle` → `/build workflows-coSherpa/cycles/<f>.md`
   - 세션 전환 직전 → `/handoff`
 - **Q&A 모드**: "freeze가 뭐 해?" 류 일반 질문은 `Workflow_Guideline_v1.html`(정본 워크플로우 레퍼런스) + 스킬 description 근거로 답하고 인용.
 - **출력**: 사용자 언어, "현 위치 + 다음(필수 1개·선택지) + 실행법 + 지금 실행해줄까?"(bmad-help식). 카탈로그 덤프 금지(관련 것만). 구조 없으면 우아하게 `/cosherpa:init` 권고.
@@ -109,7 +109,7 @@ dryforge 검증 레이아웃: `src/workflows/skills/`(단일 소스) → `build.
 ## Phase F — 통합·도그푸드
 
 - `Workflow_Guideline_v1.html`(스킬 사전·업데이트 탭)·`AGENTS.md`·`CLAUDE.md`에 신규 3장치(init/migration/help) + 혼합형 플러그인 설치/업데이트 절차 반영. 크레디트 푸터 유지.
-- **테스트**: ① 빈 scratch 폴더 → `/cosherpa:init` → 자산·baseline 확인 → `/concept` 작동. ② 토이 외부 레포 → `/cosherpa:init` → `/cosherpa:migration` → AGENTS.md/CONTEXT.md 채워짐 + 독립 REVIEW 통과. ③ `/plugin marketplace add … → install cosherpa` → 명령 노출 → `/cosherpa:help` 라우팅. ④ push 후 `/plugin update` 또는 marketplace refresh. ⑤ Codex parity 실설치. ⑥ 기존 self-test(roadmap 등)·`workflows/scripts/*` 회귀.
+- **테스트**: ① 빈 scratch 폴더 → `/cosherpa:init` → 자산·baseline 확인 → `/concept` 작동. ② 토이 외부 레포 → `/cosherpa:init` → `/cosherpa:migration` → AGENTS.md/CONTEXT.md 채워짐 + 독립 REVIEW 통과. ③ `/plugin marketplace add … → install cosherpa` → 명령 노출 → `/cosherpa:help` 라우팅. ④ push 후 `/plugin update` 또는 marketplace refresh. ⑤ Codex parity 실설치. ⑥ 기존 self-test(roadmap 등)·`workflows-coSherpa/scripts/*` 회귀.
 
 ## Phase A-rename — 물리 컷오버 (맨 끝)
 
@@ -122,14 +122,14 @@ dryforge 검증 레이아웃: `src/workflows/skills/`(단일 소스) → `build.
 
 ## Verification (전체 E2E)
 
-- 그리니필드: `mkdir scratch && cd scratch` → `/cosherpa:init` → `ls`로 자산 트리·`workflows/.cosherpa/workflow-version` 확인 → `bash workflows/scripts/diagnose.sh` 정상 → `/concept` 진입.
+- 그리니필드: `mkdir scratch && cd scratch` → `/cosherpa:init` → `ls`로 자산 트리·`workflows-coSherpa/.cosherpa/workflow-version` 확인 → `bash workflows-coSherpa/scripts/diagnose.sh` 정상 → `/concept` 진입.
 - 브라운필드: 외부 토이 repo 복제 → `/cosherpa:init`(기존 CLAUDE.md 백업 확인) → `/cosherpa:migration` 완주 → `AGENTS.md §Architecture/§Context`·`CONTEXT.md` 내용 채워짐, 독립 REVIEW 무차단.
 - 플러그인: 렌더 후 marketplace add/install → `/cosherpa:init`·`/cosherpa:help`·`/cosherpa:migration` 노출 → push 후 plugin update/marketplace refresh → `/cosherpa:init` 재실행으로 daily skills까지 반영.
-- 회귀: 기존 `workflows/scripts/` 게이트·dashboard self-test 무손상.
+- 회귀: 기존 `workflows-coSherpa/scripts/` 게이트·dashboard self-test 무손상.
 
 ## Resolved — 플러그인 메커니즘 (claude-code-guide 검증 완료, 공식문서 인용)
 
-- **임의 자산 번들 ✅** — `assets/`·`bin/`·`workflows/scripts/` 등 자유. 설치 시 캐시(`~/.claude/plugins/cache/...`)로 복사.
+- **임의 자산 번들 ✅** — `assets/`·`bin/`·`workflows-coSherpa/scripts/` 등 자유. 설치 시 캐시(`~/.claude/plugins/cache/...`)로 복사.
 - **`${CLAUDE_PLUGIN_ROOT}` ✅ 단 제약** — hook/MCP/LSP/monitor·plugin.json 치환에서만 사용 가능, **스킬 마크다운 본문에선 불가**. → 그래서 **self-locating `bin/` 실행파일** 설계(Phase C). (`${CLAUDE_PLUGIN_DATA}`=업데이트 후에도 보존되는 상태 폴더, 필요시.)
 - **마켓플레이스 ✅** — 깃 레포+`.claude-plugin/marketplace.json`. 비공개 레포 OK(로컬 git 인증; 백그라운드 자동갱신엔 `GITHUB_TOKEN`). source=`./경로` 또는 github 객체.
 - **업데이트 ✅** — Claude: `claude plugin update cosherpa` 후 새 세션에서 `/cosherpa:init`. Codex: `codex plugin marketplace upgrade cosherpa` + `codex plugin add cosherpa@cosherpa` 후 새 세션에서 `/cosherpa:init`. 이 재-init이 하네스와 전역 daily skills를 동기화한다.
@@ -143,7 +143,7 @@ dryforge 검증 레이아웃: `src/workflows/skills/`(단일 소스) → `build.
 
 ## 참고 자료 (재도출 불필요)
 
-- **dryforge 클론**: `C:\Users\lsc95\AppData\Local\Temp\dryforge-analysis-20260611-101614\dryforge\` — migration 스킬 정본 `src/workflows/skills/migration/SKILL.md`(+`references/migration-elicit.md`·`harness-review.md`·`harness-format.md`), 플러그인 구조(`build/build.sh`, `.claude-plugin/marketplace.json`, `claude/`·`codex/plugin/`).
+- **dryforge 클론**: `C:\Users\lsc95\AppData\Local\Temp\dryforge-analysis-20260611-101614\dryforge\` — migration 스킬 정본 `src/workflows-coSherpa/skills/migration/SKILL.md`(+`references/migration-elicit.md`·`harness-review.md`·`harness-format.md`), 플러그인 구조(`build/build.sh`, `.claude-plugin/marketplace.json`, `claude/`·`codex/plugin/`).
 - **bmad-help 정본**: `C:\00_EVERBUILD\bmad-test\.claude\skills\bmad-help\SKILL.md` + 카탈로그 `_bmad\_config\bmad-help.csv`(상태→다음스킬 라우팅·완료감지 패턴).
-- **현 시스템 핵심 파일**: `workflows/scripts/install-skills.sh`(전역 스킬+Codex shim), `workflows/scripts/update-workflow.sh`+`workflows/workflow-manifest.txt`(자산 3-way), `workflows/scripts/reset-for-new-project.sh`, `workflows/scripts/diagnose.sh`+`next-task.sh`(상태엔진), `workflows/skills/concept/CONTEXT-FORMAT.md`·`ADR-FORMAT.md`(migration이 인용할 포맷).
+- **현 시스템 핵심 파일**: `workflows-coSherpa/scripts/install-skills.sh`(전역 스킬+Codex shim), `workflows-coSherpa/scripts/update-workflow.sh`+`workflows-coSherpa/workflow-manifest.txt`(자산 3-way), `workflows-coSherpa/scripts/reset-for-new-project.sh`, `workflows-coSherpa/scripts/diagnose.sh`+`next-task.sh`(상태엔진), `workflows-coSherpa/skills/concept/CONTEXT-FORMAT.md`·`ADR-FORMAT.md`(migration이 인용할 포맷).
 - **유저 컴즈**: 승철님 호칭, 정확한 명칭+한 줄 뜻풀이, 질문은 본문 텍스트(팝업 금지).
