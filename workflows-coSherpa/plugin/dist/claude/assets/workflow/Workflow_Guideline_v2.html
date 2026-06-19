@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Workflow Guideline v1 — EVERBUILD 프로젝트 템플릿</title>
+<title>Workflow Guideline v2 — EVERBUILD 프로젝트 템플릿</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -289,7 +289,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <button class="tab-btn" data-tab="skills" onclick="showTab('skills')">② 스킬 사전</button>
       <button class="tab-btn" data-tab="update" onclick="showTab('update')">③ 업데이트 · Migration</button>
     </div>
-    <span class="ver-badge">TEMPLATE v1.3 · GUIDE v1</span>
+    <span class="ver-badge">TEMPLATE v1.3 · GUIDE v2</span>
   </div>
 </nav>
 
@@ -353,32 +353,32 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
     </div>
   </section>
 
-  <!-- FCG 3-asset (dark) -->
+  <!-- core engine -->
   <section class="section band-dark">
     <div class="wrap">
       <div class="kicker">핵심 엔진</div>
-      <h2>FCG — findings · cycles · goals</h2>
-      <p class="sec-sub">구현 단계를 지탱하는 3가지 자산입니다. 서로 피드백 루프를 이룹니다: 작업 중 발견 → finding 큐 → cycle로 묶음 → 일부는 goal로 승격 → 게이트가 검증.</p>
+      <h2>Concept → Freeze → Build</h2>
+      <p class="sec-sub">co-Sherpa의 중심은 세 단계입니다. 먼저 결정표면을 닫고, 닫힌 기능을 계약으로 봉인하고, 그 계약을 기계 검증이 통과할 때까지 구현합니다.</p>
       <div class="grid-3 mt-40">
         <div class="dark-card">
-          <div class="mono-tag">workflows-coSherpa/docs/findings/</div>
-          <h3>Findings — 부채 큐</h3>
-          <p>현재 작업 <b>범위 밖</b>에서 발견한 버그·부채·아이디어를 잃지 않도록 적어두는 메모 큐. "지금 고치지 말고 기록"이 철칙이라 작업이 옆길로 새지 않습니다(scope creep 방지).</p>
+          <div class="mono-tag">/concept</div>
+          <h3>Concept — 결정표면 닫기</h3>
+          <p>아이디어와 기존 문서를 바로 구현 목록으로 바꾸지 않고, 엔티티와 4렌즈로 반드시 답해야 할 결정을 열거합니다. 모든 슬롯이 근거와 함께 닫혀야 다음 단계로 갑니다.</p>
         </div>
         <div class="dark-card">
-          <div class="mono-tag">workflows-coSherpa/cycles/</div>
-          <h3>Cycles — 작업지시서</h3>
-          <p>쌓인 findings를 우선순위·의존성으로 묶은 <b>한 세션 분량의 루프 구동 문서</b>. "이 문서의 내용을 모두 완수할 때까지"라고 건네면 에이전트가 무인으로 소진합니다.</p>
+          <div class="mono-tag">/freeze</div>
+          <h3>Freeze — 계약 봉인</h3>
+          <p>닫힌 기능 하나를 PRD, spec, issues, graph-lint로 봉인합니다. 이 호출이 유일한 인간 승인점이며, 봉인 중에는 새 질문을 하지 않습니다.</p>
         </div>
         <div class="dark-card">
-          <div class="mono-tag">workflows-coSherpa/goals/ + .gates.sh</div>
-          <h3>Goals — 실행계약</h3>
-          <p>미션(.md) + <b>기계 검증 스크립트(.gates.sh)</b> + 다음 작업 힌트(.next-task.sh) 3파일 세트. 게이트 스크립트가 통과해야만 "완료" — 사람 감이 아니라 코드가 판정합니다.</p>
+          <div class="mono-tag">/build</div>
+          <h3>Build — 게이트 GREEN 구현</h3>
+          <p>봉인된 issues/PRD를 goal 실행계약으로 바꾸고, 게이트가 초록불이 될 때까지 TDD 루프를 돕니다. Build 내부에서 findings, cycles, goals가 구현 작업을 관리합니다.</p>
         </div>
       </div>
       <div class="callout callout-info mt-30" style="background:var(--surface-dark-elevated);border-color:#33312c;color:var(--on-dark-soft)">
         <span class="mark">💡</span>
-        <div><b style="color:var(--on-dark)">게이트(gate)란?</b> "이 조건이 깨지면 빨간불"을 검사하는 작은 셸 스크립트입니다. 예: "모든 API 엔드포인트에 테스트가 존재한다"를 실제 파일을 순회하며 확인. 한번 초록불이 된 게이트는 영구 불변식으로 남아, 나중 작업이 과거 완성물을 몰래 망가뜨리면 즉시 빨간불이 켜집니다.</div>
+        <div><b style="color:var(--on-dark)">Build 내부 FCG란?</b> findings는 범위 밖 발견을 보관하고, cycles는 여러 findings를 작업지시서로 묶고, goals는 미션·게이트·다음 작업 힌트 3파일로 구현을 판정합니다. 즉 FCG는 전체 핵심 엔진이 아니라 <b style="color:var(--on-dark)">Build가 오래 달릴 수 있게 하는 내부 작업 관리 장치</b>입니다.</div>
       </div>
     </div>
   </section>
@@ -432,11 +432,11 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <p class="phase-desc">구현이 흔들리지 않도록 <b>계약을 먼저 고정</b>하는 단계. 순서가 곧 설계입니다: 결정표면을 체크리스트로 닫고(concept) → 닫힌 기능을 한 번에 봉인(freeze: PRD·계약·이슈·graph-lint) → 인계(handoff).</p>
         <div class="steps">
           <details class="step">
-            <summary><span class="num">1</span><span class="s-cmd">/concept</span><span class="s-out">→ workflows-coSherpa/docs/design/checklist.md · CONTEXT.md · workflows-coSherpa/docs/adr/</span><span class="chev">▶</span></summary>
+            <summary><span class="num">1</span><span class="s-cmd">/concept</span><span class="s-out">→ workflows-coSherpa/docs/concept/checklist.md · CONTEXT.md · workflows-coSherpa/docs/adr/</span><span class="chev">▶</span></summary>
             <div class="s-body">
-              <div class="row"><span class="lab">무엇을</span> 계획을 도메인 모델·기존 결정과 충돌시키며 다듬는 <b>개념설계 정산(concept, 집요한 검증 인터뷰)</b> 세션. 결정표면을 <code>workflows-coSherpa/docs/design/checklist.md</code>에 4개 렌즈(구조 / 행위 / 기술 / 계약)로 <b>회계</b>해 슬롯마다 상태를 추적하고, 용어가 굳을 때마다 용어집(CONTEXT.md)과 결정 기록(ADR)을 그 자리에서 갱신합니다.</div>
+              <div class="row"><span class="lab">무엇을</span> 계획을 도메인 모델·기존 결정과 충돌시키며 다듬는 <b>개념설계 정산(concept, 집요한 검증 인터뷰)</b> 세션. 결정표면을 <code>workflows-coSherpa/docs/concept/checklist.md</code>에 4개 렌즈(구조 / 행위 / 기술 / 계약)로 <b>회계</b>해 슬롯마다 상태를 추적하고, 용어가 굳을 때마다 용어집(CONTEXT.md)과 결정 기록(ADR)을 그 자리에서 갱신합니다.</div>
               <div class="row"><span class="lab">종료 판정 — 감이 아니라 회계</span> 엔티티를 나열한 뒤 4렌즈로 <b>설계가 반드시 답해야 할 결정들을 전부 열거</b>하고, 각 슬롯이 네 상태 중 하나로 닫힙니다 — <code>[x]</code> 결정 / <code>[~]</code> 보류 / <code>[&gt;]</code> 실험 대기 / <code>[-]</code> 렌즈 해당없음. 빈칸(<code>[ ]</code>)도 미해결 <code>[&gt;]</code>도 없으면 concept가 <b>"기능 X 닫힘 — /freeze ready"</b>를 선언합니다. 질문은 grounds-gate(어느 슬롯인지 · 왜 기존 재료로 안 풀리는지 · 잘못 추측하면 어떤 대가인지 3요소를 댈 수 있어야 통과)를 거쳐야 사용자에게 도달합니다.</div>
-              <div class="row easy">🔥 <b>쉬운 풀이</b> — 착공 전 깐깐한 건축사와의 인터뷰입니다. 다만 "충분히 물은 느낌"으로 끝내지 않고, 답해야 할 결정을 <code>workflows-coSherpa/docs/design/checklist.md</code>라는 한 장에 적어 칸칸이 채웁니다 — 결정 <code>[x]</code> · 나중에 <code>[~]</code> · 실험으로 답할 것 <code>[&gt;]</code> · 해당없음 <code>[-]</code>. 칸이 전부 닫혀야 "닫힘" 도장을 찍습니다.</div>
+              <div class="row easy">🔥 <b>쉬운 풀이</b> — 착공 전 깐깐한 건축사와의 인터뷰입니다. 다만 "충분히 물은 느낌"으로 끝내지 않고, 답해야 할 결정을 <code>workflows-coSherpa/docs/concept/checklist.md</code>라는 한 장에 적어 칸칸이 채웁니다 — 결정 <code>[x]</code> · 나중에 <code>[~]</code> · 실험으로 답할 것 <code>[&gt;]</code> · 해당없음 <code>[-]</code>. 칸이 전부 닫혀야 "닫힘" 도장을 찍습니다.</div>
             </div>
           </details>
           <details class="step">
@@ -475,7 +475,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         </div>
 
         <div class="callout callout-info mt-30"><span class="mark">✅</span>
-          <div><b>Phase 1 마감 체크리스트</b> — 이제 <code>/concept</code>이 이 결정표면을 <code>workflows-coSherpa/docs/design/checklist.md</code>에 4상태(<code>[x]</code>/<code>[~]</code>/<code>[&gt;]</code>/<code>[-]</code>) 라이브 체크리스트로 추적하므로, 아래 7개는 <b>사람이 눈으로 한 번 더 보는 백업</b>입니다. (체크는 저장되지 않습니다 — 눈으로 점검하는 용도)
+          <div><b>Phase 1 마감 체크리스트</b> — 이제 <code>/concept</code>이 이 결정표면을 <code>workflows-coSherpa/docs/concept/checklist.md</code>에 4상태(<code>[x]</code>/<code>[~]</code>/<code>[&gt;]</code>/<code>[-]</code>) 라이브 체크리스트로 추적하므로, 아래 7개는 <b>사람이 눈으로 한 번 더 보는 백업</b>입니다. (체크는 저장되지 않습니다 — 눈으로 점검하는 용도)
             <div class="checklist">
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>1. 구현가능성</span></label>
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>2. 기술 스택</span></label>
@@ -485,7 +485,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>6. 데이터 스키마 설계</span></label>
               <label class="check-item"><input type="checkbox" onchange="this.parentElement.classList.toggle('done',this.checked)"><span>7. 코드 아키텍처 설계</span></label>
             </div>
-            <p style="margin-top:14px;font-size:14px;color:var(--muted)">결정된 문서는 성격대로 갈라 둡니다 — <b>계약</b>(API·스키마·타입)은 <code>workflows-coSherpa/docs/spec/</code>, <b>설계 참고</b>(흐름·화면·아키텍처)는 <code>workflows-coSherpa/docs/design/</code>, <b>결정 이력</b>은 <code>workflows-coSherpa/docs/adr/</code>(한 결정 한 파일, append-only).</p>
+            <p style="margin-top:14px;font-size:14px;color:var(--muted)">결정된 문서는 성격대로 갈라 둡니다 — <b>계약</b>(API·스키마·타입)은 <code>workflows-coSherpa/docs/spec/</code>, <b>설계 참고</b>(흐름·화면·아키텍처)는 <code>workflows-coSherpa/docs/concept/</code>, <b>결정 이력</b>은 <code>workflows-coSherpa/docs/adr/</code>(한 결정 한 파일, append-only).</p>
           </div>
         </div>
       </div>
@@ -512,7 +512,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <p class="phase-desc">게이트를 초록불로 만드는 자율 루프. TDD 규율(RED 테스트 → GREEN 최소코드 → REFACTOR)이 내장되어 있습니다.</p>
 
         <div class="callout callout-warn"><span class="mark">⚠️</span>
-          <div><b>호출 방식.</b> Claude는 슬래시(<code>/build</code>), Codex도 이제 슬래시(<code>/build</code>·<code>/concept</code> 등 — 레포가 <code>~/.codex/prompts</code>에 자동 생성) <b>또는 자연어</b>로 트리거합니다: <i>"build 돌려줘"</i>, <i>"이건 범위 밖이니 finding으로 적어둬"</i>, <i>"workflows-coSherpa/cycles/&lt;파일&gt;.md 완수까지 작업해줘"</i>. Codex에도 전체 12종이 설치되어 있습니다(기획·구현 모두 가능).</div>
+          <div><b>호출 방식.</b> Claude는 슬래시(<code>/build</code>), Codex도 이제 슬래시(<code>/build</code>·<code>/concept</code> 등 — 레포가 <code>~/.codex/prompts</code>에 자동 생성) <b>또는 자연어</b>로 트리거합니다: <i>"build 돌려줘"</i>, <i>"이건 범위 밖이니 finding으로 적어둬"</i>, <i>"workflows-coSherpa/cycles/&lt;파일&gt;.md 완수까지 작업해줘"</i>. Codex에는 사용자 표면 daily 스킬이 설치되어 있습니다(기획·구현 모두 가능).</div>
         </div>
 
         <div class="steps">
@@ -630,20 +630,20 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <tr><td><code>CONTEXT.md</code></td><td>도메인 용어집(glossary). concept가 첫 용어 확정 시 생성. 읽기 순서 2번</td></tr>
         <tr><td><code>workflows-coSherpa/docs/prd/</code></td><td>PRD — 원래 의도의 기록 (live spec 아님)</td></tr>
         <tr><td><code>workflows-coSherpa/docs/spec/</code></td><td><b>계약문서</b> + INDEX.md — 구현의 단일 진실원천. 충돌 시 모든 문서에 우선</td></tr>
-        <tr><td><code>workflows-coSherpa/docs/design/</code></td><td>비계약 설계 참고 (흐름·화면·아키텍처) — 권위 없음</td></tr>
+        <tr><td><code>workflows-coSherpa/docs/concept/</code></td><td>비계약 설계 참고 (흐름·화면·아키텍처) — 권위 없음</td></tr>
         <tr><td><code>workflows-coSherpa/docs/adr/</code></td><td>결정 이력 — 한 결정 한 파일, append-only</td></tr>
         <tr><td><code>workflows-coSherpa/docs/issues/</code></td><td>수직 슬라이스 이슈 목록 (frontmatter: depends / risk)</td></tr>
-        <tr><td><code>workflows-coSherpa/docs/findings/</code></td><td>FCG 부채/통찰 큐 (+ <code>workflows-coSherpa/docs/archive/findings/</code> 분기별 아카이브)</td></tr>
+        <tr><td><code>workflows-coSherpa/docs/findings/</code></td><td>Build 내부 부채/통찰 큐 (+ <code>workflows-coSherpa/docs/archive/findings/</code> 분기별 아카이브)</td></tr>
         <tr><td><code>workflows-coSherpa/docs/state/</code></td><td>진행 상태 — 자동생성(progress·next-task) + append-only(blockers·learnings)</td></tr>
-        <tr><td><code>workflows-coSherpa/goals/</code> · <code>workflows-coSherpa/cycles/</code></td><td>FCG 미션 스택(3파일 계약) · 루프 구동 문서</td></tr>
-        <tr><td><code>workflows-coSherpa/scripts/</code></td><td>FCG 오케스트레이터(diagnose·completion-check 등) + install-skills + update-workflow + reset</td></tr>
+        <tr><td><code>workflows-coSherpa/goals/</code> · <code>workflows-coSherpa/cycles/</code></td><td>Build 내부 미션 스택(3파일 계약) · 루프 구동 문서</td></tr>
+        <tr><td><code>workflows-coSherpa/scripts/</code></td><td>Build 오케스트레이터(diagnose·completion-check 등) + install-skills + update-workflow + reset</td></tr>
         <tr><td><code>workflows-coSherpa/skills/</code></td><td>전역 daily skills의 <b>소스 백업</b>(정본) — <code>/cosherpa:init</code>이 설치·갱신</td></tr>
         <tr><td><code>.claude/skills/</code></td><td>이 프로젝트 <b>전용</b> 스킬 슬롯 (현재 roadmap 1종)</td></tr>
         <tr><td><code>workflows-coSherpa/dashboard/</code></td><td>로드맵 대시보드 엔진 + self-test</td></tr>
         <tr><td><code>workflows-coSherpa/guidelines/</code> · <code>workflows-coSherpa/prompts/</code></td><td>iteration 운영 매뉴얼·품질점검 / 메타 프롬프트(cycle 생성, 테스트 점검)</td></tr>
         <tr><td><code>workflows-coSherpa/workflow-manifest.txt</code></td><td><code>/cosherpa:init</code>이 대상 프로젝트로 복사하는 하네스 파일 목록</td></tr>
         <tr><td><code>workflows-coSherpa/.cosherpa/workflow-version</code></td><td>(프로젝트 사본에만) 마지막 수용한 템플릿 SHA — 3-way 기준점</td></tr>
-        <tr><td><code>workflows-coSherpa/docs/fcg-system.md</code> · <code>workflows-coSherpa/docs/goal-design.md</code></td><td>FCG 3-자산 모델 설명 · goal/게이트 설계 노트 (심화 레퍼런스)</td></tr>
+        <tr><td><code>workflows-coSherpa/docs/fcg-system.md</code> · <code>workflows-coSherpa/docs/goal-design.md</code></td><td>Build 내부 findings/cycles/goals 모델 · goal/게이트 설계 노트 (심화 레퍼런스)</td></tr>
       </table>
       </div>
     </div>
@@ -656,8 +656,8 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
 <main id="panel-skills" class="panel">
   <header class="wrap" style="padding-top:72px">
     <div class="kicker">스킬 사전</div>
-    <h1 style="font-size:48px">14개의 스킬, 각자의 원리</h1>
-    <p class="sec-sub">스킬(skill)은 에이전트가 특정 작업 방식을 따르도록 하는 절차 묶음입니다 — 요리로 치면 레시피. 카드를 눌러 펼치면 <b>작동 원리</b>와 <b>쉬운 풀이</b>가 나옵니다.</p>
+    <h1 style="font-size:48px">사용자 표면 스킬 10종</h1>
+    <p class="sec-sub">스킬(skill)은 에이전트가 특정 작업 방식을 따르도록 하는 절차 묶음입니다 — 요리로 치면 레시피. 이 사전에는 사용자가 직접 호출하는 표면만 둡니다. 내부 helper는 <code>/freeze</code> 설명 안에서만 간략히 다룹니다.</p>
     <div class="filter-row">
       <button class="chip active" data-f="all" onclick="filterSkills('all',this)">전체</button>
       <button class="chip" data-f="p1" onclick="filterSkills('p1',this)">Phase 1 — 기획</button>
@@ -678,11 +678,11 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span>
             계획을 기존 문서·결정과 대조하며 모순과 빈칸을 캐묻습니다. 핵심 장치 넷 —
-            ① <b>결정표면 회계</b>: 엔티티마다 4렌즈(구조: 1:N인가? / 행위: 수명주기·동시성 / 기술: 저장·인터페이스 / 계약: 상태값 집합·유일성)를 돌려 답해야 할 결정을 <code>workflows-coSherpa/docs/design/checklist.md</code>에 전부 열거하고 슬롯별 상태를 추적.
+            ① <b>결정표면 회계</b>: 엔티티마다 4렌즈(구조: 1:N인가? / 행위: 수명주기·동시성 / 기술: 저장·인터페이스 / 계약: 상태값 집합·유일성)를 돌려 답해야 할 결정을 <code>workflows-coSherpa/docs/concept/checklist.md</code>에 전부 열거하고 슬롯별 상태를 추적.
             ② <b>4상태 닫힘</b>: 각 슬롯은 <code>[x]</code> 결정 / <code>[~]</code> 보류 / <code>[&gt;]</code> 실험 대기 / <code>[-]</code> 렌즈 해당없음 중 하나로 닫힘. 빈칸도 미해결 <code>[&gt;]</code>도 없으면 <b>"기능 X 닫힘 — /freeze ready"</b>를 선언.
             ③ <b>grounds-gate</b>: 질문이 사용자에게 도달하려면 "어느 슬롯 · 왜 기존 재료로 안 풀리나 · 오답의 대가" 3요소를 대야 함 — 노이즈 질문 차단.
             ④ <b>문서 강등</b>: 외부에서 가져온 기획서는 진실이 아니라 "도전 가능한 재료"로 취급 — 언급(touched)과 규칙으로 서술(covered)을 구분.</div>
-          <div class="row"><span class="lab">산출물</span> <code>workflows-coSherpa/docs/design/checklist.md</code>(결정표면 정산) · <code>CONTEXT.md</code>(용어집) · <code>workflows-coSherpa/docs/adr/</code>(결정 기록, 드물게)</div>
+          <div class="row"><span class="lab">산출물</span> <code>workflows-coSherpa/docs/concept/checklist.md</code>(결정표면 정산) · <code>CONTEXT.md</code>(용어집) · <code>workflows-coSherpa/docs/adr/</code>(결정 기록, 드물게)</div>
           <div class="row easy">🔥 비유하면 깐깐한 건축사 인터뷰입니다. 다만 아무거나 묻지 않습니다 — 도면에서 유추되는 건 안 묻고, 잘못 추측하면 비싼 결정만 골라 묻습니다. "충분히 물은 느낌"이 아니라 "체크리스트의 모든 칸이 닫혔음"이 종료 조건이며, 닫히면 <code>/freeze</code>로 넘길 수 있습니다.</div>
         </div>
       </details>
@@ -711,45 +711,6 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
         </div>
       </details>
 
-      <details class="skill" data-cat="p1">
-        <summary>
-          <div class="sk-top"><span class="sk-name">/to-prd</span><span class="pill pill-coral">Phase 1</span></div>
-          <div class="sk-one">대화 맥락을 PRD(제품 요구사항 문서)로 굳혀 발행</div>
-        </summary>
-        <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> concept까지의 대화에서 합의된 요구사항을 구조화된 PRD로 추출해 이슈 트래커(이 템플릿에서는 <code>workflows-coSherpa/docs/prd/PRD.md</code> 로컬 파일)에 발행합니다. PRD는 "원래 의도"의 고정 사진 — 이후 구현이 바뀌어도 PRD를 고치지 않고, 현재 상태의 권위는 spec이 갖습니다.</div>
-          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님).</div>
-          <div class="row"><span class="lab">산출물</span> <code>workflows-coSherpa/docs/prd/PRD.md</code></div>
-          <div class="row easy">📸 "처음에 무엇을 왜 만들기로 했나"의 기념사진. 항해 중 길을 잃으면 돌아보는 원점이지, 매일 보는 지도(spec)가 아닙니다.</div>
-        </div>
-      </details>
-
-      <details class="skill" data-cat="p1">
-        <summary>
-          <div class="sk-top"><span class="sk-name">/to-spec</span><span class="pill pill-coral">Phase 1</span><span class="pill pill-amber">bespoke</span></div>
-          <div class="sk-one">PRD·ADR을 계약문서(workflows-coSherpa/docs/spec/)로 처음 생성 — 0→1 전용</div>
-        </summary>
-        <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> 승인된 ADR + PRD + 용어집을 읽어 데이터 스키마 · API 계약 · 도메인 타입 등 <b>코드가 반드시 따르는 안정 인터페이스</b>를 추출하고 <code>INDEX.md</code>로 묶습니다. "현재 계약 = INDEX.md가 가리키는 것만"이라는 권위 규칙으로, 구현 에이전트가 무엇을 최우선으로 읽을지 못 헷갈리게 만듭니다. 생성 전용입니다 — 이후 유지보수는 <code>/spec-sync</code> 담당(역할 분리).</div>
-          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님 — 없으면 0→1 생성, 있으면 증분확장).</div>
-          <div class="row"><span class="lab">산출물</span> <code>workflows-coSherpa/docs/spec/data-schema.md · api-contract.md · domain-types.md … + INDEX.md</code></div>
-          <div class="row easy">📜 시공 계약서 작성입니다. 도장 찍은 뒤(동결 후)에는 구현이 이 계약서를 "단일 진실"로 따르고, 현실과 어긋나기 시작하면 spec-sync가 개정 절차를 밟습니다. 이 템플릿 전용으로 만든 스킬이라 공개 출처가 없습니다.</div>
-        </div>
-      </details>
-
-      <details class="skill" data-cat="p1">
-        <summary>
-          <div class="sk-top"><span class="sk-name">/to-issues</span><span class="pill pill-coral">Phase 1</span></div>
-          <div class="sk-one">PRD+계약을 수직 슬라이스 이슈 목록으로 분해 (depends/risk frontmatter 포함)</div>
-        </summary>
-        <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> tracer-bullet(예광탄 — 끝까지 관통하는 한 발을 먼저 쏘아 조준을 확인하는 방식) 원칙으로, 층(DB→API→UI)이 아니라 <b>동작하는 세로 조각</b>으로 자릅니다. 각 이슈에 기계가 읽는 머리표를 답니다: <code>depends: [선행 이슈]</code>(로드맵 대시보드가 읽음) + <code>risk: RISKY|MECHANICAL|NONE</code>(데이터 무결성·인증·돈·계약 표면을 건드리면 RISKY — build이 goal로 운반해 마감 리뷰 강도를 결정).</div>
-          <div class="row"><span class="lab">호출 경로</span> 이제 <code>/freeze</code>가 sealed 번들로 내부 호출합니다 (개별 단계 아님 — 봉인 마지막에 graph-lint로 순환·dangling 검사).</div>
-          <div class="row"><span class="lab">산출물</span> <code>workflows-coSherpa/docs/issues/NNN-*.md</code> (001부터 번호)</div>
-          <div class="row easy">🍰 케이크를 조각으로 자르는 일 + 조각마다 "위험물 취급 주의" 스티커를 붙이는 일. 위험 스티커가 붙은 조각은 나중에 검수를 한 번 더 받습니다.</div>
-        </div>
-      </details>
-
       <details class="skill" data-cat="p1 p2">
         <summary>
           <div class="sk-top"><span class="sk-name">/handoff</span><span class="pill pill-coral">Phase 1</span><span class="pill pill-dark">Phase 2</span></div>
@@ -768,7 +729,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">issue/PRD를 계약화하고 곧바로 gate GREEN 구현까지 진행</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> FCG의 심장입니다. 무엇을 건네느냐로 흐름이 자동 판별됩니다:
+          <div class="row"><span class="lab">작동 원리</span> Build 내부 FCG 실행기입니다. 무엇을 건네느냐로 흐름이 자동 판별됩니다:
             <table>
               <tr><th>입력</th><th>동작</th><th>결과</th></tr>
               <tr><td><code>workflows-coSherpa/docs/issues/*.md</code> 또는 PRD</td><td><b>계약화 + 구현</b></td><td>슬라이스 → goal 3파일 계약 생성 → gate GREEN 구현</td></tr>
@@ -810,7 +771,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <details class="skill" data-cat="aux">
         <summary>
           <div class="sk-top"><span class="sk-name">/improve-codebase-architecture</span><span class="pill pill-teal">Phase 2.5</span></div>
-          <div class="sk-one">얕은 모듈·개선 후보를 발굴해 HTML 리포트로 — 실행은 FCG 파이프라인으로</div>
+          <div class="sk-one">얕은 모듈·개선 후보를 발굴해 HTML 리포트로 — 실행은 Build 파이프라인으로</div>
         </summary>
         <div class="sk-body">
           <div class="row"><span class="lab">작동 원리</span> 용어집(CONTEXT.md)의 도메인 언어와 ADR의 결정을 잣대로, 인터페이스 대비 깊이가 얕은(shallow) 모듈·강결합 후보·테스트하기 어려운 구조를 찾아 리포트로 만듭니다. 핵심은 <b>발굴과 실행의 분리</b> — 채택한 후보는 즉석에서 고치지 않고 finding → cycle → goal로 흘려 같은 검증 루프를 태웁니다.</div>
@@ -824,7 +785,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">계약(spec) ↔ 코드 ↔ ADR 드리프트 정합 관리기 — 생성은 안 함</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> spec이 이미 있을 때만 작동하는 <b>관리기</b>입니다(0→1 생성은 to-spec — 역할 분리). 드리프트를 셋으로 분류: 문서만 고치면 됨 → 직접 갱신 / 코드를 고쳐야 함 → finding 큐잉 / 모호 → 질문. PRD·ADR은 재작성하지 않고 현재 계약만 정리합니다. 잊어도 시스템이 권고합니다 — diagnose.sh(20커밋 임계)·completion-check(ALL_DONE 시)·cycle 종료 보고.</div>
+          <div class="row"><span class="lab">작동 원리</span> spec이 이미 있을 때만 작동하는 <b>관리기</b>입니다(0→1 생성은 freeze 내부 생성 경로 — 역할 분리). 드리프트를 셋으로 분류: 문서만 고치면 됨 → 직접 갱신 / 코드를 고쳐야 함 → finding 큐잉 / 모호 → 질문. PRD·ADR은 재작성하지 않고 현재 계약만 정리합니다. 잊어도 시스템이 권고합니다 — diagnose.sh(20커밋 임계)·completion-check(ALL_DONE 시)·cycle 종료 보고.</div>
           <div class="row easy">🗺️ 증축된 건물에 맞춰 도면을 갱신하는 측량사. 도면(spec)이 낡으면 다음 AI가 옛 도면대로 시공하는 사고가 나므로, 시스템이 "도면 갱신할 때 됐다"고 알려줍니다.</div>
         </div>
       </details>
@@ -851,9 +812,9 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
       <h2 style="font-size:32px">스킬은 머신 전역, 자산은 프로젝트별</h2>
       <p class="sec-sub">위 스킬들은 폴더 복사로 따라오지 않습니다 — 전역 설치본이 실행되고, 레포 <code style="background:var(--surface-dark-elevated);color:var(--on-dark)">workflows-coSherpa/skills/</code>는 정본 백업입니다.</p>
       <div class="grid-3 mt-40">
-        <div class="dark-card"><div class="mono-tag">~/.claude/skills/ — 12종</div><h3 style="font-size:18px;margin-top:6px">Claude 세트</h3><p>Phase 1 기획 7종(freeze 포함) + 구현 3종 + 보조·정비 2종. 슬래시 명령으로 호출.</p></div>
-        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ — 12종</div><h3 style="font-size:18px;margin-top:6px">Codex 세트 (전체 parity)</h3><p>Claude와 동일한 12종 전부. <code>~/.codex/prompts</code>에 슬래시-shim 자동 생성(<code>/concept</code>·<code>/freeze</code>·<code>/build</code> 등) — 슬래시·자연어 모두 가능.</p></div>
-        <div class="dark-card"><div class="mono-tag">.claude/skills/ — 프로젝트</div><h3 style="font-size:18px;margin-top:6px">프로젝트 전용 슬롯</h3><p>현재 roadmap 1종. 패턴이 반복 증명될 때만 추가(컨텍스트 비용 절제).</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.claude/skills/</div><h3 style="font-size:18px;margin-top:6px">Claude 세트</h3><p>사용자 표면 daily 스킬 9종 + freeze 내부 helper가 설치됩니다. 사용자는 표면 스킬만 직접 호출합니다.</p></div>
+        <div class="dark-card"><div class="mono-tag">~/.codex/skills/ + ~/.codex/prompts/</div><h3 style="font-size:18px;margin-top:6px">Codex 세트</h3><p>사용자 표면 daily 스킬 9종에 대해 slash shim을 자동 생성합니다. 내부 helper는 설치되지만 slash 명령으로 노출하지 않습니다.</p></div>
+        <div class="dark-card"><div class="mono-tag">.claude/skills/ · .agents/skills/</div><h3 style="font-size:18px;margin-top:6px">프로젝트 전용 슬롯</h3><p>현재 roadmap 1종. 패턴이 반복 증명될 때만 추가(컨텍스트 비용 절제).</p></div>
       </div>
       <p class="mt-30" style="font-size:14.5px">설치·재배포 명령은 <a href="#update" onclick="showTab('update');return false" style="color:var(--amber)">③ 업데이트 탭</a>에 있습니다.</p>
     </div>
@@ -985,15 +946,26 @@ Use cosherpa init to install the workflow here.</pre>
     </div>
   </section>
 
-  <!-- Migration placeholder -->
+  <!-- Migration v2 -->
   <section class="section-tight">
     <div class="wrap">
       <div class="kicker">/cosherpa:migration — 기존 코드베이스 온보딩</div>
       <div class="outline-card" style="background:var(--surface-cream-strong);border-style:dashed;border-color:var(--muted-soft)">
         <span class="pill pill-coral">lifecycle</span>
-        <h3 style="margin:16px 0 10px">brownfield onboarding</h3>
+        <h3 style="margin:16px 0 10px">brownfield onboarding v2</h3>
         <p style="max-width:760px">템플릿 없이 시작된 <b>기존 코드베이스</b>를 이 워크플로우에 태우는 온보딩 스킬입니다. <code>/cosherpa:init</code>으로 하네스를 깐 뒤 <code>/cosherpa:migration</code>을 실행합니다.</p>
-        <p style="max-width:760px;margin-top:12px;color:var(--muted);font-size:14.5px">골격: <b>SCAN</b>(스택·모듈·검증 명령·git 이력 파악) → <b>위험가중 ELICIT</b>(코드가 증언하지 못하는 것만 질문) → <b>산출</b>(AGENTS.md 2섹션 + CONTEXT.md 초안 + 필요한 ADR 시드) → <b>REVIEW</b>(하네스 관점 독립 검토). 그리니필드는 <code>/cosherpa:migration</code> 없이 <code>/concept</code>으로 시작합니다.</p>
+        <p style="max-width:760px;margin-top:12px;color:var(--muted);font-size:14.5px">골격: <b>SCAN</b>(코드·문서·테스트·의존성·보안 표면·git 이력 파악) → <b>CLASSIFY</b>(기획 문서, API 계약, ADR 후보, finding 후보, stale 문서로 분류) → <b>ELICIT</b>(틀리면 위험한 것만 질문) → <b>REPORT</b>(<code>workflows-coSherpa/docs/concept/migration-report.md</code> 작성) → <b>ROUTE</b>(공식화할 후보를 <code>/concept</code>로 안내).</p>
+        <div class="tbl-wrap mt-20">
+          <table class="tbl">
+            <tr><th>발견 항목</th><th>migration v2 처분</th><th>다음 단계</th></tr>
+            <tr><td>기획 문서·PRD 초안</td><td><code>prd-candidate</code></td><td><code>/concept</code>로 결정표면을 닫은 뒤 <code>/freeze</code></td></tr>
+            <tr><td>API·스키마·타입 문서</td><td><code>spec-candidate</code></td><td>공식 계약이면 <code>/concept</code>부터</td></tr>
+            <tr><td>중요한 구조 결정</td><td><code>adr-candidate</code></td><td>사용자 승인 전 ADR 파일 생성 금지</td></tr>
+            <tr><td>버그·부채·추가 작업</td><td><code>finding-candidate</code></td><td>필요하면 <code>/finding</code>으로 승격</td></tr>
+            <tr><td>오래된 문서</td><td><code>stale-or-superseded</code></td><td>현재 작업 근거에서 제외</td></tr>
+          </table>
+        </div>
+        <p style="max-width:760px;margin-top:12px;color:var(--muted);font-size:14.5px"><b>안전 규칙:</b> migration은 application code, PRD, spec, issues, ADR 파일을 만들거나 고치지 않습니다. 직접 쓰는 것은 <code>AGENTS.md</code>의 현재 프로젝트 요약, 명확한 용어의 <code>CONTEXT.md</code>, 그리고 migration report입니다.</p>
       </div>
     </div>
   </section>
@@ -1019,13 +991,13 @@ Use cosherpa init to install the workflow here.</pre>
           <svg class="spike" width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19" stroke="#faf9f5" stroke-width="2.6" stroke-linecap="round"/></svg>
           EVERBUILD Workflow Guideline
         </div>
-        <p>1인 기업의 뿌리가 되는 프로젝트 템플릿 — Claude·GPT(어느 모델이든 기획+구현) + FCG 자율 빌드 하네스. 이 문서는 템플릿의 공식 사용자 가이드이며, 종전의 README.md를 대체합니다.</p>
+        <p>1인 기업의 뿌리가 되는 프로젝트 템플릿 — Claude·GPT(어느 모델이든 기획+구현) + Concept-Freeze-Build 하네스. 이 문서는 템플릿의 공식 사용자 가이드이며, 종전의 README.md를 대체합니다.</p>
       </div>
       <div>
         <h4>심화 레퍼런스 (레포 내)</h4>
         <ul>
           <li><code>AGENTS.md</code> — 에이전트 작업 규약 진입점</li>
-          <li><code>workflows-coSherpa/docs/fcg-system.md</code> — FCG 3-자산 모델</li>
+          <li><code>workflows-coSherpa/docs/fcg-system.md</code> — Build 내부 findings/cycles/goals 모델</li>
           <li><code>workflows-coSherpa/docs/goal-design.md</code> — 게이트 설계 원칙</li>
           <li><code>workflows-coSherpa/guidelines/goal-iteration.md</code> — 루프 운영 정본</li>
         </ul>
@@ -1033,13 +1005,13 @@ Use cosherpa init to install the workflow here.</pre>
       <div>
         <h4>스킬 출처 (크레딧)</h4>
         <ul>
-          <li>Matt Pocock — <a href="https://github.com/mattpocock/skills">mattpocock/skills</a><br><span style="font-size:12px">concept·to-prd·to-issues·prototype·tdd·improve-arch·handoff</span></li>
+          <li>Matt Pocock — <a href="https://github.com/mattpocock/skills">mattpocock/skills</a><br><span style="font-size:12px">concept·prototype·improve-arch·handoff 기반</span></li>
           <li>greatSumini — <a href="https://github.com/greatSumini/cc-system">cc-system</a><br><span style="font-size:12px">build·finding·cycle</span></li>
-          <li>템플릿 bespoke — freeze·to-spec·spec-sync·roadmap<br><span style="font-size:12px">레포 사본에 템플릿 전용 수정 포함 — 원 출처 재설치 금지</span></li>
+          <li>템플릿 bespoke — freeze·spec-sync·roadmap·freeze 내부 helper<br><span style="font-size:12px">레포 사본에 템플릿 전용 수정 포함 — 원 출처 재설치 금지</span></li>
         </ul>
       </div>
     </div>
-    <div class="fine">Workflow Guideline v1 · 템플릿 v1.3 기준 · 2026-06-11 · 디자인: claude.com 마케팅 디자인 시스템 기반 (토큰은 이 파일 CSS에 내장)</div>
+    <div class="fine">Workflow Guideline v2 · 템플릿 v1.3 기준 · 2026-06-19 · 디자인: claude.com 마케팅 디자인 시스템 기반 (토큰은 이 파일 CSS에 내장)</div>
   </div>
 </footer>
 

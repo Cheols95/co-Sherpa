@@ -28,7 +28,7 @@
 # ladder, EXAMPLE.md pointers). Do NOT reinstall from the public sources
 # (mattpocock/skills, greatSumini/cc-system) -- that would overwrite the
 # fixes. The repo backup is the source of truth; credits in
-# Workflow_Guideline_v1.html (footer).
+# Workflow_Guideline_v2.html (footer).
 #
 # Usage:
 #   bash workflows-coSherpa/scripts/install-skills.sh            # install missing, skip existing
@@ -168,5 +168,5 @@ Codex slash-commands are GENERATED from the skill set (never go stale):
 
 Verify:  ls ~/.claude/skills ~/.codex/skills ~/.codex/prompts
 Backups: overwritten or stale global skills are copied under ~/.cosherpa/skill-backups/
-Matrix:  see Workflow_Guideline_v1.html (tab 2 "설치 위치" / tab 3 "채널 1")
+Matrix:  see Workflow_Guideline_v2.html (tab 2 "설치 위치" / tab 3 "채널 1")
 EOF

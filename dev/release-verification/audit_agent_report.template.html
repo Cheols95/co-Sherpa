@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>co-Sherpa 검증 감사 보고서</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1f2933;
+      --muted: #5d6978;
+      --line: #d8dee8;
+      --bg: #f7f9fc;
+      --panel: #ffffff;
+      --pass: #166534;
+      --warn: #92400e;
+      --fail: #991b1b;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      line-height: 1.55;
+    }
+    header, main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    header {
+      padding-top: 36px;
+    }
+    h1, h2 {
+      margin: 0 0 12px;
+    }
+    h2 {
+      margin-top: 28px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--line);
+    }
+    section {
+      margin: 18px 0;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 12px 0;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #eef3f8;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.95em;
+    }
+    .muted {
+      color: var(--muted);
+    }
+    .pass {
+      color: var(--pass);
+      font-weight: 700;
+    }
+    .warn {
+      color: var(--warn);
+      font-weight: 700;
+    }
+    .fail {
+      color: var(--fail);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>co-Sherpa 검증 감사 보고서</h1>
+    <p class="muted">이 문서는 release verification 또는 full E2E 결과를 기록하는 템플릿이다.</p>
+  </header>
+
+  <main>
+    <section>
+      <h2>검증 개요</h2>
+      <table>
+        <tbody>
+          <tr><th>검증 일시</th><td>{{verified_at}}</td></tr>
+          <tr><th>검증자</th><td>{{agent_or_human}}</td></tr>
+          <tr><th>commit SHA</th><td><code>{{commit_sha}}</code></td></tr>
+          <tr><th>plugin id</th><td><code>cosherpa</code></td></tr>
+          <tr><th>display name</th><td>co-Sherpa</td></tr>
+          <tr><th>scratch scenario</th><td>Mini Commerce Ops</td></tr>
+          <tr><th>하네스 경로</th><td><code>workflows-coSherpa/</code></td></tr>
+          <tr><th>최종 판정</th><td><strong>{{PASS_OR_CONDITIONAL_PASS_OR_FAIL}}</strong></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>환경 정보</h2>
+      <table>
+        <tbody>
+          <tr><th>repo root</th><td><code>{{repo_root}}</code></td></tr>
+          <tr><th>branch</th><td><code>{{branch}}</code></td></tr>
+          <tr><th>remote URL</th><td><code>{{remote_url}}</code></td></tr>
+          <tr><th>scratch project path</th><td><code>{{scratch_project_path}}</code></td></tr>
+          <tr><th>migration fixture path</th><td><code>{{migration_fixture_path}}</code></td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Command Result Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>구분</th>
+            <th>명령</th>
+            <th>exit code</th>
+            <th>결과</th>
+            <th>요약</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Static checks</td><td><code>bash dev/release-verification/verify.sh static</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+          <tr><td>Unit checks</td><td><code>bash dev/release-verification/verify.sh unit</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+          <tr><td>Verifier checks</td><td><code>bash dev/release-verification/verify.sh verifier</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+          <tr><td>Plugin checks</td><td><code>bash dev/release-verification/verify.sh plugin</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+          <tr><td>Release checks</td><td><code>bash dev/release-verification/verify.sh release</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+          <tr><td>E2E preflight</td><td><code>bash dev/release-verification/verify.sh e2e-preflight</code></td><td>{{exit}}</td><td>{{status}}</td><td>{{summary}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Integration / Smoke Checks</h2>
+      <table>
+        <thead>
+          <tr><th>항목</th><th>기대 결과</th><th>실제 결과</th><th>정상 여부</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>scratch init</td><td><code>workflows-coSherpa/</code> 생성</td><td>{{actual}}</td><td>{{status}}</td></tr>
+          <tr><td>migration fixture</td><td>기존 README/source 보존</td><td>{{actual}}</td><td>{{status}}</td></tr>
+          <tr><td>roadmap dashboard</td><td>HTML 생성 및 self-test 통과</td><td>{{actual}}</td><td>{{status}}</td></tr>
+          <tr><td>dist sync</td><td>의도하지 않은 dist diff 없음</td><td>{{actual}}</td><td>{{status}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Skill Verification Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Skill</th>
+            <th>입력</th>
+            <th>기대 결과</th>
+            <th>실제 결과</th>
+            <th>생성/수정 파일</th>
+            <th>정상 여부</th>
+            <th>결함 또는 의심점</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/cosherpa:init</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/cosherpa:help</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/cosherpa:migration</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/concept</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/freeze</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/build</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/finding</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/cycle</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/roadmap</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/prototype</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/spec-sync</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/improve-codebase-architecture</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+          <tr><td><code>/handoff</code></td><td>{{input}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{files}}</td><td>{{status}}</td><td>{{defect}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Test Agent 작업 로그</h2>
+      <p>{{test_agent_log}}</p>
+    </section>
+
+    <section>
+      <h2>Review Agent 검토 로그</h2>
+      <p>{{review_agent_log}}</p>
+    </section>
+
+    <section>
+      <h2>Artifact Table</h2>
+      <table>
+        <thead>
+          <tr><th>산출물</th><th>경로</th><th>상태</th><th>비고</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Mini Commerce Ops</td><td><code>{{scratch_project_path}}</code></td><td>{{status}}</td><td>{{note}}</td></tr>
+          <tr><td>roadmap 대시보드</td><td><code>{{roadmap_path}}</code></td><td>{{status}}</td><td>{{note}}</td></tr>
+          <tr><td>migration fixture</td><td><code>{{migration_fixture_path}}</code></td><td>{{status}}</td><td>{{note}}</td></tr>
+          <tr><td>audit report</td><td><code>audit_agent_report.html</code></td><td>{{status}}</td><td>{{note}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Defect Table</h2>
+      <table>
+        <thead>
+          <tr><th>ID</th><th>심각도</th><th>위치</th><th>재현 방법</th><th>기대 결과</th><th>실제 결과</th><th>다음 조치</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>{{id}}</td><td>{{severity}}</td><td>{{location}}</td><td>{{repro}}</td><td>{{expected}}</td><td>{{actual}}</td><td>{{next}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Cleanup Table</h2>
+      <table>
+        <thead>
+          <tr><th>정리 대상</th><th>보존 여부</th><th>처리 결정</th><th>담당</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>e2e_shop_demo/</code></td><td>{{keep}}</td><td>{{decision}}</td><td>{{owner}}</td></tr>
+          <tr><td><code>e2e_migration_fixture/</code></td><td>{{keep}}</td><td>{{decision}}</td><td>{{owner}}</td></tr>
+          <tr><td><code>workflows-coSherpa/plugin/dist</code> diff</td><td>{{keep}}</td><td>{{decision}}</td><td>{{owner}}</td></tr>
+          <tr><td>임시 로그</td><td>{{keep}}</td><td>{{decision}}</td><td>{{owner}}</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>

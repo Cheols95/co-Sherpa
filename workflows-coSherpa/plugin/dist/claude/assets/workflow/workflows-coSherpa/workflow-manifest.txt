@@ -15,7 +15,7 @@
 #    안 바뀌면 조용, 양쪽 다 바뀌면 CONFLICT 보고) --
 AGENTS.md
 CLAUDE.md
-Workflow_Guideline_v1.html
+Workflow_Guideline_v2.html
 .gitattributes
 .gitignore
 workflows-coSherpa/workflow-manifest.txt
@@ -73,9 +73,9 @@ workflows-coSherpa/docs/findings/EXAMPLE.md
 workflows-coSherpa/docs/fcg-system.md
 workflows-coSherpa/docs/goal-design.md
 workflows-coSherpa/docs/adr/README.md
-workflows-coSherpa/docs/design/AGENTS.md
-workflows-coSherpa/docs/design/CLAUDE.md
-workflows-coSherpa/docs/design/README.md
+workflows-coSherpa/docs/concept/AGENTS.md
+workflows-coSherpa/docs/concept/CLAUDE.md
+workflows-coSherpa/docs/concept/README.md
 workflows-coSherpa/docs/issues/README.md
 workflows-coSherpa/docs/prd/README.md
 workflows-coSherpa/docs/spec/README.md

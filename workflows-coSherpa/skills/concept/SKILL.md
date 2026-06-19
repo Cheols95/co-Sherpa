@@ -1,16 +1,16 @@
 ---
 name: concept
-description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정표면(decision surface)을 4렌즈로 체크리스트(workflows-coSherpa/docs/design/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정표면 정산, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정표면 정산', '계획 따져보자' 요청 시."
+description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정표면(decision surface)을 4렌즈로 체크리스트(workflows-coSherpa/docs/concept/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정표면 정산, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정표면 정산', '계획 따져보자' 요청 시."
 ---
 
 <what-to-do>
 
 "기획이 끝났나?"를 느낌이 아니라 **열린 체크박스의 수**로 바꾸는 concept 대화다. 사용자의 초기 아이디어를
-구현 가능한 기능 개념으로 구체화한 뒤, 한 기능의 결정표면을 `workflows-coSherpa/docs/design/checklist.md`에
+구현 가능한 기능 개념으로 구체화한 뒤, 한 기능의 결정표면을 `workflows-coSherpa/docs/concept/checklist.md`에
 정산하고, 각 슬롯을 사용자와 함께 닫은 뒤, 남은 게 없으면 **"기능 X 닫힘 — /freeze ready"**를 선언한다.
 
-규칙의 권위는 `workflows-coSherpa/docs/design/AGENTS.md`(4렌즈·grounds-gate·exit bar·2방향 감사) — **concept 시작 전 반드시
-읽는다**. 체크리스트 형식·닫힘 상태·입장 규칙은 `workflows-coSherpa/docs/design/README.md`에 있다. 이 스킬은 그것을 *운영*하는 법이다 — 규칙을 사용자에게
+규칙의 권위는 `workflows-coSherpa/docs/concept/AGENTS.md`(4렌즈·grounds-gate·exit bar·2방향 감사) — **concept 시작 전 반드시
+읽는다**. 체크리스트 형식·닫힘 상태·입장 규칙은 `workflows-coSherpa/docs/concept/README.md`에 있다. 이 스킬은 그것을 *운영*하는 법이다 — 규칙을 사용자에게
 낭독하지 말고 시퀀스를 끌고 가라.
 
 루프:
@@ -29,7 +29,7 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 
 ## 결정표면 정산 (체크리스트)
 
-형식, 4종 닫힘 상태 `[x]/[~]/[>]/[-]`, 입장 규칙, 닫힘 판정은 모두 `workflows-coSherpa/docs/design/README.md`에 있다 —
+형식, 4종 닫힘 상태 `[x]/[~]/[>]/[-]`, 입장 규칙, 닫힘 판정은 모두 `workflows-coSherpa/docs/concept/README.md`에 있다 —
 그걸 따른다. 운영 노트:
 
 - **자유연상이 아니라 스캔으로 열거한다.** 먼저 **엔티티 매니페스트**(기능이 건드리는 모든 엔티티·행위자·
@@ -37,8 +37,8 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
   이름 붙이지 않은 것은 훑지 못한다.
 - **입장 = grounds-gate.** 슬롯은 site·**왜 기존 자료로 정산 안 되는지(능동 논증)**·오추측 consequence
   3요소를 못 대면 소음이니 버린다 — ground②가 종료 엔진. 전수 형식·빈칸 금지(빈칸은 "닫힘"이 아니며
-  /freeze residual-enumeration 감사 대상). 정책 전문은 `workflows-coSherpa/docs/design/AGENTS.md`, 3요소·4종 표는
-  `workflows-coSherpa/docs/design/README.md` 참조.
+  /freeze residual-enumeration 감사 대상). 정책 전문은 `workflows-coSherpa/docs/concept/AGENTS.md`, 3요소·4종 표는
+  `workflows-coSherpa/docs/concept/README.md` 참조.
 - **결정이 날 때 근거를 함께 적는다**(몰아서 적지 말 것). hard-to-reverse면 ADR 번호, 가벼우면
   rationale 한 줄(ADR 강제 안 함). 실험이면 `[>]`에 어느 프로토타입이 정산하는지 명명. 배제면 `[-]`에
   배제 근거.
@@ -122,6 +122,6 @@ ADR은 **셋 다** 참일 때만 제안한다: 되돌리기 어렵다 · 맥락 
 
 기능의 체크리스트에 `[ ]`도 미정산 `[>]`도 없으면 **"기능 X 닫힘 — /freeze ready"**를 선언한다.
 동결 후에는 새 기획거리 → `workflows-coSherpa/docs/findings/`, 동결 결정의 근본 오류 → 사용자 승인 후 concept 재오픈
-(`workflows-coSherpa/docs/design/AGENTS.md`).
+(`workflows-coSherpa/docs/concept/AGENTS.md`).
 
 </supporting-info>

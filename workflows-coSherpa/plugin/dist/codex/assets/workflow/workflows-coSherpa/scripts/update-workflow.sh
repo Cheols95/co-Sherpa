@@ -221,6 +221,110 @@ apply_file() {
   return 0
 }
 
+LEGACY_CONCEPT_WILL_MOVE=()
+LEGACY_CONCEPT_MOVED=()
+LEGACY_CONCEPT_REMOVED=()
+LEGACY_CONCEPT_PENDING=()
+LEGACY_GUIDE_WILL_REMOVE=()
+LEGACY_GUIDE_REMOVED=()
+LEGACY_GUIDE_PENDING=()
+
+same_after_concept_path_rewrite() {
+  local old="$1" new="$2" tmp rc
+  [ -f "$old" ] && [ -f "$new" ] || return 1
+  tmp=$(mktemp "$ROOT/.wf-update.XXXXXX" 2>/dev/null || mktemp "${TMPDIR:-/tmp}/cosherpa.XXXXXX") || return 1
+  sed \
+    -e 's#workflows-coSherpa/docs/design#workflows-coSherpa/docs/concept#g' \
+    -e 's#docs/design#docs/concept#g' \
+    "$old" > "$tmp"
+  cmp -s "$tmp" "$new"
+  rc=$?
+  rm -f "$tmp"
+  return "$rc"
+}
+
+migrate_legacy_concept_dir() {
+  local legacy="$ROOT/workflows-coSherpa/docs/design"
+  local current="$ROOT/workflows-coSherpa/docs/concept"
+  local name old new file rel dest
+  [ -d "$legacy" ] || return 0
+
+  if [ "$APPLY" -ne 1 ]; then
+    LEGACY_CONCEPT_WILL_MOVE+=("workflows-coSherpa/docs/design/ -> workflows-coSherpa/docs/concept/ on --apply")
+    return 0
+  fi
+
+  mkdir -p "$current"
+
+  for name in AGENTS.md CLAUDE.md README.md; do
+    old="$legacy/$name"
+    new="$current/$name"
+    [ -e "$old" ] || continue
+    if [ -f "$new" ] && same_after_concept_path_rewrite "$old" "$new"; then
+      rm -f "$old"
+      LEGACY_CONCEPT_REMOVED+=("workflows-coSherpa/docs/design/$name")
+    elif [ -f "$new" ]; then
+      LEGACY_CONCEPT_PENDING+=("workflows-coSherpa/docs/design/$name (target exists; review before deleting)")
+    else
+      mv "$old" "$new"
+      LEGACY_CONCEPT_MOVED+=("workflows-coSherpa/docs/design/$name -> workflows-coSherpa/docs/concept/$name")
+    fi
+  done
+
+  while IFS= read -r -d '' file; do
+    rel="${file#"$legacy/"}"
+    case "$rel" in
+      AGENTS.md|CLAUDE.md|README.md) continue ;;
+    esac
+    dest="$current/$rel"
+    mkdir -p "$(dirname "$dest")"
+    if [ -e "$dest" ]; then
+      if cmp -s "$file" "$dest"; then
+        rm -f "$file"
+        LEGACY_CONCEPT_REMOVED+=("workflows-coSherpa/docs/design/$rel")
+      else
+        LEGACY_CONCEPT_PENDING+=("workflows-coSherpa/docs/design/$rel (target exists; move manually)")
+      fi
+    else
+      mv "$file" "$dest"
+      LEGACY_CONCEPT_MOVED+=("workflows-coSherpa/docs/design/$rel -> workflows-coSherpa/docs/concept/$rel")
+    fi
+  done < <(find "$legacy" -type f -print0 2>/dev/null)
+
+  find "$legacy" -depth -type d -empty -exec rmdir {} + 2>/dev/null || true
+  rmdir "$legacy" 2>/dev/null || true
+  [ ! -d "$legacy" ] || LEGACY_CONCEPT_PENDING+=("workflows-coSherpa/docs/design/ (not empty after migration)")
+}
+
+migrate_legacy_guide_file() {
+  local legacy="$ROOT/Workflow_Guideline_v1.html"
+  local current="$ROOT/Workflow_Guideline_v2.html"
+  local local_text base_text
+  [ -e "$legacy" ] || return 0
+
+  if [ "$APPLY" -ne 1 ]; then
+    LEGACY_GUIDE_WILL_REMOVE+=("Workflow_Guideline_v1.html -> removed on --apply if it matches the baseline template")
+    return 0
+  fi
+
+  if [ "$HAVE_BASE" -eq 1 ] && in_tree "$BASE_SHA" "Workflow_Guideline_v1.html"; then
+    local_text="$(tr -d '\r' < "$legacy")"
+    base_text="$(show_at "$BASE_SHA" "Workflow_Guideline_v1.html" | tr -d '\r')"
+    if [ "$local_text" = "$base_text" ]; then
+      rm -f "$legacy"
+      LEGACY_GUIDE_REMOVED+=("Workflow_Guideline_v1.html")
+      return 0
+    fi
+  fi
+
+  if [ -f "$current" ]; then
+    LEGACY_GUIDE_PENDING+=("Workflow_Guideline_v1.html (local edits or no baseline proof; review before deleting)")
+  else
+    mv "$legacy" "$current"
+    LEGACY_GUIDE_REMOVED+=("Workflow_Guideline_v1.html -> Workflow_Guideline_v2.html")
+  fi
+}
+
 applied=0 apply_failed=0
 if [ "$APPLY" -eq 1 ]; then
   for f in ${NEWS[@]+"${NEWS[@]}"} ${UPDATES[@]+"${UPDATES[@]}"}; do
@@ -232,6 +336,9 @@ if [ "$APPLY" -eq 1 ]; then
     fi
   done
 fi
+
+migrate_legacy_concept_dir
+migrate_legacy_guide_file
 
 # -- report ------------------------------------------------------------------------
 mode_label="dry-run (report only; use --apply)"
@@ -258,8 +365,15 @@ group "  [LOCAL-DEL] deleted by the project, respected:"      ${LOCALDELS[@]+"${
 group "  [CONFLICT] BOTH sides changed -- reconcile by hand:" ${CONFLICTS[@]+"${CONFLICTS[@]}"}
 group "  [REVIEW] differs from template (no baseline yet):"   ${REVIEWS[@]+"${REVIEWS[@]}"}
 group "  [WARN] in manifest but not committed in template:"   ${UNCOMMITTED[@]+"${UNCOMMITTED[@]}"}
+group "  [MIGRATE] legacy concept directory rename:"          ${LEGACY_CONCEPT_WILL_MOVE[@]+"${LEGACY_CONCEPT_WILL_MOVE[@]}"}
+group "  [MOVED] legacy concept files moved:"                 ${LEGACY_CONCEPT_MOVED[@]+"${LEGACY_CONCEPT_MOVED[@]}"}
+group "  [REMOVED] obsolete legacy concept files removed:"    ${LEGACY_CONCEPT_REMOVED[@]+"${LEGACY_CONCEPT_REMOVED[@]}"}
+group "  [PENDING] legacy concept files need review:"         ${LEGACY_CONCEPT_PENDING[@]+"${LEGACY_CONCEPT_PENDING[@]}"}
+group "  [MIGRATE] legacy guide rename:"                      ${LEGACY_GUIDE_WILL_REMOVE[@]+"${LEGACY_GUIDE_WILL_REMOVE[@]}"}
+group "  [REMOVED] obsolete legacy guide removed:"            ${LEGACY_GUIDE_REMOVED[@]+"${LEGACY_GUIDE_REMOVED[@]}"}
+group "  [PENDING] legacy guide needs review:"                ${LEGACY_GUIDE_PENDING[@]+"${LEGACY_GUIDE_PENDING[@]}"}
 
-pending=$(( ${#CONFLICTS[@]} + ${#REVIEWS[@]} ))
+pending=$(( ${#CONFLICTS[@]} + ${#REVIEWS[@]} + ${#LEGACY_CONCEPT_PENDING[@]} + ${#LEGACY_GUIDE_PENDING[@]} ))
 if [ "$pending" -gt 0 ]; then
   echo
   echo "  For each [CONFLICT]/[REVIEW] file: inspect, then either keep yours or adopt the template:"

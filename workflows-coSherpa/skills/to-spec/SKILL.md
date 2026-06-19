@@ -36,21 +36,21 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 
 | 비계약 문서 | 둘 곳 | 비고 |
 |---|---|---|
-| 사용 흐름·유스케이스 (`flow.md`) | `workflows-coSherpa/docs/design/flow.md` | 상태머신·시퀀스. 행위 명세지 인터페이스 계약 아님 |
-| 화면/UI 설계 (`screens.md`) | `workflows-coSherpa/docs/design/screens.md` | 변동 잦아 계약화 부적합 |
-| 코드 아키텍처 (`architecture.md`) | `workflows-coSherpa/docs/design/architecture.md` | 모듈 경계·의존 방향. 결정 자체는 `workflows-coSherpa/docs/adr/` |
+| 사용 흐름·유스케이스 (`flow.md`) | `workflows-coSherpa/docs/concept/flow.md` | 상태머신·시퀀스. 행위 명세지 인터페이스 계약 아님 |
+| 화면/UI 설계 (`screens.md`) | `workflows-coSherpa/docs/concept/screens.md` | 변동 잦아 계약화 부적합 |
+| 코드 아키텍처 (`architecture.md`) | `workflows-coSherpa/docs/concept/architecture.md` | 모듈 경계·의존 방향. 결정 자체는 `workflows-coSherpa/docs/adr/` |
 | 기술적 결정의 "왜" | `workflows-coSherpa/docs/adr/` | append-only 이력 |
 | 비기능 요건 | 성격 따라 분기 | "에러 응답 포맷"=계약(spec), "p95 200ms"=비계약 설계/PRD |
 
 > 헷갈리면 기준 하나: **다른 모듈/외부가 의존하는 안정 인터페이스인가?** 예면 계약(spec), 아니면 비계약 설계.
 
 > ⚠ 이름 혼동 주의(`architecture.md` 두 개): **코드 아키텍처**(모듈 구조·의존)=설계 →
-> `workflows-coSherpa/docs/design/architecture.md`, 대시보드가 **파싱하는 서비스 운영 토폴로지**(배포 흐름)=계약 →
-> `workflows-coSherpa/docs/spec/service-flow.md`. 전문은 `workflows-coSherpa/docs/design/README.md` + `workflows-coSherpa/docs/spec/README.md` 참조.
+> `workflows-coSherpa/docs/concept/architecture.md`, 대시보드가 **파싱하는 서비스 운영 토폴로지**(배포 흐름)=계약 →
+> `workflows-coSherpa/docs/spec/service-flow.md`. 전문은 `workflows-coSherpa/docs/concept/README.md` + `workflows-coSherpa/docs/spec/README.md` 참조.
 
 ## 동결 전 게이트 — 결정표면 회계 + 독립 의도-감사 (절차 0단계)
 
-계약을 굳히기 전 두 가지를 통과해야 한다 — 전문은 `workflows-coSherpa/docs/design/AGENTS.md` §Account the decision surface +
+계약을 굳히기 전 두 가지를 통과해야 한다 — 전문은 `workflows-coSherpa/docs/concept/AGENTS.md` §Account the decision surface +
 §Pre-freeze intent-audit(**작업 전 필독**; 단 `freeze`가 sealed로 부른 경우 ①에서 이미 수행 → 생략):
 
 1. **결정표면 회계** — 엔티티 × 4렌즈(구조·행위·기술·계약)로 load-bearing 결정을 열거, 모든 슬롯이
@@ -62,13 +62,13 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 
 ## 절차
 1. **입력 수집.** `workflows-coSherpa/docs/adr/`의 **accepted** ADR(superseded 제외), `workflows-coSherpa/docs/prd/PRD.md`, `CONTEXT.md` 용어,
-   있으면 `workflows-coSherpa/docs/design/*`(및 재실행이라 이미 있으면 `workflows-coSherpa/docs/issues/*`)를 읽는다. **계약의 출처는 ADR·PRD이지 issues가 아니다**(to-spec은 to-issues보다 먼저 돈다).
+   있으면 `workflows-coSherpa/docs/concept/*`(및 재실행이라 이미 있으면 `workflows-coSherpa/docs/issues/*`)를 읽는다. **계약의 출처는 ADR·PRD이지 issues가 아니다**(to-spec은 to-issues보다 먼저 돈다).
 2. **계약 항목 추출.** 위 "계약" 표 기준으로 굳은 인터페이스만 골라낸다. 흐름·화면·아키텍처 근거는 spec에 넣지 않는다.
 3. **계약문서 작성.** 해당되는 `workflows-coSherpa/docs/spec/*.md`만 만든다(불필요한 파일 생성 금지). 각 결정은 **출처 ADR 번호를
    인용**한다. 용어는 `CONTEXT.md`와 일치시킨다.
 4. **INDEX.md 생성/갱신.** 만든 계약문서를 `workflows-coSherpa/docs/spec/INDEX.md` 표에 등록한다(형식·`TODO(미결정)` 칸
    표기 규칙은 아래 §`workflows-coSherpa/docs/spec/INDEX.md` 형식 — 구현이 미결정 placeholder를 동결 계약으로 오독하지 않게).
-5. **비계약 분류.** 흐름·화면·아키텍처 내용이 입력에 섞여 있으면 `workflows-coSherpa/docs/design/`의 해당 문서로 옮기거나 가리키게 한다.
+5. **비계약 분류.** 흐름·화면·아키텍처 내용이 입력에 섞여 있으면 `workflows-coSherpa/docs/concept/`의 해당 문서로 옮기거나 가리키게 한다.
 6. **요약 보고.** 만든 계약문서, concept으로 분류한 것, **결정이 안 나 비워둔 칸**(→ `/concept`으로 보완 권유)을 보고한다.
 
 ## 계약문서 품질 floor (칸 채우기 ≠ 계약)
@@ -82,7 +82,7 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 - **반례 명시(counter-case)** — "~해야 한다"는 짝이 되는 "~하면 안 된다"와 함께 — **단 부정이 판별력을 더할 때만**(이미 값으로 다른 경우가 배제되면 짝을 강제하지 않는다). (예: "id는 BIGINT" ↔ "INTEGER면 안 됨".)
 - **메커니즘(mechanism)** — 결과만이 아니라 입력→처리→출력. ("X가 된다"가 아니라 "A·B가 동시에 성립하면 X로 전이".)
 - **엣지 구체화(concrete edge)** — 경계 케이스마다 구체적 처분을 적는다. 모호한 수식어("견고하게"·"유연하게") 금지.
-- **있을 자리값(consequence-of-absence)** — 한 줄을 지웠을 때 무엇이 깨지는지 답할 수 없으면, 그 줄은 계약이 아니다(빼거나 `workflows-coSherpa/docs/design/`으로).
+- **있을 자리값(consequence-of-absence)** — 한 줄을 지웠을 때 무엇이 깨지는지 답할 수 없으면, 그 줄은 계약이 아니다(빼거나 `workflows-coSherpa/docs/concept/`으로).
 
 > 비개발자에게 특히 위험한 함정: 칸이 채워진 스펙을 보고 "다 됐다"고 착각하는 것. 빈 계약이 그 착각을 만든다.
 
@@ -94,8 +94,8 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 - **결정 안 난 걸 지어내지 않는다.** 입력에 근거가 없으면 그 섹션을 `TODO(미결정)`로 두고 사용자에게 알린다.
   임의로 스키마·엔드포인트를 발명하면 그게 곧 잘못된 단일 진실원천이 된다.
 - **PRD/ADR을 재서술하지 않는다.** 의도·근거가 아니라 **인터페이스**만 적는다. 중복 산문 금지.
-- **계약만 workflows-coSherpa/docs/spec/에.** 흐름·화면·아키텍처는 `workflows-coSherpa/docs/design/` 또는 `workflows-coSherpa/docs/adr/`로. 경계는 위 표.
-- **코드를 만들거나 고치지 않는다.** 구현은 `/build`(TDD) 영역. 이 스킬의 쓰기 대상은 `workflows-coSherpa/docs/spec/`와 `workflows-coSherpa/docs/design/`(분류 이동분)뿐.
+- **계약만 workflows-coSherpa/docs/spec/에.** 흐름·화면·아키텍처는 `workflows-coSherpa/docs/concept/` 또는 `workflows-coSherpa/docs/adr/`로. 경계는 위 표.
+- **코드를 만들거나 고치지 않는다.** 구현은 `/build`(TDD) 영역. 이 스킬의 쓰기 대상은 `workflows-coSherpa/docs/spec/`와 `workflows-coSherpa/docs/concept/`(분류 이동분)뿐.
 - **이후 유지는 spec-sync에 넘긴다.** 생성 후 코드가 진화하면 드리프트 정합은 `spec-sync`가 맡는다.
 
 ## 산출물 frontmatter (프로젝트 문서 규약)
@@ -106,7 +106,7 @@ title: <문서명>
 created: <YYYY-MM-DD>
 resolved: false
 status_notes: <한 줄 상태 요약>
-related: [workflows-coSherpa/docs/prd/PRD.md, workflows-coSherpa/docs/adr/NNNN-*.md, workflows-coSherpa/docs/design/flow.md]
+related: [workflows-coSherpa/docs/prd/PRD.md, workflows-coSherpa/docs/adr/NNNN-*.md, workflows-coSherpa/docs/concept/flow.md]
 ---
 ```
 

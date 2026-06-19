@@ -191,7 +191,7 @@ audit_release_metadata() {
 
   if grep -R "$stale_repo_name" \
     "$REPO_ROOT/README.md" \
-    "$REPO_ROOT/Workflow_Guideline_v1.html" \
+    "$REPO_ROOT/Workflow_Guideline_v2.html" \
     "$REPO_ROOT/.claude-plugin/marketplace.json" \
     "$REPO_ROOT/.agents/plugins/marketplace.json" \
     "$PLUGIN_ROOT/platform" \
@@ -201,7 +201,7 @@ audit_release_metadata() {
 
   if grep -R "$old_plugin_name" \
     "$REPO_ROOT/README.md" \
-    "$REPO_ROOT/Workflow_Guideline_v1.html" \
+    "$REPO_ROOT/Workflow_Guideline_v2.html" \
     "$REPO_ROOT/.claude-plugin/marketplace.json" \
     "$REPO_ROOT/.agents/plugins/marketplace.json" \
     "$PLUGIN_ROOT/platform" \
@@ -212,7 +212,7 @@ audit_release_metadata() {
 
   if grep -R "$old_harness_dir" \
     "$REPO_ROOT/README.md" \
-    "$REPO_ROOT/Workflow_Guideline_v1.html" \
+    "$REPO_ROOT/Workflow_Guideline_v2.html" \
     "$REPO_ROOT/AGENTS.md" \
     "$REPO_ROOT/CLAUDE.md" \
     "$WORKFLOW_ROOT" \

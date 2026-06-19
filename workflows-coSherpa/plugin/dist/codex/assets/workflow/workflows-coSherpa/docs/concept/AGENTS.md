@@ -1,4 +1,4 @@
-# workflows-coSherpa/docs/design/AGENTS.md — Phase 1 concept 규칙 (정본)
+# workflows-coSherpa/docs/concept/AGENTS.md — Phase 1 concept 규칙 (정본)
 
 > 루트 `AGENTS.md`에서 이전한 **Phase 1 elicitation** 규칙의 단일 출처. `/concept`·`/freeze`가 작업 전
 > 반드시 읽는다. 체크리스트의 *형식·표기·닫힘 상태·예시*는 같은 폴더 `README.md`가 소유한다
@@ -6,7 +6,7 @@
 
 ## Sequence
 
-`/concept` (결정표면을 `workflows-coSherpa/docs/design/checklist.md`에 정산 — 모든 슬롯이 닫힐 때까지) → `/freeze` (유일한
+`/concept` (결정표면을 `workflows-coSherpa/docs/concept/checklist.md`에 정산 — 모든 슬롯이 닫힐 때까지) → `/freeze` (유일한
 인간 승인점 — 닫힌 기능을 to-prd → spec → to-issues → graph-lint로 sealed 봉인) → `/build`. Freeze는
 **기능 단위**(tracer-bullet): 기능 A를 봉인하는 동안 기능 C는 계속 concept 진행 가능.
 

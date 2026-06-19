@@ -1,4 +1,4 @@
-# workflows-coSherpa/docs/design/ — Phase 1 concept state and non-contract design docs
+# workflows-coSherpa/docs/concept/ — Phase 1 concept state and non-contract design docs
 
 Phase 1 `/concept`의 **결정표면(decision surface)** 상태 파일과, 계약은 아니지만 구현에 필요한 설계 산출물을 둔다.
 
@@ -32,7 +32,7 @@ Phase 1 `/concept`의 **결정표면(decision surface)** 상태 파일과, 계�
 
 미표기 `[ ]` 0개 **그리고** 미정산 `[>]` 0개 → `/concept`이 **"기능 X 닫힘 — /freeze ready"** 선언.
 
-## 파일 형식 예시 (`workflows-coSherpa/docs/design/checklist.md`)
+## 파일 형식 예시 (`workflows-coSherpa/docs/concept/checklist.md`)
 
 ```markdown
 # concept Checklist

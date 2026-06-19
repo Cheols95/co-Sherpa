@@ -49,11 +49,11 @@ concept_leftovers=()
 while IFS= read -r item; do
   [ -n "$item" ] && concept_leftovers+=("$item")
 done < <(
-  find docs/design -maxdepth 1 -type f 2>/dev/null |
+  find docs/concept -maxdepth 1 -type f 2>/dev/null |
     sed 's#.*/##' |
     grep -Ev '^(AGENTS\.md|CLAUDE\.md|README\.md)$' |
     sort |
-    sed 's#^#docs/design/#'
+    sed 's#^#docs/concept/#'
 )
 
 goal_leftovers=()
@@ -69,7 +69,9 @@ done < <(
 
 report_dirty "docs/prd contains project PRD files" "${prd_leftovers[@]}"
 report_dirty "docs/issues contains project issue files" "${issue_leftovers[@]}"
-report_dirty "docs/design contains project checklist files" "${concept_leftovers[@]}"
+report_dirty "docs/concept contains project checklist files" "${concept_leftovers[@]}"
+[ ! -d docs/design ] || report_dirty "stale docs/design directory remains; use docs/concept" "docs/design/"
+[ ! -f "$PROJECT_ROOT/Workflow_Guideline_v1.html" ] || report_dirty "stale workflow guideline remains; use Workflow_Guideline_v2.html" "Workflow_Guideline_v1.html"
 report_dirty "goals contains project goal files" "${goal_leftovers[@]}"
 
 required=(

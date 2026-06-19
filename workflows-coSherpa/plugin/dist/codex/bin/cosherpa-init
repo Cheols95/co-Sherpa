@@ -207,6 +207,7 @@ preexisting_foreign_count=$(find "$TARGET" -maxdepth 2 -type f \
   ! -name "CLAUDE.md" \
   ! -name "README.md" \
   ! -name "Workflow_Guideline_v1.html" \
+  ! -name "Workflow_Guideline_v2.html" \
   ! -name ".gitignore" \
   | wc -l | tr -d ' ')
 

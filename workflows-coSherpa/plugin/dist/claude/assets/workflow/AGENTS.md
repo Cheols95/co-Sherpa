@@ -5,7 +5,7 @@ the **FCG** harness. **Claude and GPT are interchangeable peers — either model
 (concept → freeze → build); no role split.**
 
 - The **user drives** the slash-command sequence; skills self-trigger from their own descriptions.
-- Full workflow (human reference): `Workflow_Guideline_v1.html`. FCG mechanics: `workflows-coSherpa/docs/fcg-system.md`.
+- Full workflow (human reference): `Workflow_Guideline_v2.html`. FCG mechanics: `workflows-coSherpa/docs/fcg-system.md`.
 
 > Fill the two sections below per project — this is the context skills cannot infer, and it
 > loads every session, so keep it tight and current.
@@ -51,13 +51,13 @@ the **FCG** harness. **Claude and GPT are interchangeable peers — either model
 - **ADR (`workflows-coSherpa/docs/adr/`) = decision history, one decision per file.** A `superseded by ADR-NNNN` ADR is
   history, not a basis for implementation. ADRs stay in place — don't archive to read out of context.
 
-## Phase 1 elicitation (planning gate) — full rules in `workflows-coSherpa/docs/design/AGENTS.md`
+## Phase 1 elicitation (planning gate) — full rules in `workflows-coSherpa/docs/concept/AGENTS.md`
 
-Sequence: `/concept` (account the decision surface in `workflows-coSherpa/docs/design/checklist.md` until every slot closes)
+Sequence: `/concept` (account the decision surface in `workflows-coSherpa/docs/concept/checklist.md` until every slot closes)
 → `/freeze` (the one human approval point — seals the closed feature through to-prd → spec → to-issues
 → graph-lint) → `/build`. **The full Phase-1 rules (four-lens decision surface, grounds-gate, pre-freeze
-intent-audit, freeze-is-one-way) are the single source in `workflows-coSherpa/docs/design/AGENTS.md`** — `/concept` and
-`/freeze` read it before working. Checklist format: `workflows-coSherpa/docs/design/README.md`.
+intent-audit, freeze-is-one-way) are the single source in `workflows-coSherpa/docs/concept/AGENTS.md`** — `/concept` and
+`/freeze` read it before working. Checklist format: `workflows-coSherpa/docs/concept/README.md`.
 
 ## Gate validity (Phase 1→2) — full rules in `workflows-coSherpa/goals/AGENTS.md` §Gate validity
 

@@ -9,12 +9,12 @@ description: "닫힌 기능을 한 번의 호출로 계약·PRD·이슈·graph-l
 **의도감사 → PRD → 계약 스펙 → 이슈 → graph-lint**까지 봉인한다.
 **이 호출 자체가 유일한 인간 승인점이다** — 호출 = "이 동결을 승인한다"(다른 중간 승인점 없음).
 
-> 규칙 권위는 `workflows-coSherpa/docs/design/AGENTS.md`(Phase 1) / `workflows-coSherpa/goals/AGENTS.md` §Gate validity — **봉인 시작 전 반드시 읽는다**. 체크리스트 규약은 `workflows-coSherpa/docs/design/README.md`.
+> 규칙 권위는 `workflows-coSherpa/docs/concept/AGENTS.md`(Phase 1) / `workflows-coSherpa/goals/AGENTS.md` §Gate validity — **봉인 시작 전 반드시 읽는다**. 체크리스트 규약은 `workflows-coSherpa/docs/concept/README.md`.
 > 이 스킬은 그 종료를 **봉인**하는 오케스트레이터다. 새로 만드는 본체는 ③ spec 증분 확장 하나뿐 —
 > 나머지는 기존 스킬(to-prd·to-spec·to-issues)을 sealed로 수행한다.
 
 ## 진입 전제
-- 대상 기능의 `workflows-coSherpa/docs/design/checklist.md`가 **닫혀 있어야** 한다(미표기 `[ ]` 0개 **그리고**
+- 대상 기능의 `workflows-coSherpa/docs/concept/checklist.md`가 **닫혀 있어야** 한다(미표기 `[ ]` 0개 **그리고**
   미정산 `[>]` 0개). 안 닫혔으면 **중단** — `concept`로 돌려보낸다(닫힘 선언이 없었다면 freeze 진입 자체가 오류).
 - 동결 단위 = **기능 1개**(tracer-bullet). 기능 A를 봉인하는 동안 기능 C는 계속 concept 진행 가능.
 
@@ -29,7 +29,7 @@ description: "닫힌 기능을 한 번의 호출로 계약·PRD·이슈·graph-l
 
 PRD 진행 **전**, 계획 비작성 서브에이전트 1회(없으면 명시적 자기-감사 패스)로 **(a) disposition**(과잉주장 사냥)
 + **(b) residual-enumeration**(과소열거 사냥 — 없으면 닫힘 조건이 위조 가능) 두 감사를 돌린다. (a)/(b) 정의·
-4렌즈·근거 전문은 `workflows-coSherpa/docs/design/AGENTS.md` §Pre-freeze intent-audit(**봉인 전 필독**).
+4렌즈·근거 전문은 `workflows-coSherpa/docs/concept/AGENTS.md` §Pre-freeze intent-audit(**봉인 전 필독**).
 
 발견이 있으면 **중단** → 사용자 질문으로 종결 → checklist 갱신 후 freeze 재호출(닿은 슬롯만 1회 재walk, 또 나오면 escalate — 열린 루프 금지).
 
@@ -48,7 +48,7 @@ PRD 진행 **전**, 계획 비작성 서브에이전트 1회(없으면 명시적
 - **없음 → `to-spec`** (0→1 생성). 위 ①이 0단계 게이트를 이미 했으므로 그건 생략하고, 계약문서 생성 +
   품질 floor(검증가능·반례·메커니즘·구체엣지·있을자리값)만 적용한다.
 - **있음 → 증분 확장** (`to-spec`도 `spec-sync`도 안 하는 일 — freeze가 직접):
-  1. 이 기능의 **계약 항목만 추출**(`to-spec` "계약 vs 설계" 경계 표 적용 — 흐름·화면·아키텍처는 `workflows-coSherpa/docs/design/`).
+  1. 이 기능의 **계약 항목만 추출**(`to-spec` "계약 vs 설계" 경계 표 적용 — 흐름·화면·아키텍처는 `workflows-coSherpa/docs/concept/`).
   2. 기존 **동결 계약과 충돌 검사.** 이 기능의 계약이 이미 동결된 계약과 충돌하면 →
      **이 기능을 수정**하거나 **명시적 ADR supersede 후** 변경한다. 조용한 덮어쓰기 금지.
   3. 해당 `workflows-coSherpa/docs/spec/*.md`에 **delta만 추가** + `workflows-coSherpa/docs/spec/INDEX.md` 갱신. 품질 floor 적용.
@@ -72,10 +72,10 @@ bash workflows-coSherpa/scripts/issues-graph-check.sh
 ---
 
 ## 완료
-- `workflows-coSherpa/docs/design/checklist.md`의 그 기능을 **`FROZEN (날짜, freeze 완료 → issues NNN~MMM)`**로 표기.
+- `workflows-coSherpa/docs/concept/checklist.md`의 그 기능을 **`FROZEN (날짜, freeze 완료 → issues NNN~MMM)`**로 표기.
 - 보고: "기능 X 동결 완료 → issues NNN~MMM. 다음: `/build workflows-coSherpa/docs/issues/<NNN>-*.md`로 계약화 후 구현." 사용자 언어로 간결히.
 
 ## 동결 후 (일방향)
 - 새 기획거리 → `workflows-coSherpa/docs/findings/`(체크리스트 재오픈 아님).
 - 동결 결정의 **근본 오류** → 사용자 승인 후 `concept` 재오픈(Phase 1 재진입). 라우팅: 단순 추가/충돌 → findings,
-  동결 결정 자체가 틀림 → concept 재오픈. (`workflows-coSherpa/docs/design/AGENTS.md`)
+  동결 결정 자체가 틀림 → concept 재오픈. (`workflows-coSherpa/docs/concept/AGENTS.md`)
