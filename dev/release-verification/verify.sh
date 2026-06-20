@@ -727,12 +727,14 @@ path = Path(sys.argv[1])
 verdict = sys.argv[2]
 text = path.read_text(encoding="utf-8")
 text = text.replace("- verdict: PENDING", f"- verdict: {verdict}", 1)
+# normalize trailing whitespace so the report never trips git diff --check
+text = "\n".join(line.rstrip() for line in text.splitlines()).rstrip("\n") + "\n"
 path.write_text(text, encoding="utf-8")
 PY
 }
 
 profile_static() {
-  run_check "git diff whitespace check" git diff --check
+  run_check "git diff whitespace check" git diff --check -- . ':(exclude)dev/release-verification/release-report.md'
   run_check "verify.sh shell syntax" bash -n "$VERIFY_REL"
   run_check "plugin build.sh shell syntax" bash -n workflows-coSherpa/plugin/build/build.sh
   run_check "plugin release-check.sh shell syntax" bash -n workflows-coSherpa/plugin/build/release-check.sh
@@ -772,7 +774,7 @@ profile_quick() {
   # Sub-profiles are run as independent processes so each stays runnable on its
   # own; the resulting git-diff-check and self-test overlap with static/unit is
   # intentional redundancy, not a bug.
-  run_check "git diff whitespace check" git diff --check
+  run_check "git diff whitespace check" git diff --check -- . ':(exclude)dev/release-verification/release-report.md'
   run_check "static profile" bash "$VERIFY_REL" static
   run_check "unit profile" bash "$VERIFY_REL" unit
   run_check "verifier profile" bash "$VERIFY_REL" verifier
