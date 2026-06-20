@@ -26,9 +26,10 @@
 
 `quick`은 `git diff --check`, `static`, `unit`, `verifier`를 실행한다. full release check와 full E2E는 실행하지 않는다.
 
-`release`는 `quick` 회귀 검사를 먼저 실행한 뒤 `workflows-coSherpa/plugin/build/build.sh`로 dist를 재생성하고, 배포 패키지 청결성 audit, `workflows-coSherpa/plugin/build/release-check.sh`, dist 동기화 검사를 순서대로 실행한다. 결과는 `dev/release-verification/release-report.md`에 남긴다. 이 profile이 실패하면 배포 차단 후보로 본다.
+`release`는 `quick` 회귀 검사를 먼저 실행한 뒤 `workflows-coSherpa/plugin/build/build.sh`로 dist를 재생성하고, 배포 패키지 청결성 audit, `workflows-coSherpa/plugin/build/release-check.sh`, dist 멱등성 검사, dist 동기화 검사(`git status --porcelain`)를 순서대로 실행한다. 결과는 `dev/release-verification/release-report.md`에 남긴다. 이 profile이 실패하면 배포 차단 후보로 본다.
 
->> quick은 일상 점검이고, release는 배포 직전 관문이다. 배포 패키지 청결성 audit은 runtime state, E2E 산출물, project PRD/issue/goal 같은 배포 금지 파일이 dist에 섞였는지 보는 검사다.
+>> quick은 일상 점검이고, release는 배포 직전 관문이다. 배포 패키지 청결성 audit은 runtime state, E2E 산출물, project PRD/issue/concept/goal/spec/ADR/finding/cycle 같은 배포 금지 파일이 dist에 섞였는지 보는 검사다.
+>> dist 멱등성 검사는 build를 다시 돌려도 산출물이 같은지 보고, dist 동기화 검사는 build가 새로 만든 dist가 커밋된 dist와 같은지(=커밋된 패키지가 오래된 건 아닌지)를 본다. 둘은 다른 속성이라 함께 본다.
 
 ## Full E2E
 
@@ -54,6 +55,7 @@ migration 검증은 실제 외부 프로젝트를 사용하지 않는다. full E
 
 - 현재 branch와 `git status --short`를 확인한다.
 - 의도하지 않은 `workflows-coSherpa/plugin/dist` diff가 있는지 확인한다.
+- `python3`가 설치돼 있어야 한다. `static`의 manifest identity audit과 `release`의 verdict 기록이 `python3`에 의존하며, 없으면 SKIP이 아니라 실패한다.
 - `plugin` 또는 `release` profile은 로컬 Claude/Codex CLI 유무에 영향을 받을 수 있다.
 - full E2E 전에는 `e2e-preflight`를 먼저 실행한다.
 

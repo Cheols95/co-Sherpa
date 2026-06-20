@@ -22,11 +22,11 @@
 
 >> canary fixture는 검사가 진짜 이를 가지고 있는지 확인하는 일부러 고장난 입력이다.
 
-`plugin`은 플러그인 패키징 관련 변경 후 실행한다. `build.sh`, `release-check.sh`, dist 동기화 확인을 포함한다. 이 profile은 dist를 재생성할 수 있으므로 diff가 생기면 자동 성공으로 보지 않는다.
+`plugin`은 플러그인 패키징 관련 변경 후 실행한다. `build.sh`, `release-check.sh`, dist 멱등성 검사, dist 동기화 검사(build 후 `git status --porcelain -- workflows-coSherpa/plugin/dist`)를 포함한다. 동기화 검사가 비어있지 않으면(커밋된 dist가 빌드 결과와 다르면) 실패로 처리한다. git work tree가 아니면 SKIP으로 남긴다.
 
 >> dist는 배포 산출물이다. source와 다르면 “갱신 필요”인지 “잘못된 변경”인지 사람이 봐야 한다.
 
-`release`는 배포 직전 반드시 실행한다. `quick` 회귀 검사, dist 재생성, 배포 패키지 청결성 audit, `release-check.sh`, dist 동기화 검사를 묶어서 실행하고 `dev/release-verification/release-report.md`에 최신 결과를 덮어쓴다. 실패하면 배포 차단 후보로 기록한다.
+`release`는 배포 직전 반드시 실행한다. `quick` 회귀 검사, dist 재생성, 배포 패키지 청결성 audit, `release-check.sh`, dist 멱등성 검사, dist 동기화 검사(`git status --porcelain`)를 묶어서 실행하고 `dev/release-verification/release-report.md`에 최신 결과를 덮어쓴다. 실패하면 배포 차단 후보로 기록한다.
 
 >> release profile은 최종 smoke test와 package clean audit을 함께 묶은 배포 후보 검사다. smoke test는 큰 문제를 빠르게 드러내는 검사이고, package clean audit은 배포 산출물에 임시 파일이 섞였는지 보는 검사다.
 
@@ -58,7 +58,7 @@ full E2E는 `Mini Commerce Ops` scratch project와 임시 migration fixture를 �
 
 ## Release Cleanup Policy
 
-`release` profile은 배포 패키지를 깨끗하게 만들기 위해 `workflows-coSherpa/plugin/dist`를 source에서 다시 생성한다. 그 뒤 dist 안에 runtime state, 검증 report, E2E scratch artifact, project PRD/issue/concept/goal artifact, 구형 하네스 디렉터리가 없는지 검사한다.
+`release` profile은 배포 패키지를 깨끗하게 만들기 위해 `workflows-coSherpa/plugin/dist`를 source에서 다시 생성한다. 그 뒤 dist 안에 runtime state, 검증 report, E2E scratch artifact, project PRD/issue/concept/goal/spec/ADR/finding/cycle artifact, 구형 하네스 디렉터리가 없는지 검사한다.
 
 기존 root-level `audit_agent_report.html`, `e2e_shop_demo/`, `e2e_migration_fixture/` 같은 사람의 검증 증거는 자동 삭제하지 않는다. release profile이 새로 남기는 report는 `dev/release-verification/release-report.md` 하나다.
 

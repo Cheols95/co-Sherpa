@@ -8,7 +8,7 @@
 
 | 스크립트 | 목적 | 잡을 수 있는 오류 | 잡지 못하는 오류 | 이 패키지의 보완 | 실패 시 해석 |
 | --- | --- | --- | --- | --- | --- |
-| `workflows-coSherpa/plugin/build/build.sh` | Claude/Codex plugin dist 재생성 | 누락된 source 파일, 복사 실패, packaging script 오류 | 스킬 응답의 의미적 정확성, 사용자 workflow 품질 | `plugin` profile에서 build 후 dist diff 확인, full E2E에서 사용자 흐름 확인 | package source와 dist 생성 경로를 먼저 본다 |
+| `workflows-coSherpa/plugin/build/build.sh` | Claude/Codex plugin dist 재생성 | 누락된 source 파일, 복사 실패, packaging script 오류 | 스킬 응답의 의미적 정확성, 사용자 workflow 품질 | `plugin`/`release` profile에서 build 후 dist 멱등성 + `git status --porcelain` 동기화 확인, full E2E에서 사용자 흐름 확인 | package source와 dist 생성 경로를 먼저 본다 |
 | `workflows-coSherpa/plugin/build/release-check.sh` | release smoke aggregator | dist 재생성 문제, 실행 권한, LF, host validator, install smoke, scratch init, template clean, metadata mismatch | 모든 daily skill 의미 정확성, 장기 workflow 회귀 | `release` profile에서 배포 직전 실행, full E2E에서 13개 사용자 표면 검증 | 실패는 배포 차단 후보로 기록한다 |
 | `workflows-coSherpa/dashboard/engines/roadmap-selftest.sh` | roadmap DATA contract와 embedded JS syntax 검사 | dependency parsing, ready count, active/green shading, service-flow DATA, embedded JS syntax | 실제 브라우저 픽셀 렌더링, 시각적 겹침, 사용성 | `unit`과 `verifier`에서 실행하고, full E2E에서 dashboard 파일 생성 확인 | DATA 생성 또는 dashboard script contract 회귀로 본다 |
 | `workflows-coSherpa/scripts/check-gate-rigor.sh` | universal claim에 반복 gate가 있는지 확인 | "every/all/each" 같은 보편 주장에 좁은 gate가 붙는 문제 | 반복문이 올바른 source-of-truth를 순회하는지, assertion 품질 | `verifier` canary가 universal claim + 비반복 gate 실패와 반복 gate 통과를 확인 | gate 설계가 goal 주장 범위를 못 따라간다는 신호다 |

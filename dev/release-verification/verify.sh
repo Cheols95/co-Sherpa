@@ -114,14 +114,17 @@ require_dir() {
 }
 
 check_manifest_identity() {
+  local init_version
+  init_version="$(sed -n 's/.*echo "version=\([^"]*\)".*/\1/p' \
+    "$REPO_ROOT/workflows-coSherpa/plugin/src/bin/cosherpa-init" | head -1)"
   python3 - "$REPO_ROOT/workflows-coSherpa/plugin/platform/claude/plugin.json" \
     "$REPO_ROOT/workflows-coSherpa/plugin/platform/codex/plugin.json" \
-    "$EXPECTED_PLUGIN_ID" "$EXPECTED_DISPLAY_NAME" <<'PY'
+    "$EXPECTED_PLUGIN_ID" "$EXPECTED_DISPLAY_NAME" "$init_version" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-claude_path, codex_path, expected_id, expected_display = sys.argv[1:5]
+claude_path, codex_path, expected_id, expected_display, init_version = sys.argv[1:6]
 errors = []
 
 try:
@@ -147,10 +150,14 @@ if not claude_version or not codex_version:
     errors.append("missing manifest version")
 elif claude_version != codex_version:
     errors.append(f"version mismatch: claude={claude_version!r} codex={codex_version!r}")
+if not init_version:
+    errors.append("missing cosherpa-init version")
+elif claude_version and init_version != claude_version:
+    errors.append(f"cosherpa-init version mismatch: init={init_version!r} != manifest={claude_version!r}")
 if display != expected_display:
     errors.append(f"Codex displayName mismatch: {display!r} != {expected_display!r}")
 
-print(f"identity: id={codex_id} version={codex_version} displayName={display}")
+print(f"identity: id={codex_id} version={codex_version} init={init_version} displayName={display}")
 if errors:
     for error in errors:
         print(error)
@@ -315,6 +322,26 @@ check_dist_build_idempotent() {
   echo "dist changed when build.sh was rerun"
   rm -f "$before" "$after"
   return 1
+}
+
+# Fail if the committed dist tree does not match a fresh build: build.sh has
+# already regenerated dist in the working tree, so any porcelain entry means the
+# tracked package output is stale (or carries uncommitted/untracked files).
+# Returns 3 (SKIP) when not inside a git work tree.
+check_dist_tracked_clean() {
+  local dist_rel="workflows-coSherpa/plugin/dist" dirty
+  if ! git -C "$REPO_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "not a git work tree; cannot compare committed dist against build output"
+    return 3
+  fi
+  dirty="$(git -C "$REPO_ROOT" status --porcelain -- "$dist_rel" 2>/dev/null)"
+  if [ -n "$dirty" ]; then
+    echo "committed dist differs from fresh build (regenerate and commit $dist_rel):"
+    printf '%s\n' "$dirty" | sed 's/^/  /'
+    return 1
+  fi
+  echo "committed dist matches fresh build: $dist_rel"
+  return 0
 }
 
 run_init_in_fixture() {
@@ -510,14 +537,18 @@ record_release_step() {
   local rc="$3"
   local log_file="$4"
   local status="PASS"
-  [ "$rc" -eq 0 ] || status="FAIL"
+  if [ "$rc" -eq 3 ]; then
+    status="SKIP"
+  elif [ "$rc" -ne 0 ]; then
+    status="FAIL"
+  fi
 
   append_release_report "### $label"
   append_release_report ""
   append_release_report "- command: \`$command_text\`"
   append_release_report "- exit_code: \`$rc\`"
   append_release_report "- status: \`$status\`"
-  if [ "$rc" -ne 0 ]; then
+  if [ "$rc" -ne 0 ] && [ "$rc" -ne 3 ]; then
     append_release_report ""
     append_release_report "Last 80 log lines:"
     append_release_report ""
@@ -579,6 +610,8 @@ run_release_func() {
 
   if [ "$rc" -eq 0 ]; then
     pass "$label"
+  elif [ "$rc" -eq 3 ]; then
+    skip "$label"
   else
     fail "$label (exit $rc)"
   fi
@@ -636,10 +669,30 @@ check_release_dist_clean() {
       sed "s#^$REPO_ROOT/##" |
       grep -Ev '/(AGENTS\.md|CLAUDE\.md|EXAMPLE\.md|0-example\.(md|gates\.sh|next-task\.sh)|_meta\.(md|gates\.sh|next-task\.sh))$' || true)"
     [ -z "$bad" ] || { echo "project goal files found in dist template:"; printf '%s\n' "$bad" | sed 's/^/  - /'; rc=1; }
+
+    bad="$(find "$root/docs/spec" -maxdepth 1 -type f 2>/dev/null |
+      sed "s#^$REPO_ROOT/##" |
+      grep -Ev '/(AGENTS\.md|CLAUDE\.md|README\.md)$' || true)"
+    [ -z "$bad" ] || { echo "project spec files found in dist template:"; printf '%s\n' "$bad" | sed 's/^/  - /'; rc=1; }
+
+    bad="$(find "$root/docs/adr" -maxdepth 1 -type f 2>/dev/null |
+      sed "s#^$REPO_ROOT/##" |
+      grep -Ev '/(AGENTS\.md|CLAUDE\.md|README\.md)$' || true)"
+    [ -z "$bad" ] || { echo "project ADR files found in dist template:"; printf '%s\n' "$bad" | sed 's/^/  - /'; rc=1; }
+
+    bad="$(find "$root/docs/findings" -maxdepth 1 -type f 2>/dev/null |
+      sed "s#^$REPO_ROOT/##" |
+      grep -Ev '/(AGENTS\.md|CLAUDE\.md|EXAMPLE\.md|README\.md)$' || true)"
+    [ -z "$bad" ] || { echo "project finding files found in dist template:"; printf '%s\n' "$bad" | sed 's/^/  - /'; rc=1; }
+
+    bad="$(find "$root/cycles" -maxdepth 1 -type f 2>/dev/null |
+      sed "s#^$REPO_ROOT/##" |
+      grep -Ev '/(AGENTS\.md|CLAUDE\.md|EXAMPLE\.md|README\.md)$' || true)"
+    [ -z "$bad" ] || { echo "project cycle files found in dist template:"; printf '%s\n' "$bad" | sed 's/^/  - /'; rc=1; }
   done < <(find "$dist" -type d -name "$HARNESS_ROOT" -print 2>/dev/null)
 
   if [ "$rc" -eq 0 ]; then
-    echo "release dist is clean: no runtime, report, E2E, project PRD/issue/concept/goal artifacts found"
+    echo "release dist is clean: no runtime, report, E2E, project PRD/issue/concept/goal/spec/ADR/finding/cycle artifacts found"
   fi
   return "$rc"
 }
@@ -710,6 +763,9 @@ profile_verifier() {
 }
 
 profile_quick() {
+  # Sub-profiles are run as independent processes so each stays runnable on its
+  # own; the resulting git-diff-check and self-test overlap with static/unit is
+  # intentional redundancy, not a bug.
   run_check "git diff whitespace check" git diff --check
   run_check "static profile" bash "$VERIFY_REL" static
   run_check "unit profile" bash "$VERIFY_REL" unit
@@ -721,8 +777,9 @@ profile_plugin() {
   run_check "plugin build" bash workflows-coSherpa/plugin/build/build.sh
   run_check "plugin release-check" bash workflows-coSherpa/plugin/build/release-check.sh
   run_func "plugin dist idempotence check" "re-run build.sh and compare dist snapshot" check_dist_build_idempotent
+  run_func "plugin dist tracked-clean check" "git status --porcelain on workflows-coSherpa/plugin/dist after build" check_dist_tracked_clean
   if [ "$FAILURES" -ne 0 ]; then
-    echo "dist sync note: if workflows-coSherpa/plugin/dist changed, regenerate and review the tracked package output."
+    echo "dist sync note: if workflows-coSherpa/plugin/dist changed, regenerate and commit the tracked package output."
   fi
   finish plugin
 }
@@ -736,6 +793,7 @@ profile_release() {
   run_release_step "release-check" bash workflows-coSherpa/plugin/build/release-check.sh
   run_release_func "post-release package cleanliness audit" "verify dist remains clean after release-check" check_release_dist_clean
   run_release_func "plugin dist idempotence check" "re-run build.sh and compare dist snapshot" check_dist_build_idempotent
+  run_release_func "plugin dist tracked-clean check" "git status --porcelain on workflows-coSherpa/plugin/dist after rebuilds" check_dist_tracked_clean
   if [ "$FAILURES" -eq 0 ]; then
     pass "release verification passed"
     finalize_release_report "PASS"

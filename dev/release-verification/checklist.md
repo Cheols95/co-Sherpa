@@ -39,8 +39,7 @@
 ## Plugin checks
 
 - [ ] `bash dev/release-verification/verify.sh plugin` 통과
-- [ ] plugin dist 최신 여부 확인
-- [ ] `git diff --exit-code -- workflows-coSherpa/plugin/dist` 통과
+- [ ] plugin profile의 dist tracked-clean 검사 통과 (build 후 `git status --porcelain -- workflows-coSherpa/plugin/dist`가 비어있음 = 커밋된 dist 최신). 실패하면 dist 재생성 후 커밋
 - [ ] CLI 누락이면 missing command와 local 환경 조건 기록
 
 ## Integration / smoke checks
