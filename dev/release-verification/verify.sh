@@ -473,7 +473,9 @@ canary_template_clean() {
 
   mkdir -p "$workflow/scripts" "$workflow/dashboard/engines" \
     "$workflow/docs/prd" "$workflow/docs/issues" "$workflow/docs/concept" \
-    "$workflow/goals" "$project/.claude/skills/roadmap" "$project/.agents/skills/roadmap"
+    "$workflow/docs/spec" "$workflow/docs/adr" "$workflow/docs/findings" \
+    "$workflow/goals" "$workflow/cycles" \
+    "$project/.claude/skills/roadmap" "$project/.agents/skills/roadmap"
   cp "$REPO_ROOT/workflows-coSherpa/scripts/template-clean-check.sh" "$workflow/scripts/"
   cp "$REPO_ROOT/workflows-coSherpa/scripts/_portable.sh" "$workflow/scripts/"
   cp "$REPO_ROOT/workflows-coSherpa/scripts/_deps-lib.sh" "$workflow/scripts/"
@@ -484,6 +486,10 @@ canary_template_clean() {
   printf '# Roadmap skill\n' > "$project/.agents/skills/roadmap/SKILL.md"
   printf '# Dirty PRD\n' > "$workflow/docs/prd/PRD.md"
   printf '# Dirty Issue\nStatus: ready-for-agent\n' > "$workflow/docs/issues/001-dirty.md"
+  printf '# Dirty Spec\n' > "$workflow/docs/spec/data-schema.md"
+  printf '# Dirty ADR\n' > "$workflow/docs/adr/0001-decision.md"
+  printf '# Dirty Finding\n' > "$workflow/docs/findings/2026-01-01T0000-dirty.md"
+  printf '# Dirty Cycle\n' > "$workflow/cycles/250101-01-dirty.md"
 
   if bash "$workflow/scripts/template-clean-check.sh" >/dev/null 2>&1; then
     echo "dirty template fixture unexpectedly passed"
