@@ -51,36 +51,23 @@ the **FCG** harness. **Claude and GPT are interchangeable peers — either model
 - **ADR (`workflows-coSherpa/docs/adr/`) = decision history, one decision per file.** A `superseded by ADR-NNNN` ADR is
   history, not a basis for implementation. ADRs stay in place — don't archive to read out of context.
 
-## Phase 1 elicitation (planning gate) — full rules in `workflows-coSherpa/docs/concept/AGENTS.md`
+## Phase 1 elicitation (planning gate)
 
-Sequence: `/concept` (account the decision surface in `workflows-coSherpa/docs/concept/checklist.md` until every slot closes)
-→ `/freeze` (the one human approval point — seals the closed feature through to-prd → spec → to-issues
-→ graph-lint) → `/build`. **The full Phase-1 rules (four-lens decision surface, grounds-gate, pre-freeze
-intent-audit, freeze-is-one-way) are the single source in `workflows-coSherpa/docs/concept/AGENTS.md`** — `/concept` and
-`/freeze` read it before working. Checklist format: `workflows-coSherpa/docs/concept/README.md`.
+Sequence: `/concept` → `/freeze` (the one human approval point) → `/build`. Before running `/concept`
+or `/freeze`, read the full rules in `workflows-coSherpa/docs/concept/AGENTS.md` (checklist format:
+`workflows-coSherpa/docs/concept/README.md`).
 
-## Gate validity (Phase 1→2) — full rules in `workflows-coSherpa/goals/AGENTS.md` §Gate validity
+## Gate validity (Phase 1→2)
 
-green is **necessary, not sufficient**: green = "the stated checks passed", not "correct". A gate's
-authority comes from translating a `/freeze` criterion (not LLM invention), every new gate must be
-red-first, and "there's a gate so I needn't look" is reward-hacking. **Full guards live in
-`workflows-coSherpa/goals/AGENTS.md` §Gate validity** — `/build` reads it when writing gates.
-
-## Project-specific skills
-
-`.claude/skills/` and `.agents/skills/` = platform-local skills only this project needs
-(global skills live in `~/.claude`, `~/.codex`). Keep Claude/Codex copies in parity unless a
-platform constraint requires a split. Add one only when a pattern has proven to repeat — don't
-auto-generate agent/skill rosters (context bloat hurts performance). Encode tailoring above and in
-`workflows-coSherpa/goals/<n>-*.gates.sh` instead.
+green is **necessary, not sufficient** (passing checks ≠ correct). When `/build` writes gates, read the
+full guards in `workflows-coSherpa/goals/AGENTS.md` §Gate validity.
 
 ## Doc & skill hygiene (when adding or editing a skill / doc)
 
-The rules that make a multi-origin system read like one:
+The rules that keep this multi-origin harness coherent:
 
 - **One canonical home per rule; cite, don't restate.** A rule lives in exactly one file; others link
   it ("see X") with at most a one-line gist — a second full copy is drift waiting to happen.
-- **Density.** Every sentence must change what an agent does — if removing it breaks nothing, cut it.
 - **Stack-agnostic.** No concrete stack / framework / library / tool name in a skill or harness doc;
   the real stack is discovered at runtime. (Names inside `*EXAMPLE*` files are marked illustrative.)
 - **Self-describing files.** A reference/doc opens with `# <filename> — <one-line role>`; a skill's
