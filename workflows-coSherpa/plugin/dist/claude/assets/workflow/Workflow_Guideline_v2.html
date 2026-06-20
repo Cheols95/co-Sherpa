@@ -454,7 +454,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
               <div class="row"><span class="lab">내부 5단계 (순서대로)</span>
                 <ul>
                   <li>① <b>2방향 의도감사</b> — 기획에 참여하지 않은 비저자 서브에이전트가 처분(disposition) + 잔여 항목 열거(residual-enumeration)로 1회 감사. 대화에서 조용히 채워진 추측(아무도 결정한 적 없는데 문서에 들어간 것)을 사냥합니다.</li>
-                  <li>② <b>to-prd</b> — 대화를 <code>workflows-coSherpa/docs/prd/PRD.md</code>로 굳힘. PRD는 <b>"원래 의도"의 사진</b>이라 이후 코드가 바뀌어도 다시 쓰지 않고, 현재 상태의 권위는 spec이 가집니다.</li>
+                  <li>② <b>to-prd</b> — 대화를 단일 누적 문서 <code>workflows-coSherpa/docs/prd/PRD.md</code>로 굳힘. 기존 frozen intent는 삭제·약화하지 않고 이번 기능의 의도 섹션만 추가/갱신합니다. PRD는 <b>"원래 의도"의 사진</b>이라 이후 코드가 바뀌어도 다시 쓰지 않고, 현재 상태의 권위는 spec이 가집니다.</li>
                   <li>③ <b>spec 생성 / 증분확장</b> — spec이 없으면 to-spec으로 계약문서(데이터 스키마 · API 계약 · 공개 타입 + INDEX.md)를 처음 생성, 이미 있으면 충돌 검사 후 증분 확장. spec은 구현이 <b>최우선으로 참조하는 단일 진실원천</b>이며 충돌 시 PRD·ADR보다 우선합니다.</li>
                   <li>④ <b>to-issues</b> — PRD+계약을 <b>수직 슬라이스</b>(화면부터 저장소까지 얇게 관통하는 tracer-bullet 동작 단위) 이슈로 자름. 각 이슈 머리에 기계가 읽는 frontmatter <code>depends:</code>(선행 이슈)·<code>risk: RISKY|MECHANICAL|NONE</code>(위험 등급)이 붙습니다.</li>
                   <li>⑤ <b>graph-lint</b> — <code>workflows-coSherpa/scripts/issues-graph-check.sh</code>로 의존성 그래프의 순환(cycle)·끊긴 참조(dangling)를 검사하는 <b>하드 게이트</b>. 통과해야 봉인이 완료됩니다.</li>
@@ -693,7 +693,7 @@ footer .fine{margin-top:40px;padding-top:24px;border-top:1px solid #2c2a26;font-
           <div class="sk-one">닫힌 기능 하나를 한 번의 호출로 PRD·계약·이슈·graph-lint까지 봉인하는 sealed 오케스트레이터</div>
         </summary>
         <div class="sk-body">
-          <div class="row"><span class="lab">작동 원리</span> concept가 "닫힘"을 선언한 기능을 단 한 번의 호출로 봉인합니다 — <b>이 호출 자체가 유일한 인간 승인점</b>입니다. 내부에서 순서대로 ① <b>2방향 의도감사</b>(비저자 서브에이전트가 처분 + 잔여 항목 열거로 채워진 추측 사냥) → ② <b>to-prd</b>(의도 사진) → ③ <b>spec 생성 / 증분확장</b>(없으면 0→1 생성, 있으면 충돌 검사 후 확장) → ④ <b>to-issues</b>(수직 슬라이스 + depends/risk frontmatter) → ⑤ <b>graph-lint</b>(<code>workflows-coSherpa/scripts/issues-graph-check.sh</code>로 순환·dangling 하드 게이트)를 돌립니다. <b>sealed 모드</b>라 번들 도중 사용자에게 되묻지 않습니다 — 모든 미결정은 concept 체크리스트에서 이미 닫혀 있어야 하며, 봉인은 <b>기능 단위(tracer-bullet)</b>로 한 번에 하나씩 찍습니다.</div>
+          <div class="row"><span class="lab">작동 원리</span> concept가 "닫힘"을 선언한 기능을 단 한 번의 호출로 봉인합니다 — <b>이 호출 자체가 유일한 인간 승인점</b>입니다. 내부에서 순서대로 ① <b>2방향 의도감사</b>(비저자 서브에이전트가 처분 + 잔여 항목 열거로 채워진 추측 사냥) → ② <b>to-prd</b>(단일 누적 PRD에 이번 기능 의도 추가/갱신) → ③ <b>spec 생성 / 증분확장</b>(없으면 0→1 생성, 있으면 충돌 검사 후 확장) → ④ <b>to-issues</b>(수직 슬라이스 + depends/risk frontmatter) → ⑤ <b>graph-lint</b>(<code>workflows-coSherpa/scripts/issues-graph-check.sh</code>로 순환·dangling 하드 게이트)를 돌립니다. <b>sealed 모드</b>라 번들 도중 사용자에게 되묻지 않습니다 — 모든 미결정은 concept 체크리스트에서 이미 닫혀 있어야 하며, 봉인은 <b>기능 단위(tracer-bullet)</b>로 한 번에 하나씩 찍습니다.</div>
           <div class="row"><span class="lab">호출</span> <code>/freeze</code> (Claude·Codex 공통; Codex는 자연어도 가능) · 산출물: <code>workflows-coSherpa/docs/prd/PRD.md</code> · <code>workflows-coSherpa/docs/spec/*</code> · <code>workflows-coSherpa/docs/issues/NNN-*.md</code></div>
           <div class="row easy">📜 비유하면 계약서 묶음(PRD·계약·이슈)에 도장을 <b>한 번</b> 찍는 절차입니다. 도장 직전 제3자가 "정말 합의된 조항입니까?"를 검토하고, 서류끼리 앞뒤가 맞는지(graph-lint)를 기계가 확인합니다. 도장 한 번이 곧 사람의 승인이라, 그 안에서는 더 묻지 않습니다.</div>
         </div>

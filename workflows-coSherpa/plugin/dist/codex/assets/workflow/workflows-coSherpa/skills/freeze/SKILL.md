@@ -38,8 +38,12 @@ PRD 진행 **전**, 계획 비작성 서브에이전트 1회(없으면 명시적
 
 ## ② to-prd (sealed)
 
-`to-prd` 스킬대로 대화 컨텍스트를 `workflows-coSherpa/docs/prd/PRD.md`로 합성·발행한다. 단 **test seam은 checklist의
-기술/계약 슬롯에서 가져온다**(사용자 재확인 금지 — 미결정이면 ①에서 걸렸어야 한다).
+`to-prd` 스킬대로 대화 컨텍스트를 `workflows-coSherpa/docs/prd/PRD.md`로 합성·발행한다. 단 **PRD.md는 단일
+누적 문서**다. freeze는 기존 frozen intent를 삭제하거나 약화하지 않고, 이번 기능의 의도 섹션만 추가/갱신한다.
+동일 기능이 이미 있으면 중복 섹션을 만들지 말고 기존 섹션을 갱신한다. 기존 frozen intent와 충돌하면 조용히
+덮어쓰지 말고 **중단** → `concept` 재오픈 또는 명시적 ADR supersede 후 다시 freeze한다.
+
+**test seam은 checklist의 기술/계약 슬롯에서 가져온다**(사용자 재확인 금지 — 미결정이면 ①에서 걸렸어야 한다).
 
 ## ③ spec 라우팅 — 생성 또는 증분 확장  ★이 스킬의 유일한 신규 본체
 
