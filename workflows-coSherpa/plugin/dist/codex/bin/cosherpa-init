@@ -20,7 +20,7 @@ EOF
 
 case "${1:-}" in
   -h|--help) usage; exit 0 ;;
-  --version) echo "version=0.1.0"; exit 0 ;;
+  --version) echo "version=0.1.1"; exit 0 ;;
   "")
     ;;
   *)
@@ -253,7 +253,7 @@ fi
 
 mkdir -p "$COSHERPA_HOME/.cosherpa" "$COSHERPA_HOME/.state"
 {
-  echo "version=0.1.0"
+  echo "version=0.1.1"
   echo "synced_at=$timestamp"
   echo "source=cosherpa-plugin"
 } > "$COSHERPA_HOME/.cosherpa/status"

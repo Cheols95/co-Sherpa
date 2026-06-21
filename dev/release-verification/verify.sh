@@ -389,6 +389,65 @@ check_init_no_legacy_dir() {
   return "$rc"
 }
 
+check_init_skill_invocation_contract() {
+  # Static guard on the init SKILL.md invocation contract: it must resolve the
+  # executable's path (not a bare PATH-only command) and run it via bash, so it works
+  # on Codex (which does not put the plugin bin on PATH) and survives a dropped exec
+  # bit. Guards against a regression back to a bare `cosherpa-init`.
+  local skill="workflows-coSherpa/plugin/src/skills/init/SKILL.md"
+  local path="$REPO_ROOT/$skill" rc=0
+  require_file "$skill" || return 1
+  grep -F 'CLAUDE_PLUGIN_ROOT' "$path" >/dev/null || { echo "init SKILL.md lost CLAUDE_PLUGIN_ROOT resolution"; rc=1; }
+  grep -F '.codex/plugins' "$path" >/dev/null || { echo "init SKILL.md lost the Codex bin-discovery fallback"; rc=1; }
+  grep -F 'bash "$BIN"' "$path" >/dev/null || { echo "init SKILL.md must invoke the resolved path via bash"; rc=1; }
+  return "$rc"
+}
+
+check_init_via_discovery() {
+  # Behavioral proof of the init SKILL.md contract: with no plugin bin on PATH and no
+  # CLAUDE_PLUGIN_ROOT (the Codex case), the documented discovery must locate the bundled
+  # executable and run a full init via bash even when the exec bit was dropped on copy.
+  local tmp fake_home plugin_dir project bin rc=0
+  tmp="$(mktemp -d "${TMPDIR:-/tmp}/cosherpa-discovery.XXXXXX")" || return 1
+
+  fake_home="$tmp/home"
+  plugin_dir="$fake_home/.codex/plugins/cache/cosherpa@local"
+  mkdir -p "$plugin_dir"
+  cp -R "$REPO_ROOT/workflows-coSherpa/plugin/dist/codex/." "$plugin_dir/"
+  chmod -x "$plugin_dir/bin/cosherpa-init" 2>/dev/null || true   # simulate host dropping the exec bit
+
+  project="$tmp/project"
+  mkdir -p "$project"
+
+  # Resolve exactly as init SKILL.md documents: no PATH, no CLAUDE_PLUGIN_ROOT.
+  bin="$(find "$fake_home/.codex/plugins" "$fake_home/.claude/plugins" -type f -name cosherpa-init -path '*/bin/*' 2>/dev/null | head -1)"
+  if [ -z "$bin" ]; then
+    echo "discovery did not resolve cosherpa-init under the simulated plugin home"
+    rm -rf "$tmp"
+    return 1
+  fi
+
+  if ! (
+    cd "$project" || exit 1
+    HOME="$fake_home" \
+      CLAUDE_SKILLS_DIR="$fake_home/.claude/skills" \
+      CODEX_SKILLS_DIR="$fake_home/.codex/skills" \
+      CODEX_PROMPTS_DIR="$fake_home/.codex/prompts" \
+      COSHERPA_SKILL_BACKUP_DIR="$fake_home/skill-backups" \
+      bash "$bin" >/dev/null
+  ); then
+    echo "discovery-resolved cosherpa-init failed to run via bash"
+    rc=1
+  fi
+
+  [ -d "$project/$HARNESS_ROOT" ] || { echo "init via discovery did not create $HARNESS_ROOT"; rc=1; }
+  [ ! -d "$project/$LEGACY_HARNESS_DIR" ] || { echo "init via discovery created legacy harness directory"; rc=1; }
+  [ -f "$fake_home/.codex/prompts/concept.md" ] || { echo "init via discovery did not generate the Codex /concept slash shim"; rc=1; }
+
+  rm -rf "$tmp"
+  return "$rc"
+}
+
 canary_check_gate_rigor() {
   local tmp rc=0
   tmp="$(mktemp -d "${TMPDIR:-/tmp}/cosherpa-rigor.XXXXXX")" || return 1
@@ -750,6 +809,8 @@ profile_static() {
   run_func "workflow manifest path audit" "test workflow-manifest.txt paths exist" check_workflow_manifest_paths
   run_func "release harness root audit" "test package root is workflows-coSherpa" check_package_harness_root
   run_func "scratch and migration fixture root audit" "run cosherpa-init in temporary fixtures and reject legacy harness directory" check_init_no_legacy_dir
+  run_func "init skill invocation contract audit" "init SKILL.md resolves the bin path (not bare PATH) and runs via bash" check_init_skill_invocation_contract
+  run_func "init discovery invocation audit" "resolve cosherpa-init without PATH/CLAUDE_PLUGIN_ROOT and run via bash with exec bit dropped" check_init_via_discovery
   finish static
 }
 
