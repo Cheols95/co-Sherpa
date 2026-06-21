@@ -1,8 +1,8 @@
 # co-Sherpa Release Verification Report
 
-- generated_at: 2026-06-21T03:31:53Z
+- generated_at: 2026-06-21T06:14:15Z
 - branch: main
-- commit: ca10363948de5207096bafb64a8e66a1b57b835c
+- commit: babc563bfbb29721a357bc5c5848fcc0c710ad55
 - plugin_id: cosherpa
 - display_name: co-Sherpa
 - harness_root: workflows-coSherpa/
