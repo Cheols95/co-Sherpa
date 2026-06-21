@@ -6,6 +6,7 @@ workflows-coSherpa/.cosherpa/
 
 # local scratch space for verification / experiments
 .tmp/
+audit_agent_report.html
 e2e_shop_demo/
 e2e_shop_demo_*/
 e2e_migration_fixture/
