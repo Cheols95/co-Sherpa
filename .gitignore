@@ -6,6 +6,10 @@ workflows-coSherpa/.cosherpa/
 
 # local scratch space for verification / experiments
 .tmp/
+e2e_shop_demo/
+e2e_shop_demo_*/
+e2e_migration_fixture/
+e2e_migration_fixture_*/
 
 # FCG 자동생성 보고 (update-state.sh 가 재생성)
 workflows-coSherpa/docs/state/progress.md
