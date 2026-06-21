@@ -1,8 +1,8 @@
 # co-Sherpa Release Verification Report
 
-- generated_at: 2026-06-20T15:59:16Z
-- branch: fix/dev-verify-dist-sync-gate
-- commit: 2ad90846dc0a46b13001380243aa77ad6756d55f
+- generated_at: 2026-06-21T03:31:53Z
+- branch: main
+- commit: ca10363948de5207096bafb64a8e66a1b57b835c
 - plugin_id: cosherpa
 - display_name: co-Sherpa
 - harness_root: workflows-coSherpa/
@@ -11,7 +11,7 @@
 ## Workspace Status Before Release
 
 ```text
- M dev/release-verification/release-report.md
+clean
 ```
 
 ## Command Results
