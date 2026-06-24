@@ -141,7 +141,7 @@ condition is the *right* one). Three guards keep validity honest:
   conversion and asserts red.)
 - **green is necessary, not sufficient.** green = "the stated checks passed", not "everything is
   correct" — a permanent gap remains between a natural-language criterion and a bash check, and gate
-  coverage is capped by decision-surface completeness (un-stated intent is outside the gate). The
+  coverage is capped by decision-checklist completeness (un-stated intent is outside the gate). The
   dashboard should show green as "this promise (the plain-language criterion) held"; RISKY independent
   review + occasional human spot-checks are the permanent complement. "There's a gate so I needn't
   look" is reward-hacking.

@@ -6,9 +6,9 @@
 
 ## Sequence
 
-`/concept` (결정표면을 `workflows-coSherpa/docs/concept/checklist.md`에 정산 — 모든 슬롯이 닫힐 때까지) → `/freeze` (유일한
-인간 승인점 — 닫힌 기능을 to-prd → spec → to-issues → graph-lint로 sealed 봉인) → `/build`. Freeze는
-**기능 단위**(tracer-bullet): 기능 A를 봉인하는 동안 기능 C는 계속 concept 진행 가능.
+`/concept` (결정 체크리스트를 `workflows-coSherpa/docs/concept/checklist.md`에 정산 — 모든 슬롯이 닫힐 때까지) → `/freeze` (유일한
+인간 승인점 — 닫힌 기능을 to-prd → spec → to-issues → graph-lint로 frozen 동결) → `/build`. Freeze는
+**기능 단위**(tracer-bullet): 기능 A를 동결하는 동안 기능 C는 계속 concept 진행 가능.
 
 ## 규칙
 
@@ -21,20 +21,20 @@
   (service / library / CLI / UI), and stack are decisions the whole plan rests on — state them to
   the user **explicitly, with the trade-off**, never silently default. A silently-defaulted
   load-bearing choice traps a user who didn't know to object; they discover the wrong one only at
-  build time. `/freeze` will not seal a contract while such a choice is unresolved.
+  build time. `/freeze` will not freeze a contract while such a choice is unresolved.
 - **Ask in plain words, encode in precise rules.** With a non-developer, translate jargon into the
   decision behind it: not "is this an invariant?" but "if this changes, must something else change
   too?"; not "what's the authorization model?" but "who may do this, and who must be blocked?" Then
   translate the plain answer back into the precise contract term.
-- **Account the decision surface — the observable exit bar for concept.** Before freezing, name the
-  entities (a manifest), then walk four lenses over each entity and colliding pair to enumerate the
+- **Account the decision checklist — the observable exit bar for concept.** Before freezing, name the
+  entities (a manifest), then walk four perspectives over each entity and colliding pair to enumerate the
   load-bearing decisions the concept is *obligated* to answer: **STRUCTURAL** (cardinality/
   composition/identity), **BEHAVIORAL** (lifecycle/concurrency/policy/edges), **TECHNICAL**
   (persistence/interface/consistency), **CONTRACT** (status·enum *sets*/uniqueness/output keys).
   Every slot must end **grounded** (the user said it, or it follows from what they said),
   **asked-and-answered**, **deferred-tunable** (a default inside a settled mechanism, marked
   tunable), **experiment-pending** (a load-bearing choice a prototype will settle — parked, not
-  guessed), or **N/A — covered** (a load-bearing lens deliberately excluded, with the covering
+  guessed), or **N/A — covered** (a load-bearing perspective deliberately excluded, with the covering
   argument named — e.g. "concurrency: N/A — single user"). These are the *semantic* exit states;
   their checklist **notation** (`[x]` / `[~]` / `[>]` / `[-]`) is owned by `README.md`
   (the single source for the symbols). Enumerate exhaustively, ask minimally — never ask what is
@@ -64,11 +64,11 @@
   slot the input merely *mentions* from one it *states with rules* — "touched" is not "covered",
   and only stated-with-rules counts toward `grounded`. Differences between sources (doc ↔ spoken ↔
   code) become questions, never silent picks.
-- **Pre-freeze intent-audit (independent, two directions).** Right before `/freeze` seals the
+- **Pre-freeze intent-audit (independent, two directions).** Right before `/freeze` freezes the
   contract, dispatch one subagent that did **not** author the plan; it reads the dialogue + the
-  decision surface and runs **both** audits: **(a) disposition** — is each `[x]`/`deferred` slot
+  decision checklist and runs **both** audits: **(a) disposition** — is each `[x]`/`deferred` slot
   defensible from the dialogue, or was a guess rubber-stamped as grounded? (hunts over-claiming);
-  **(b) residual-enumeration** — independently re-walk the four lenses over the entity manifest and
+  **(b) residual-enumeration** — independently re-walk the four perspectives over the entity manifest and
   colliding pairs to find any obligation-slot *nobody enumerated* (hunts under-listing). **Without
   (b) the closure condition is forgeable** — closure is defined on the checklist's own contents,
   which the agent controls, so simply omitting a checkbox would make a feature "closed". Each finding
@@ -80,7 +80,7 @@
 - **Run a fidelity pass before declaring ready.** Checklist, `CONTEXT.md`, and ADR/rationale text
   must neither add claims the user did not decide nor weaken decisions the user did make. If the
   document is stronger or weaker than the conversation, fix it before declaring `/freeze ready`.
-- **Freeze is one-way.** Once `/freeze` seals a feature, a *new* concept idea about it goes to
+- **Freeze is one-way.** Once `/freeze` freezes a feature, a *new* concept idea about it goes to
   `workflows-coSherpa/docs/findings/` (not a checklist re-open); only a *fundamental error in a frozen decision* re-opens
   Phase 1, and only with explicit user approval. Routing: simple addition / conflict → findings; the
   frozen decision itself is wrong → `/concept` re-open.

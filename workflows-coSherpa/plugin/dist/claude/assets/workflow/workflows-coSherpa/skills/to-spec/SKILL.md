@@ -48,12 +48,12 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 > `workflows-coSherpa/docs/concept/architecture.md`, 대시보드가 **파싱하는 서비스 운영 토폴로지**(배포 흐름)=계약 →
 > `workflows-coSherpa/docs/spec/service-flow.md`. 전문은 `workflows-coSherpa/docs/concept/README.md` + `workflows-coSherpa/docs/spec/README.md` 참조.
 
-## 동결 전 게이트 — 결정표면 회계 + 독립 의도-감사 (절차 0단계)
+## 동결 전 게이트 — 결정 체크리스트 회계 + 독립 의도-감사 (절차 0단계)
 
-계약을 굳히기 전 두 가지를 통과해야 한다 — 전문은 `workflows-coSherpa/docs/concept/AGENTS.md` §Account the decision surface +
-§Pre-freeze intent-audit(**작업 전 필독**; 단 `freeze`가 sealed로 부른 경우 ①에서 이미 수행 → 생략):
+계약을 굳히기 전 두 가지를 통과해야 한다 — 전문은 `workflows-coSherpa/docs/concept/AGENTS.md` §Account the decision checklist +
+§Pre-freeze intent-audit(**작업 전 필독**; 단 `freeze`가 frozen으로 부른 경우 ①에서 이미 수행 → 생략):
 
-1. **결정표면 회계** — 엔티티 × 4렌즈(구조·행위·기술·계약)로 load-bearing 결정을 열거, 모든 슬롯이
+1. **결정 체크리스트 회계** — 엔티티 × 4관점(구조·행위·기술·계약)로 load-bearing 결정을 열거, 모든 슬롯이
    `grounded`/`질문해 답받음`/`튜닝값 보류` 중 하나가 될 때까지(미결정 처리는 아래 §가드레일).
 2. **독립 의도-감사 1회** — 계획 비작성 서브에이전트(없으면 자기-감사)가 "조용히 채워진 추측"을 사냥,
    발견은 몰래 패치 금지·**사용자 질문으로 종결**.

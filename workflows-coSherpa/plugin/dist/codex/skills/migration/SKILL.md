@@ -66,7 +66,7 @@ closed.
    - write the full ledger and routing recommendations to
      `workflows-coSherpa/docs/concept/migration-report.md`.
 5. **ROUTE.** For each candidate, give a concrete next command:
-   - PRD/spec candidates: `/concept workflows-coSherpa/docs/concept/migration-report.md 의 <candidate-id>를 기준으로 결정표면을 닫아줘`
+   - PRD/spec candidates: `/concept workflows-coSherpa/docs/concept/migration-report.md 의 <candidate-id>를 기준으로 결정 체크리스트를 닫아줘`
    - ADR candidates: "review this candidate in `/concept`; write an ADR only after the user approves the
      decision wording."
    - finding candidates: keep in the report unless the user asks to promote them with `/finding`.

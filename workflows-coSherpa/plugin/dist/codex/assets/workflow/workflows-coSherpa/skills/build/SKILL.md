@@ -87,7 +87,7 @@ workflows-coSherpa/goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod 
   실행 증거는 `workflows-coSherpa/.state/red-first/`에도 기록된다. red-first는 구현 후 재현하는 steady-state 검사가
   아니므로, 감사가 필요한 실행에서는 이 출력과 기록을 로그에 보존한다.
 - **graph-lint (변환 후)**: 이슈 의존성을 옮겼으면 `bash workflows-coSherpa/scripts/issues-graph-check.sh`로
-  순환·dangling이 없는지 확인(`/freeze`가 이미 봉인 시 강제하지만, 직접 변환 경로의 안전선).
+  순환·dangling이 없는지 확인(`/freeze`가 이미 동결 시 강제하지만, 직접 변환 경로의 안전선).
 - **즉시 구현 진입**: 계약 생성, red-first, graph-lint가 끝나면 곧바로 `completion-check.sh`로 첫 실패 goal을
   active로 잡고 위 **구현 루프**를 실행한다. 사용자가 issue 경로를 준 것은 이 계약을 구현해도 된다는 승인이다.
 

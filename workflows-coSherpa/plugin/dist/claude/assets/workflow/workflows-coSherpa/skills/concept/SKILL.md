@@ -1,22 +1,22 @@
 ---
 name: concept
-description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정표면(decision surface)을 4렌즈로 체크리스트(workflows-coSherpa/docs/concept/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정표면 정산, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정표면 정산', '계획 따져보자' 요청 시."
+description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정 체크리스트(decision checklist)을 4관점으로 체크리스트(workflows-coSherpa/docs/concept/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정 체크리스트 정산, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정 체크리스트 정산', '계획 따져보자' 요청 시."
 ---
 
 <what-to-do>
 
 "기획이 끝났나?"를 느낌이 아니라 **열린 체크박스의 수**로 바꾸는 concept 대화다. 사용자의 초기 아이디어를
-구현 가능한 기능 개념으로 구체화한 뒤, 한 기능의 결정표면을 `workflows-coSherpa/docs/concept/checklist.md`에
+구현 가능한 기능 개념으로 구체화한 뒤, 한 기능의 결정 체크리스트를 `workflows-coSherpa/docs/concept/checklist.md`에
 정산하고, 각 슬롯을 사용자와 함께 닫은 뒤, 남은 게 없으면 **"기능 X 닫힘 — /freeze ready"**를 선언한다.
 
-규칙의 권위는 `workflows-coSherpa/docs/concept/AGENTS.md`(4렌즈·grounds-gate·exit bar·2방향 감사) — **concept 시작 전 반드시
+규칙의 권위는 `workflows-coSherpa/docs/concept/AGENTS.md`(4관점·grounds-gate·exit bar·2방향 감사) — **concept 시작 전 반드시
 읽는다**. 체크리스트 형식·닫힘 상태·입장 규칙은 `workflows-coSherpa/docs/concept/README.md`에 있다. 이 스킬은 그것을 *운영*하는 법이다 — 규칙을 사용자에게
 낭독하지 말고 시퀀스를 끌고 가라.
 
 루프:
 1. **ORIENT** — 목적·사용자·성공 기준·하드 제약·기존 코드 여부를 짧게 요약해 사용자의 모델을 잡는다.
 2. **DECOMPOSE** — 입력을 도메인 개념·사용자 행동·데이터·정책·기술 선택·외부 연동·범위 밖 항목으로 분해한다.
-3. **체크리스트 생성/갱신** — 4렌즈 스캔으로 슬롯을 열거한다(자유연상 아님).
+3. **체크리스트 생성/갱신** — 4관점 스캔으로 슬롯을 열거한다(자유연상 아님).
 4. **슬롯을 하나씩 닫는다** — 각 결정을 닫힘 근거와 함께 그 자리에서 기록.
 5. **문서 충실도 확인** — 사용자 답이 checklist/CONTEXT/ADR 또는 rationale에 빠지거나 약해지지 않았는지 확인한다.
 6. **닫힘 선언** — 미표기 `[ ]`와 미정산 `[>]`가 0이 되면.
@@ -27,13 +27,13 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 
 <supporting-info>
 
-## 결정표면 정산 (체크리스트)
+## 결정 체크리스트 정산 (체크리스트)
 
 형식, 4종 닫힘 상태 `[x]/[~]/[>]/[-]`, 입장 규칙, 닫힘 판정은 모두 `workflows-coSherpa/docs/concept/README.md`에 있다 —
 그걸 따른다. 운영 노트:
 
 - **자유연상이 아니라 스캔으로 열거한다.** 먼저 **엔티티 매니페스트**(기능이 건드리는 모든 엔티티·행위자·
-  상태보유자·외부 시스템)를 적는다. 그다음 각 엔티티와 *충돌쌍*에 4렌즈를 적용해 의무 슬롯을 끌어낸다.
+  상태보유자·외부 시스템)를 적는다. 그다음 각 엔티티와 *충돌쌍*에 4관점을 적용해 의무 슬롯을 끌어낸다.
   이름 붙이지 않은 것은 훑지 못한다.
 - **입장 = grounds-gate.** 슬롯은 site·**왜 기존 자료로 정산 안 되는지(능동 논증)**·오추측 consequence
   3요소를 못 대면 소음이니 버린다 — ground②가 종료 엔진. 전수 형식·빈칸 금지(빈칸은 "닫힘"이 아니며
@@ -64,17 +64,17 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 7. **문서 충실도 확인.** 닫힘 선언 전, 사용자가 실제로 결정한 내용이 checklist, CONTEXT.md, ADR/rationale에
    빠지거나 약해지지 않았는지 좁게 대조한다. 문서가 대화보다 강하게 주장해도, 대화보다 약하게 적혀도 안 된다.
 
-## 4렌즈 스캔 — 운영 노트
+## 4관점 스캔 — 운영 노트
 
-렌즈 4종(STRUCTURAL / BEHAVIORAL / TECHNICAL / CONTRACT)의 정의와 닫힘 exit bar는
-`workflows-coSherpa/docs/concept/AGENTS.md` §"Account the decision surface"가, 표기는 `README.md`가 소유한다 —
+관점 4종(STRUCTURAL / BEHAVIORAL / TECHNICAL / CONTRACT)의 정의와 닫힘 exit bar는
+`workflows-coSherpa/docs/concept/AGENTS.md` §"Account the decision checklist"가, 표기는 `README.md`가 소유한다 —
 여기서 재정의하지 말고 거기서 읽는다. 스캔을 기계적으로 돌리는 운영 유의점만:
 
 - **충돌쌍을 반드시 훑는다** — 단일 엔티티뿐 아니라 쌍의 상호작용에서 슬롯이 나온다: "취소 가능" + "결제
   보유" → "취소 시 결제는?".
-- **STRUCTURAL을 건너뛰지 말 것** — 조용한 카디널리티 추측(one X = one/many Y?)이 새는 바로 그 렌즈다.
-- 렌즈는 가속기지 전수 목록이 아니다 — load-bearing 슬롯이 어디에도 안 맞으면 새 렌즈를 명명하라(억지로
-  끼우지 말 것). 종료 floor("조용한 추측을 남긴 슬롯 0")는 렌즈와 무관하다.
+- **STRUCTURAL을 건너뛰지 말 것** — 조용한 카디널리티 추측(one X = one/many Y?)이 새는 바로 그 관점이다.
+- 관점은 가속기지 전수 목록이 아니다 — load-bearing 슬롯이 어디에도 안 맞으면 새 관점을 명명하라(억지로
+  끼우지 말 것). 종료 floor("조용한 추측을 남긴 슬롯 0")는 관점과 무관하다.
 
 ## 어떻게 물을까 — EXTRACT vs PRESENT (비개발자에게 최고 가치)
 
@@ -96,8 +96,8 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 질문 순서는 **설계 트리**를 따른다. 부모 결정이 닫혀야 자식 결정을 묻는다. 예: 사용자 유형 → 권한 정책 →
 실패/예외 처리 → 테스트 seam. 앞 결정이 흔들리면 뒤 질문의 의미가 바뀌므로, 의존 순서를 건너뛰지 않는다.
 
-**test seam도 여기서 정산한다.** `to-prd`가 "어디서 테스트하나"를 묻지만 `/freeze`는 sealed로 돈다
-(번들 중간 질문 없음) — 그러니 seam은 concept 중에 닫는 체크리스트 슬롯(기술/계약 렌즈)이지, freeze에서
+**test seam도 여기서 정산한다.** `to-prd`가 "어디서 테스트하나"를 묻지만 `/freeze`는 frozen으로 돈다
+(번들 중간 질문 없음) — 그러니 seam은 concept 중에 닫는 체크리스트 슬롯(기술/계약 관점)이지, freeze에서
 다시 떠오르는 질문이 아니다.
 
 ## 다듬기

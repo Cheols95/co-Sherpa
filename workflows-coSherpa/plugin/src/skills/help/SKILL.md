@@ -28,7 +28,7 @@ Also inspect Phase 1 state directly:
 
 - No co-Sherpa structure -> `/cosherpa:init`
 - Brownfield codebase with empty `AGENTS.md` Architecture/Context -> `/cosherpa:migration`
-- Migration report with recommended concept queue -> `/concept workflows-coSherpa/docs/concept/migration-report.md 의 <candidate-id>를 기준으로 결정표면을 닫아줘`
+- Migration report with recommended concept queue -> `/concept workflows-coSherpa/docs/concept/migration-report.md 의 <candidate-id>를 기준으로 결정 체크리스트를 닫아줘`
 - Open concept checklist -> `/concept`
 - Closed concept checklist and no freeze outputs -> `/freeze`
 - Issues exist but no real goals -> `/build`
