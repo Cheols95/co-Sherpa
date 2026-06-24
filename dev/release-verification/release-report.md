@@ -1,8 +1,8 @@
 # co-Sherpa Release Verification Report
 
-- generated_at: 2026-06-24T21:41:06Z
+- generated_at: 2026-06-24T21:46:29Z
 - branch: main
-- commit: 7cf4c4788fbbc0dc66c67e89fb89eb0ac224d497
+- commit: f01bee8d775553660eac709ce28b2d85c0dd1b9c
 - plugin_id: cosherpa
 - display_name: co-Sherpa
 - harness_root: workflows-coSherpa/
@@ -11,7 +11,7 @@
 ## Workspace Status Before Release
 
 ```text
- M dev/release-verification/release-report.md
+clean
 ```
 
 ## Command Results
