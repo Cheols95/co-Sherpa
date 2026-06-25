@@ -20,6 +20,14 @@ Each goal is **three files** sharing a `<n>-<name>` stem:
 | `<n>-<name>.gates.sh`     | Machine verification. **If the `.md` says "every X", the gate MUST enumerate X** from a source of truth. |
 | `<n>-<name>.next-task.sh` | Advisory hint. Reads workflow state (file existence, gate pass/fail) and prints the next action. Never gates. |
 
+**Name from the issue slug.** When a goal originates from an issue (`build`
+mode B), `<name>` MUST be that issue's **exact slug** — the issue filename after
+its `NNN-` prefix, verbatim, neither shortened nor rephrased — so the roadmap
+dashboard links goal↔issue by slug (top-level `AGENTS.md` §Agent-skills
+configuration). A mismatched slug leaves the issue rendered unlinked on the
+roadmap. `<n>` is an independent ordering label, not the issue number; only a
+goal with no originating issue (PRD-wide, ad-hoc) coins a fresh `<name>`.
+
 `_meta` is a special set (no number) for cross-cutting invariants (lint /
 typecheck / test / build); `completion-check.sh` launches it first.
 

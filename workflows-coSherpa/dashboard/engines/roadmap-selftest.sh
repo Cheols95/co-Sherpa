@@ -105,6 +105,52 @@ EOF
   chmod +x "$dir/scripts/next-task.sh"
 }
 
+# Fixture for the triage-status fallback: issues with NO goal link, one per
+# Status word. The build gate is "none" for all of them, so the node colour must
+# fall back to the Status: line via effGate (done->green, blocked->blocked,
+# ready-for-human->review, ready-for-agent->todo, needs-info->unknown). ALL_DONE
+# is set to prove it no longer greens goalless issues.
+make_status_fixture() {
+  local dir="$1"
+  mkdir -p "$dir/docs/issues" "$dir/goals" "$dir/.state"
+  cat > "$dir/docs/issues/001-d.md" <<'EOF'
+# D
+Status: done (2026-01-01 — shipped)
+
+## Acceptance criteria
+- [x] done
+EOF
+  cat > "$dir/docs/issues/002-b.md" <<'EOF'
+# B
+Status: blocked / deferred-research
+
+## Acceptance criteria
+- [ ] blocked
+EOF
+  cat > "$dir/docs/issues/003-h.md" <<'EOF'
+# H
+Status: ready-for-human
+
+## Acceptance criteria
+- [ ] human
+EOF
+  cat > "$dir/docs/issues/004-a.md" <<'EOF'
+# A
+Status: ready-for-agent
+
+## Acceptance criteria
+- [ ] agent
+EOF
+  cat > "$dir/docs/issues/005-i.md" <<'EOF'
+# I
+Status: needs-info
+
+## Acceptance criteria
+- [ ] info
+EOF
+  printf 'ALL_DONE\n' > "$dir/.state/active-goal"
+}
+
 # Fixture for the service ("서비스 흐름") tab: a docs/spec/service-flow.md with
 # two markdown tables. Exercises kind-from-group derivation, a groupless user
 # node, em-dash placeholders, col/row, depends_on, and a nested parent group
@@ -209,6 +255,23 @@ test_shading() {
   assert_has "$data" '"id":"003","title":"Ready","issueStatus":"ready-for-agent","gate":"green"'
 }
 
+# Triage-status fallback: an issue with NO goal keeps gate "none" but gets an
+# effGate derived from its Status: line, so the node is coloured by triage state
+# (done/blocked/ready-for-human/ready-for-agent/needs-info) rather than a flat
+# grey. Only a ready-for-agent issue with deps satisfied is "지금 시작 가능".
+test_status() {
+  local tmp data
+  tmp="$(portable_mktemp_dir)"
+  make_status_fixture "$tmp"
+  data="$(emit_fixture "$tmp")"
+  assert_has "$data" '"id":"001","title":"D","issueStatus":"done (2026-01-01 — shipped)","gate":"none","goal":"","accDone":1,"accTotal":1,"deps":[],"ready":false,"danglingDeps":[],"desc":"","accAuthority":"issue-checkbox","effGate":"green"'
+  assert_has "$data" '"id":"002","title":"B","issueStatus":"blocked / deferred-research","gate":"none","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":false,"danglingDeps":[],"desc":"","accAuthority":"issue-checkbox","effGate":"blocked"'
+  assert_has "$data" '"id":"003","title":"H","issueStatus":"ready-for-human","gate":"none","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":false,"danglingDeps":[],"desc":"","accAuthority":"issue-checkbox","effGate":"review"'
+  assert_has "$data" '"id":"004","title":"A","issueStatus":"ready-for-agent","gate":"none","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":true,"danglingDeps":[],"desc":"","accAuthority":"issue-checkbox","effGate":"todo"'
+  assert_has "$data" '"id":"005","title":"I","issueStatus":"needs-info","gate":"none","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":false,"danglingDeps":[],"desc":"","accAuthority":"issue-checkbox","effGate":"unknown"'
+  assert_has "$data" '"readyCount":1'
+}
+
 # DATA.service contract: docs/spec/service-flow.md → {nodes,groups,usecases}.
 test_service() {
   local tmp data
@@ -272,9 +335,10 @@ case "$GROUP" in
   deps) test_deps ;;
   ready) test_ready ;;
   shading) test_shading ;;
+  status) test_status ;;
   service) test_service ;;
   render) test_render ;;
-  all) test_deps; test_ready; test_shading; test_service; test_render ;;
+  all) test_deps; test_ready; test_shading; test_status; test_service; test_render ;;
   *) fail "unknown group: $GROUP" ;;
 esac
 

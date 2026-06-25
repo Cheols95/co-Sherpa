@@ -50,6 +50,24 @@ gate_for() {
   fi
 }
 
+# Map a triage `Status:` line to a node-colour class. Used ONLY as the fallback
+# when an issue carries no real build gate (gate_for -> none/unknown), so the
+# roadmap reflects triage progress instead of a flat grey "미확인". Matched on a
+# lowercased copy; first matching arm wins, so order done -> blocked -> human ->
+# agent -> (default) triage. Returns one of: green | blocked | review | todo |
+# unknown. The build gate (green/active/deferred) always overrides this.
+status_class() {
+  local s
+  s="$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')"
+  case "$s" in
+    done*|complete*|completed*|merged*|shipped*|*완료*) echo green ;;
+    *wontfix*|*"won't"*|*blocked*|*deferred*|*보류*|*막힘*) echo blocked ;;
+    ready-for-human*|*"ready for human"*|*"사람"*) echo review ;;
+    ready-for-agent*|*"ready for agent"*|*"착수"*) echo todo ;;
+    *) echo unknown ;;
+  esac
+}
+
 NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo '')"
 ACTIVE_GOAL=""
 [ -f "$SOURCE_ROOT/.state/active-goal" ] && ACTIVE_GOAL="$(cat "$SOURCE_ROOT/.state/active-goal" 2>/dev/null)"
@@ -128,6 +146,16 @@ while IFS='|' read -r id deps gate goal_stem title issue_status acc_done acc_tot
     acc_authority="gate-green"
   fi
 
+  # Effective gate = the colour the node actually shows. A real build gate
+  # (green/active/deferred) always wins; when the issue isn't wired to a goal
+  # (gate none/unknown) we fall back to its triage Status: line so triage
+  # progress is visible (done->green, blocked->blocked, ready-for-human->review,
+  # ready-for-agent->todo, needs-info/triage->unknown) instead of flat grey.
+  case "$gate" in
+    green|active|deferred) eff_gate="$gate" ;;
+    *) eff_gate="$(status_class "$issue_status")" ;;
+  esac
+
   dangling_js=""
   for d in $deps; do
     case " $IDS " in
@@ -139,13 +167,23 @@ while IFS='|' read -r id deps gate goal_stem title issue_status acc_done acc_tot
     esac
   done
 
+  # "지금 시작 가능" = an actionable NEXT step: a buildable deferred goal OR a
+  # triaged ready-for-agent issue (eff_gate todo), with every dependency already
+  # done. done/active/review/blocked/unknown are never "ready to start".
   ready=true
-  case "$gate" in
-    green|active) ready=false ;;
+  case "$eff_gate" in
+    deferred|todo) ;;
+    *) ready=false ;;
   esac
   for d in $deps; do
-    dep_gate="$(printf '%s' "$FEATURE_ROWS" | awk -F'|' -v id="$d" '$1 == id { print $3; exit }')"
-    [ "$dep_gate" = "green" ] || ready=false
+    dep_row="$(printf '%s' "$FEATURE_ROWS" | awk -F'|' -v id="$d" '$1 == id { print; exit }')"
+    dep_gate="$(printf '%s' "$dep_row" | cut -d'|' -f3)"
+    dep_status="$(printf '%s' "$dep_row" | cut -d'|' -f6)"
+    case "$dep_gate" in
+      green) ;;                                                     # build-done
+      none|unknown|'') [ "$(status_class "$dep_status")" = green ] || ready=false ;;  # triage-done?
+      *) ready=false ;;                                             # active/deferred dep
+    esac
   done
   [ "$ready" = true ] && READY_COUNT=$((READY_COUNT + 1))
 
@@ -156,7 +194,7 @@ while IFS='|' read -r id deps gate goal_stem title issue_status acc_done acc_tot
   done
 
   [ -n "$FEATURES_JSON" ] && FEATURES_JSON="$FEATURES_JSON,"
-  FEATURES_JSON="$FEATURES_JSON{\"id\":\"$(printf '%s' "$id" | json_escape)\",\"title\":\"$(printf '%s' "$title" | json_escape)\",\"issueStatus\":\"$(printf '%s' "$issue_status" | json_escape)\",\"gate\":\"$gate\",\"goal\":\"$(printf '%s' "$goal_stem" | json_escape)\",\"accDone\":${acc_done:-0},\"accTotal\":${acc_total:-0},\"deps\":[$deps_js],\"ready\":$ready,\"danglingDeps\":[$dangling_js],\"desc\":\"$(printf '%s' "$desc" | json_escape)\",\"accAuthority\":\"$acc_authority\"}"
+  FEATURES_JSON="$FEATURES_JSON{\"id\":\"$(printf '%s' "$id" | json_escape)\",\"title\":\"$(printf '%s' "$title" | json_escape)\",\"issueStatus\":\"$(printf '%s' "$issue_status" | json_escape)\",\"gate\":\"$gate\",\"goal\":\"$(printf '%s' "$goal_stem" | json_escape)\",\"accDone\":${acc_done:-0},\"accTotal\":${acc_total:-0},\"deps\":[$deps_js],\"ready\":$ready,\"danglingDeps\":[$dangling_js],\"desc\":\"$(printf '%s' "$desc" | json_escape)\",\"accAuthority\":\"$acc_authority\",\"effGate\":\"$eff_gate\"}"
 done <<EOF
 $FEATURE_ROWS
 EOF
@@ -165,7 +203,7 @@ DEMO=false
 if [ "$ISSUE_COUNT" -eq 0 ]; then
   DEMO=true
   READY_COUNT=1
-  FEATURES_JSON='{"id":"001","title":"Example feature","issueStatus":"ready-for-agent","gate":"unknown","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":true,"danglingDeps":[],"desc":"예시 모듈입니다. docs/issues/ 에 이슈를 추가하면 여기에 실제 모듈이 흐름도로 나타납니다.","accAuthority":"issue-checkbox"}'
+  FEATURES_JSON='{"id":"001","title":"Example feature","issueStatus":"ready-for-agent","gate":"unknown","goal":"","accDone":0,"accTotal":1,"deps":[],"ready":true,"danglingDeps":[],"desc":"예시 모듈입니다. docs/issues/ 에 이슈를 추가하면 여기에 실제 모듈이 흐름도로 나타납니다.","accAuthority":"issue-checkbox","effGate":"unknown"}'
 fi
 
 # ---- Service flow (docs/spec/service-flow.md) -> DATA.service ----
@@ -355,7 +393,7 @@ cat > "$OUT" <<'HTML_HEAD'
     /* roadmap gate colors */
     --green:#22c55e;--green-bg:#10311f;--active:#f59e0b;--active-bg:#36280a;
     --deferred:#3b82f6;--deferred-bg:#15233f;--deferred-bd:#33527e;--unknown:#7c8a97;--unknown-bg:#1b232b;
-    --ready:#14b8a6;--warn:#fb7185;
+    --ready:#14b8a6;--warn:#fb7185;--warn-bg:#3a1820;
     /* service kind colors */
     --user:#94a3b8;--fe:#14b8a6;--be:#f59e0b;--api:#a855f7;--db:#3b82f6;--infra:#64748b;
     --user-bg:#1b232b;--fe-bg:#0c2b28;--be-bg:#2a2109;--api-bg:#241036;--db-bg:#15233f;
@@ -363,7 +401,7 @@ cat > "$OUT" <<'HTML_HEAD'
   }
   html[data-theme="light"]{
     --bg:#eceff3;--panel:#ffffff;--panel2:#e6eaef;--surface:#ffffff;--inset:#f1f4f7;--line:#d3dae1;--text:#1b2530;--muted:#5d6b78;
-    --green-bg:#e6f6ec;--active-bg:#fcefd6;--deferred-bg:#e8eefb;--deferred-bd:#aac3e8;--unknown-bg:#eef1f5;
+    --green-bg:#e6f6ec;--active-bg:#fcefd6;--deferred-bg:#e8eefb;--deferred-bd:#aac3e8;--unknown-bg:#eef1f5;--warn-bg:#fde6ea;
     --user-bg:#eef1f5;--fe-bg:#dcf5ef;--be-bg:#fcefd6;--api-bg:#f3e8fc;--db-bg:#e8eefb;
     --edge:#9aa7b3
   }
@@ -387,6 +425,7 @@ cat > "$OUT" <<'HTML_HEAD'
   .legend span{display:inline-flex;align-items:center;gap:5px}
   .legend .dot{width:11px;height:11px;border-radius:3px;border:1px solid #0006}
   .dot.green{background:var(--green)} .dot.active{background:var(--active)} .dot.deferred{background:var(--deferred)} .dot.unknown{background:var(--unknown)}
+  .dot.todo{background:var(--fe)} .dot.review{background:var(--api)} .dot.blocked{background:var(--warn)}
   .dot.user{background:var(--user)} .dot.fe{background:var(--fe)} .dot.be{background:var(--be)} .dot.api{background:var(--api)} .dot.db{background:var(--db)} .dot.infra{background:var(--infra)}
   main{display:grid;grid-template-columns:minmax(0,1fr) 340px;height:calc(100vh - 150px)}
   #wrap.collapsed main{grid-template-columns:1fr}
@@ -424,6 +463,10 @@ cat > "$OUT" <<'HTML_HEAD'
   .node.active{background:var(--active-bg);border-color:var(--active)}
   .node.deferred{background:var(--deferred-bg);border-color:var(--deferred-bd)}
   .node.unknown,.node.none{background:var(--unknown-bg);border-color:var(--unknown)}
+  /* roadmap triage-status fills (used when an issue has no build gate) */
+  .node.todo{background:var(--fe-bg);border-color:var(--fe)}
+  .node.review{background:var(--api-bg);border-color:var(--api)}
+  .node.blocked{background:var(--warn-bg);border-color:var(--warn)}
   /* service kind fills */
   .node.user{background:var(--user-bg);border-color:var(--user)} .node.fe{background:var(--fe-bg);border-color:var(--fe)} .node.be{background:var(--be-bg);border-color:var(--be)}
   .node.api{background:var(--api-bg);border-color:var(--api)} .node.db{background:var(--db-bg);border-color:var(--db)}
@@ -448,6 +491,7 @@ cat > "$OUT" <<'HTML_HEAD'
   .d-id,.d-ph{font-size:12px;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
   .d-status{border:1px solid currentColor;border-radius:999px;padding:1px 8px;font-size:11px}
   .d-status.green{color:var(--green)} .d-status.active{color:var(--active)} .d-status.deferred{color:var(--deferred)} .d-status.unknown,.d-status.none{color:var(--unknown)}
+  .d-status.todo{color:var(--fe)} .d-status.review{color:var(--api)} .d-status.blocked{color:var(--warn)}
   .d-status.user{color:var(--user)} .d-status.fe{color:var(--fe)} .d-status.be{color:var(--be)} .d-status.api{color:var(--api)} .d-status.db{color:var(--db)}
   .d-title{font-size:15px;font-weight:700;margin:6px 0 9px;line-height:1.3}
   .d-desc{color:var(--text);background:var(--inset);border:1px solid var(--line);border-radius:8px;padding:10px;margin-bottom:11px}
@@ -528,7 +572,7 @@ function cleanMd(s){
 }
 function buildIndex(ns){ const m = {}; ns.forEach(n => { m[n.id] = n; }); return m; }
 
-const GATE_KO = { green: '완료', active: '진행 중', deferred: '대기', unknown: '미확인', none: '미확인' };
+const GATE_KO = { green: '완료', active: '진행 중', deferred: '대기', unknown: '미확인', none: '미확인', todo: '착수 가능', review: '사람 확인', blocked: '막힘·보류' };
 const KIND_LABEL = { user: '사용자', fe: '프론트엔드', be: '백엔드 · n8n', api: '외부 API', db: '데이터 · 저장', infra: '인프라' };
 
 /* ===================== VIEW CONFIG ===================== */
@@ -537,23 +581,27 @@ const VIEWS = {
     mode: 'dag', nodes: F, idx: byId, panelHead: '선택한 모듈',
     NW: 220, NH: 104, CGAP: 78, RGAP: 22,
     summary(){
-      return `${F.length}개 모듈 · 지금 시작 가능 ${DATA.readyCount}개 · 활성 목표: ${DATA.activeGoal || '미상'}` +
+      const ag = DATA.activeGoal === 'ALL_DONE' ? '모두 완료' : (DATA.activeGoal || '미상');
+      return `${F.length}개 모듈 · 지금 시작 가능 ${DATA.readyCount}개 · 활성 목표: ${ag}` +
              (DATA.generatedAt ? ` · 생성 ${DATA.generatedAt}` : '');
     },
     legend:
       '<span><i class="dot green"></i>완료</span>' +
       '<span><i class="dot active"></i>진행 중</span>' +
       '<span><i class="dot deferred"></i>대기(미착수)</span>' +
+      '<span><i class="dot todo"></i>착수 가능</span>' +
+      '<span><i class="dot review"></i>사람 확인</span>' +
+      '<span><i class="dot blocked"></i>막힘·보류</span>' +
       '<span><i class="dot unknown"></i>미확인</span>' +
       '<span><b style="color:var(--ready)">▶</b>지금 시작 가능</span>' +
       '<span><b style="color:var(--muted)">→</b>먼저 끝나야 할 순서</span>',
-    cls: f => (f.gate || 'unknown') + (f.ready ? ' ready' : ''),
-    color: f => 'var(' + ({ green: '--green', active: '--active', deferred: '--deferred', unknown: '--unknown', none: '--unknown' }[f.gate] || '--unknown') + ')',
+    cls: f => (f.effGate || f.gate || 'unknown') + (f.ready ? ' ready' : ''),
+    color: f => 'var(' + ({ green: '--green', active: '--active', deferred: '--deferred', unknown: '--unknown', none: '--unknown', todo: '--fe', review: '--api', blocked: '--warn' }[f.effGate || f.gate] || '--unknown') + ')',
     face(f){
       const dang = f.danglingDeps && f.danglingDeps.length;
       return `<div class="nid"><span>${escapeHtml(f.id)}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
              `<div class="ntitle">${escapeHtml(f.title)}</div>` +
-             `<div class="nfoot"><span>${GATE_KO[f.gate] || f.gate}</span>` +
+             `<div class="nfoot"><span>${GATE_KO[f.effGate || f.gate] || f.effGate || f.gate}</span>` +
              `${dang ? `<span class="dang">끊긴 의존 ${escapeHtml(f.danglingDeps.join(','))}</span>` : ''}</div>`;
     },
     panel(f){
@@ -570,9 +618,11 @@ const VIEWS = {
           `<div class="cta-warn">⚠ 계획상 독립이 곧 파일상 독립은 아니에요 — 같은 파일을 건드리면 충돌할 수 있어요.</div>` +
           `</div>`
         : '';
-      return `<div class="d-id"><span>${escapeHtml(f.id)}</span><span class="d-status ${f.gate}">${GATE_KO[f.gate] || f.gate}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
+      const g = f.effGate || f.gate;
+      return `<div class="d-id"><span>${escapeHtml(f.id)}</span><span class="d-status ${g}">${GATE_KO[g] || g}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
              `<div class="d-title">${escapeHtml(f.title)}</div>` +
              `<div class="d-desc">${f.desc ? escapeHtml(cleanMd(f.desc)) : '(설명 없음)'}</div>` +
+             `${f.issueStatus ? `<div class="d-rel"><b>이슈 상태</b><span>${escapeHtml(f.issueStatus)}</span></div>` : ''}` +
              `<div class="d-rel"><b>먼저 끝나야 할 모듈</b><span>${dep}</span></div>` +
              `<div class="d-rel"><b>이걸 끝내면 풀리는 모듈</b><span>${unl}</span></div>` +
              `<div class="d-rel"><b>받아들임 기준</b><span>${f.accDone || 0}/${f.accTotal || 0}개${f.accAuthority === 'gate-green' ? ' · gate 완료 기준' : ''}</span></div>` +

@@ -63,6 +63,7 @@ workflows-coSherpa/goals/<n>-<name>.md            # Mission: 'done' 조건을 pr
 workflows-coSherpa/goals/<n>-<name>.gates.sh      # 기계 검증 (chmod +x). "every X"면 source of truth에서 X를 enumerate
 workflows-coSherpa/goals/<n>-<name>.next-task.sh  # 다음 액션 힌트 (chmod +x, 절대 gate 아님)
 ```
+- **`<name>` = 원천 이슈 slug (그대로)**: goal 파일명의 `<name>`은 이슈 파일명 `NNN-` 뒤 slug를 **줄이거나 바꾸지 말고 그대로** 쓴다(`004-aux-indicators-extraction` → `<n>-aux-indicators-extraction`). 안 맞으면 roadmap이 goal↔issue를 못 잇고 이슈가 미연결로 뜬다. 규약: `workflows-coSherpa/goals/AGENTS.md` §The three-file set "Name from the issue slug".
 - **변환 전 1회 참조**: `workflows-coSherpa/goals/EXAMPLE.md`(이슈→3파일 모범 변환 정답지, 안티패턴 주석 포함)가 프로젝트에 있으면 먼저 읽는다. 구버전 템플릿엔 없을 수 있다 — 그러면 `workflows-coSherpa/goals/AGENTS.md` 규약만으로 진행.
 - **첫 변환**이면 `workflows-coSherpa/goals/0-example.*` 교육용 placeholder triplet을 제거한다(`workflows-coSherpa/goals/AGENTS.md` 부트스트랩 규약 — 안 지우면 예제가 실제 체인에 영구 잔존). `workflows-coSherpa/goals/EXAMPLE.md`는 goal이 아니라 문서이므로 **삭제 대상이 아니다**.
 - **risk 운반**: 이슈 frontmatter `risk: RISKY|MECHANICAL|NONE`을 goal `.md` frontmatter로 그대로 옮긴다.
