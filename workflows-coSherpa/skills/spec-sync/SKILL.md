@@ -30,16 +30,22 @@ description: "workflows-coSherpa/docs/spec/가 이미 있을 때 계약 문서 �
 | 코드·문서 중 어느 쪽이 맞는지 모호 | **사용자에게 질문.** 임의 결정 금지 |
 | 계약 문서가 hollow shell(칸만 있고 내용 빔)이거나 품질 floor(검증가능·반례·구체엣지, `to-spec` §품질 floor 참조) 위반 | 채울 근거(우선순위: ①코드 → ②최신 accepted ADR → ③①②가 대체(supersede) 안 한 PRD 결정, 충돌 시 상위 우선)가 있으면 **직접 보강**, 없으면 **finding 또는 사용자 질문**. 단, 칸 내용이 `TODO(미결정)`이면 보강 대상이 아니다(to-spec이 사용자 결정 대기로 비운 칸) — 그대로 두고 finding/질문으로만 처리 |
 
-> 서비스 흐름 계약(`workflows-coSherpa/docs/spec/service-flow.md`)도 같은 규칙: 표 3종(Groups·Components·**Use-cases**)이
-> 실제 배포 토폴로지·이용자 흐름·최신 ADR과 어긋나면 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding.
-> Use-cases 드리프트의 서술 원본은 `workflows-coSherpa/docs/concept/flow.md`다. (표 형식·권위 출처는
-> `workflows-coSherpa/skills/to-spec/SKILL.md` 서비스 흐름 항목과 `workflows-coSherpa/docs/spec/README.md` 참조 — 코드 `architecture.md`와는 다른 문서.)
+> 서비스 흐름 계약(`workflows-coSherpa/docs/spec/service-flow.md`)도 같은 규칙: 표 3종(Groups·Components·**Use-cases**)을
+> **코드의 실제 배포 토폴로지·이용자 흐름·최신 ADR**과 대조해 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding.
+> Use-cases도 *코드·ADR*에만 맞춘다 — **`concept/flow.md`를 동기화 소스로 쓰지 않는다**(아래 §가드레일). 갱신·추가
+> 기획이 들어간 flow.md를 service-flow.md에 반영(재합성)하는 건 **freeze ⑥의 역할**이지 spec-sync의 영역이 아니다.
+> (표 형식·권위 출처는 `workflows-coSherpa/skills/to-spec/SKILL.md` 서비스 흐름 항목과 `workflows-coSherpa/docs/spec/README.md`
+> 참조 — 코드 `architecture.md`와는 다른 문서.)
 
 ## 가드레일
 - **코드를 직접 고치지 않는다.** 테스트 없는 코드 변경은 TDD 엔진(`/build`)의 영역 — 여기선 finding으로 넘긴다.
 - **PRD/ADR을 재작성하지 않는다.** PRD는 의도(동결), ADR은 이력(append-only). 이 스킬의 쓰기 대상은 `workflows-coSherpa/docs/spec/`와 `workflows-coSherpa/docs/spec/INDEX.md`뿐이다.
 - **대량 재작성 금지.** 드리프트 난 delta만 손본다. 잘 써둔 문서를 통째로 다시 쓰지 않는다.
 - **모호하면 멈추고 묻는다.** 코드를 스펙에 맞춰 굳히거나 그 반대를 하기 전에, 어느 쪽이 의도인지 불분명하면 사용자 확인.
+- **concept 소유 문서를 건드리지 않는다.** `workflows-coSherpa/docs/concept/checklist.md`·`flow.md`는 concept 단계에서만
+  쓰이는(write) 비계약 문서다 — spec-sync는 이들을 **수정하지도, service-flow.md 동기화의 소스로 읽지도** 않는다. 낡았든
+  추가 기획이 들어가 갱신됐든, flow.md를 service-flow.md에 반영(재합성)하는 건 **freeze ⑥의 역할**이다. spec-sync는
+  service-flow.md를 *코드·최신 ADR*에만 맞춘다.
 
 ## finding 큐잉 형식
 코드 수정이 필요한 발견은 `workflows-coSherpa/docs/findings/`에 적는다 — 형식·frontmatter는 `finding` 스킬 규약을 따른다. TL;DR에 "계약 `<문서>`와 코드 `<file:line>`가 어긋남, 코드 쪽 수정 필요"를 명시한다.
