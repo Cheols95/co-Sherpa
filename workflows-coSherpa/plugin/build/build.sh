@@ -20,13 +20,14 @@ cp -R "$SRC/skills/." "$CLAUDE_OUT/skills/"
 cp -R "$SRC/bin/." "$CLAUDE_OUT/bin/"
 chmod +x "$CLAUDE_OUT/bin/"* 2>/dev/null || true
 PYTHON_BIN="${PYTHON_BIN:-python3}"
-"$PYTHON_BIN" - "$CLAUDE_OUT/skills/init/SKILL.md" <<'PY'
+"$PYTHON_BIN" - "$CLAUDE_OUT/skills/init/SKILL.md" "$CLAUDE_OUT/skills/update/SKILL.md" <<'PY'
 import pathlib, sys
-path = pathlib.Path(sys.argv[1])
-text = path.read_text(encoding="utf-8")
-if "disable-model-invocation:" not in text:
-    text = text.replace("---\n\n#", "disable-model-invocation: true\nallowed-tools: Bash\n---\n\n#", 1)
-path.write_text(text, encoding="utf-8")
+for arg in sys.argv[1:]:
+    path = pathlib.Path(arg)
+    text = path.read_text(encoding="utf-8")
+    if "disable-model-invocation:" not in text:
+        text = text.replace("---\n\n#", "disable-model-invocation: true\nallowed-tools: Bash\n---\n\n#", 1)
+    path.write_text(text, encoding="utf-8")
 PY
 package_copy_workflow_assets "$CLAUDE_OUT"
 package_normalize_release_tree "$CLAUDE_OUT"

@@ -27,6 +27,7 @@ Also inspect Phase 1 state directly:
 ## Routing
 
 - No co-Sherpa structure -> `/cosherpa:init`
+- Harness behind the installed plugin, or user wants the latest -> `/cosherpa:update`
 - Brownfield codebase with empty `AGENTS.md` Architecture/Context -> `/cosherpa:migration`
 - Migration report with recommended concept queue -> `/concept workflows-coSherpa/docs/concept/migration-report.md 의 <candidate-id>를 기준으로 결정 체크리스트를 닫아줘`
 - Open concept checklist -> `/concept`
@@ -39,6 +40,6 @@ Also inspect Phase 1 state directly:
 For general workflow questions, ground the answer in `Workflow_Guideline_v2.html`, `AGENTS.md`, and
 the relevant skill descriptions. Keep the daily command surface clear:
 
-- Plugin lifecycle: `/cosherpa:init`, `/cosherpa:help`, `/cosherpa:migration`
+- Plugin lifecycle: `/cosherpa:init`, `/cosherpa:update`, `/cosherpa:help`, `/cosherpa:migration`
 - Daily workflow: `/concept`, `/freeze`, `/build`, `/finding`, `/cycle`, `/handoff`, `/roadmap`,
   `/prototype`, `/spec-sync`, `/improve-codebase-architecture`

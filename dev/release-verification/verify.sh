@@ -167,7 +167,7 @@ PY
 
 check_lifecycle_sources() {
   local name rc=0
-  for name in init help migration; do
+  for name in init help migration update; do
     require_file "workflows-coSherpa/plugin/src/skills/$name/SKILL.md" || rc=1
     require_file "workflows-coSherpa/plugin/platform/codex/skills/$name/agents/openai.yaml" || rc=1
   done

@@ -55,6 +55,7 @@ If your Codex host exposes plugin skill selection, choose `cosherpa:init`. After
 Lifecycle commands are plugin namespaced:
 
 - `/cosherpa:init`
+- `/cosherpa:update`
 - `/cosherpa:help`
 - `/cosherpa:migration`
 
@@ -86,12 +87,14 @@ codex plugin marketplace upgrade cosherpa
 codex plugin add cosherpa@cosherpa
 ```
 
-After updating the plugin, start a fresh session and run the platform-specific init surface again:
+After updating the plugin, start a fresh session and run the platform-specific update surface:
 
-- Claude Code: `/cosherpa:init`
-- Codex: `Use cosherpa init to install the workflow here.`
+- Claude Code: `/cosherpa:update`
+- Codex: `Use cosherpa update to re-sync the workflow here.`
 
-That re-syncs the project harness and the machine-global daily skills.
+That re-syncs the project harness and the machine-global daily skills. `/cosherpa:init` still works
+as the update surface too — `/cosherpa:update` is the dedicated entry point and also shows how to
+pull a newer plugin from the marketplace.
 
 ## License
 
