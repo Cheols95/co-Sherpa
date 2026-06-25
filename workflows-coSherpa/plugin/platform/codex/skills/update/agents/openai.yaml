@@ -1,7 +1,7 @@
 interface:
   display_name: "co-Sherpa update"
-  short_description: "Update co-Sherpa and re-sync the project harness."
-  default_prompt: "Use cosherpa update to pull the latest workflow and re-sync this project."
+  short_description: "Check for the latest co-Sherpa, update, and re-sync the project."
+  default_prompt: "Use cosherpa update to check for the latest version, update, and re-sync this project."
 
 policy:
   allow_implicit_invocation: true

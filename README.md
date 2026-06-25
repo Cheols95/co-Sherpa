@@ -74,9 +74,22 @@ Daily workflow commands stay short after init:
 
 ## Update
 
+The easiest path is the `/cosherpa:update` skill — run it from the project:
+
+- Claude Code: `/cosherpa:update`
+- Codex: `Use cosherpa update to check for the latest version, update, and re-sync this project.`
+
+It compares your installed version with the latest published version. If a newer plugin exists it
+updates it for you (`claude plugin update` on Claude Code; the marketplace upgrade + add on Codex);
+the new plugin applies after one restart/reload, then re-running `/cosherpa:update` syncs the project
+harness and the machine-global daily skills. If you are already on the latest, it just re-syncs.
+
+Equivalent manual commands, if you prefer to drive the host plugin manager yourself:
+
 Claude Code:
 
 ```bash
+claude plugin marketplace update cosherpa
 claude plugin update cosherpa
 ```
 
@@ -87,14 +100,8 @@ codex plugin marketplace upgrade cosherpa
 codex plugin add cosherpa@cosherpa
 ```
 
-After updating the plugin, start a fresh session and run the platform-specific update surface:
-
-- Claude Code: `/cosherpa:update`
-- Codex: `Use cosherpa update to re-sync the workflow here.`
-
-That re-syncs the project harness and the machine-global daily skills. `/cosherpa:init` still works
-as the update surface too — `/cosherpa:update` is the dedicated entry point and also shows how to
-pull a newer plugin from the marketplace.
+After updating the plugin, start a fresh session (or `/reload-plugins` in Claude Code) and run
+`/cosherpa:update` to sync the project. `/cosherpa:init` still works as a sync surface too.
 
 ## License
 
