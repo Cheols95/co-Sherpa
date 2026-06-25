@@ -572,7 +572,16 @@ function cleanMd(s){
 }
 function buildIndex(ns){ const m = {}; ns.forEach(n => { m[n.id] = n; }); return m; }
 
-const GATE_KO = { green: '완료', active: '진행 중', deferred: '대기', unknown: '미확인', none: '미확인', todo: '착수 가능', review: '사람 확인', blocked: '막힘·보류' };
+const GATE_KO = { green: '완료', active: '진행 중', deferred: '대기', unknown: '미확인', none: '미확인', todo: '착수 대기', review: '사람 확인', blocked: '막힘·보류' };
+// A ready-for-agent issue (effGate=todo) reads "착수 가능" ONLY once its
+// prerequisites are done (f.ready). While a dependency is still open it is
+// "착수 대기" — groomed and queued, but not yet startable. This keeps the node
+// label honest against the "▶ 지금 시작 가능" badge, which only appears when ready.
+function gateLabel(f){
+  const g = f.effGate || f.gate;
+  if (g === 'todo') return f.ready ? '착수 가능' : '착수 대기';
+  return GATE_KO[g] || g;
+}
 const KIND_LABEL = { user: '사용자', fe: '프론트엔드', be: '백엔드 · n8n', api: '외부 API', db: '데이터 · 저장', infra: '인프라' };
 
 /* ===================== VIEW CONFIG ===================== */
@@ -589,7 +598,7 @@ const VIEWS = {
       '<span><i class="dot green"></i>완료</span>' +
       '<span><i class="dot active"></i>진행 중</span>' +
       '<span><i class="dot deferred"></i>대기(미착수)</span>' +
-      '<span><i class="dot todo"></i>착수 가능</span>' +
+      '<span><i class="dot todo"></i>착수 대기</span>' +
       '<span><i class="dot review"></i>사람 확인</span>' +
       '<span><i class="dot blocked"></i>막힘·보류</span>' +
       '<span><i class="dot unknown"></i>미확인</span>' +
@@ -601,7 +610,7 @@ const VIEWS = {
       const dang = f.danglingDeps && f.danglingDeps.length;
       return `<div class="nid"><span>${escapeHtml(f.id)}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
              `<div class="ntitle">${escapeHtml(f.title)}</div>` +
-             `<div class="nfoot"><span>${GATE_KO[f.effGate || f.gate] || f.effGate || f.gate}</span>` +
+             `<div class="nfoot"><span>${gateLabel(f)}</span>` +
              `${dang ? `<span class="dang">끊긴 의존 ${escapeHtml(f.danglingDeps.join(','))}</span>` : ''}</div>`;
     },
     panel(f){
@@ -619,7 +628,7 @@ const VIEWS = {
           `</div>`
         : '';
       const g = f.effGate || f.gate;
-      return `<div class="d-id"><span>${escapeHtml(f.id)}</span><span class="d-status ${g}">${GATE_KO[g] || g}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
+      return `<div class="d-id"><span>${escapeHtml(f.id)}</span><span class="d-status ${g}">${gateLabel(f)}</span>${f.ready ? '<span class="flag">▶ 지금 가능</span>' : ''}</div>` +
              `<div class="d-title">${escapeHtml(f.title)}</div>` +
              `<div class="d-desc">${f.desc ? escapeHtml(cleanMd(f.desc)) : '(설명 없음)'}</div>` +
              `${f.issueStatus ? `<div class="d-rel"><b>이슈 상태</b><span>${escapeHtml(f.issueStatus)}</span></div>` : ''}` +
