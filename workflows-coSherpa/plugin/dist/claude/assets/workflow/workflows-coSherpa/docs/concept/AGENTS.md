@@ -39,6 +39,16 @@
   their checklist **notation** (`[x]` / `[~]` / `[>]` / `[-]`) is owned by `README.md`
   (the single source for the symbols). Enumerate exhaustively, ask minimally — never ask what is
   derivable. concept ends when no **un-grounded** slot survives — not when it "feels like enough".
+- **Co-produce the use-case map (`workflows-coSherpa/docs/concept/flow.md`) with the checklist.** The checklist
+  accounts *decisions*; `flow.md` accounts the same elicitation from the **service user's vantage** — every
+  scenario a user can drive, **edge cases included**, each step naming the component it touches and the
+  decision(s) it exercises. It is a *synthesis* of what DECOMPOSE already surfaces (user actions,
+  failures/edges), not a fresh interrogation — it adds no questions, only an organised view. The two
+  **cross-validate**: a flow branch with no backing checklist decision is a hole; a BEHAVIORAL edge that
+  surfaces in no flow is an unexercised branch — both become questions, never silent picks. `flow.md` stays
+  non-authoritative design (its frozen, machine-readable form is `workflows-coSherpa/docs/spec/service-flow.md`
+  `## Use-cases`, synthesised at `/freeze`). Keep the human's concept surface to exactly **checklist + flow.md** —
+  do not spawn further concept documents (structure/topology is generated later, at `/freeze` ③, not here).
 - **Track presence, not optimism.** A slot that is merely mentioned is not closed; it is closed only
   when rules exist. "Payment exists" is presence; "cancelled payment is voided/refunded/held under
   these conditions" is coverage. For each closed slot, name the user-model basis: goal, value,

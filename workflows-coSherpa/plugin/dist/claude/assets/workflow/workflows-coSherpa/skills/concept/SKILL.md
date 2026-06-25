@@ -1,6 +1,6 @@
 ---
 name: concept
-description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정 체크리스트(decision checklist)을 4관점으로 체크리스트(workflows-coSherpa/docs/concept/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정 체크리스트 정산, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정 체크리스트 정산', '계획 따져보자' 요청 시."
+description: "아이디어를 구현 가능한 기능 개념으로 구체화하고, 결정 체크리스트(decision checklist)을 4관점으로 체크리스트(workflows-coSherpa/docs/concept/checklist.md)에 정산하며, 용어(CONTEXT.md)를 다듬고, 이용자 관점 유스케이스 맵(flow.md)을 체크리스트와 함께 그려가며, 각 결정을 근거(ADR 또는 rationale 한 줄)와 함께 그 자리에서 기록해 모든 슬롯이 닫히면 기능을 /freeze 가능 상태로 만드는 Phase 1 세션. 브레인스토밍, 기능 구체화, 계획 압박 검증, load-bearing 결정 열거, 결정 체크리스트 정산, 유스케이스 맵 작성, 기능 동결 준비 시 활성화. '/concept', '개념설계 정산', '기능 구체화', '결정 체크리스트 정산', '계획 따져보자' 요청 시."
 ---
 
 <what-to-do>
@@ -18,8 +18,10 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 2. **DECOMPOSE** — 입력을 도메인 개념·사용자 행동·데이터·정책·기술 선택·외부 연동·범위 밖 항목으로 분해한다.
 3. **체크리스트 생성/갱신** — 4관점 스캔으로 슬롯을 열거한다(자유연상 아님).
 4. **슬롯을 하나씩 닫는다** — 각 결정을 닫힘 근거와 함께 그 자리에서 기록.
-5. **문서 충실도 확인** — 사용자 답이 checklist/CONTEXT/ADR 또는 rationale에 빠지거나 약해지지 않았는지 확인한다.
-6. **닫힘 선언** — 미표기 `[ ]`와 미정산 `[>]`가 0이 되면.
+5. **유스케이스 맵 갱신(flow.md)** — DECOMPOSE의 사용자 행동·실패·엣지를 이용자 관점 시나리오로 `flow.md`에
+   정리하고 체크리스트와 상호검증한다(빠진 분기 = 질문). 새 문서·새 질문이 아니라 같은 정산의 다른 뷰.
+6. **문서 충실도 확인** — 사용자 답이 checklist/flow.md/CONTEXT/ADR 또는 rationale에 빠지거나 약해지지 않았는지 확인한다.
+7. **닫힘 선언** — 미표기 `[ ]`와 미정산 `[>]`가 0이 되면.
 
 질문은 한 번에 하나씩, 답을 기다린다. 코드베이스에서 답할 수 있는 질문은 묻지 말고 탐색한다.
 
@@ -42,6 +44,20 @@ description: "아이디어를 구현 가능한 기능 개념으로 구체화하�
 - **결정이 날 때 근거를 함께 적는다**(몰아서 적지 말 것). hard-to-reverse면 ADR 번호, 가벼우면
   rationale 한 줄(ADR 강제 안 함). 실험이면 `[>]`에 어느 프로토타입이 정산하는지 명명. 배제면 `[-]`에
   배제 근거.
+
+## 유스케이스 맵 (flow.md) — 체크리스트와 함께
+
+체크리스트가 *결정*을 정산하는 동안, `workflows-coSherpa/docs/concept/flow.md`는 같은 정산을 **이용자 관점 시나리오**로
+적는다 — 사용자가 밟을 수 있는 모든 경로(엣지 포함), 각 step이 닿는 구성요소와 거치는 결정을 명명한다. 규칙·상호검증
+의무는 `workflows-coSherpa/docs/concept/AGENTS.md` §use-case map가 소유 — 여기서 재정의하지 않는다. 운영 노트만:
+
+- **새 질문이 아니라 새 뷰다.** flow.md는 DECOMPOSE가 이미 끌어낸 사용자 행동·실패·엣지를 정리하는 합성 산출물 —
+  사용자에게 추가 질문을 만들지 않는다.
+- **상호검증으로 빈틈을 잡는다.** flow의 분기에 대응하는 체크리스트 결정이 없으면 구멍, BEHAVIORAL 엣지가 어떤
+  flow에도 안 나오면 안 밟히는 분기 — 둘 다 조용히 넘기지 말고 질문으로.
+- **사람이 보는 concept 문서는 checklist + flow.md 둘뿐.** 구조 문서(architecture.md)는 여기서 만들지 않는다 —
+  freeze ③이 만든다(부담 분산). freeze가 flow.md를 `workflows-coSherpa/docs/spec/service-flow.md` `## Use-cases`로 굳혀
+  대시보드 「서비스 흐름」 탭에 그린다.
 
 ## 아이디어 구체화 — ORIENT / DECOMPOSE / ELICIT
 

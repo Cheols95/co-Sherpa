@@ -6,12 +6,12 @@ description: "닫힌 기능을 한 번의 호출로 계약·PRD·이슈·graph-l
 # freeze — frozen 동결 번들 (Phase 1 → 계약)
 
 `concept`이 **"기능 X 닫힘 — /freeze ready"**를 선언한 기능을, 한 번의 호출로
-**의도감사 → PRD → 계약 스펙 → 이슈 → graph-lint**까지 동결한다.
+**의도감사 → PRD → 계약 스펙 → 이슈 → graph-lint → 서비스 흐름**까지 동결한다.
 **이 호출 자체가 유일한 인간 승인점이다** — 호출 = "이 동결을 승인한다"(다른 중간 승인점 없음).
 
 > 규칙 권위는 `workflows-coSherpa/docs/concept/AGENTS.md`(Phase 1) / `workflows-coSherpa/goals/AGENTS.md` §Gate validity — **동결 시작 전 반드시 읽는다**. 체크리스트 규약은 `workflows-coSherpa/docs/concept/README.md`.
-> 이 스킬은 그 종료를 **동결**하는 오케스트레이터다. 새로 만드는 본체는 ③ spec 증분 확장 하나뿐 —
-> 나머지는 기존 스킬(to-prd·to-spec·to-issues)을 frozen으로 수행한다.
+> 이 스킬은 그 종료를 **동결**하는 오케스트레이터다. 새로 만드는 본체는 둘 — ③의 `architecture.md`(토폴로지 소스)
+> 와 ⑥ `service-flow.md` 합성. 나머지는 기존 스킬(to-prd·to-spec·to-issues)을 frozen으로 수행한다.
 
 ## 진입 전제
 - 대상 기능의 `workflows-coSherpa/docs/concept/checklist.md`가 **닫혀 있어야** 한다(미표기 `[ ]` 0개 **그리고**
@@ -59,6 +59,11 @@ PRD 진행 **전**, 계획 비작성 서브에이전트 1회(없으면 명시적
 
 > 드리프트 정합(코드↔계약)이 아니다 — 그건 `spec-sync`. 여기는 **새 계약을 기존 위에 얹는** 작업이다.
 
+또한 ③에서 **`workflows-coSherpa/docs/concept/architecture.md`(코드 모듈 경계·배포 경계·의존 방향)를 반드시 남긴다.**
+to-spec이 계약 추출 중 비계약 구조를 거기로 분류하므로(`workflows-coSherpa/docs/concept/README.md`), 그 분류를 명시적
+산출물로 확정하는 것이다 — 이게 ⑥ service-flow.md의 토폴로지(Groups·Components) 소스다(없으면 ⑥이 빈약해진다).
+concept은 사람 부담 때문에 checklist+flow.md만 다루므로, **구조 문서는 여기 freeze에서** 만든다.
+
 ## ④ to-issues (frozen)
 
 `to-issues` 스킬대로 **tracer-bullet 수직 슬라이스**로 쪼개 `workflows-coSherpa/docs/issues/<NNN>-<slug>.md`를 만든다.
@@ -73,11 +78,35 @@ bash workflows-coSherpa/scripts/issues-graph-check.sh
 순환(cycle) 또는 dangling `depends`가 있으면 **freeze 실패** — 이슈 frontmatter를 고치고 다시 돌린다
 (exit≠0이면 동결 미완). 이것이 동결의 마지막 기계 게이트다.
 
+## ⑥ service-flow.md 합성 (맨 마지막 — to-issues 뒤)  ★두 번째 신규 본체
+
+대시보드 「서비스 흐름」 탭이 파싱하는 계약 `workflows-coSherpa/docs/spec/service-flow.md`를 **freeze의 가장 마지막**에
+만든다 — ④ 뒤라야 각 구성요소의 `phase`를 **방금 만든 실제 이슈 번호**와 연결할 수 있다. 표 3종(Groups·Components·
+Use-cases)의 형식 권위는 `workflows-coSherpa/dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`다(여기서 재정의 금지).
+
+합성 소스:
+- **Groups·Components(정적 토폴로지)** ← ③의 `architecture.md`(모듈·배포 경계) + `data-schema.md`(DB) + `api-contract.md`(서버 로직).
+  각 그룹의 컴포넌트는 `col`/`row`에서 **겹치지 않는 띠(band)**에 배치한다(그룹 박스 = 멤버 bounding box) — 띠가 겹치면
+  무관한 박스가 시각적으로 중첩된다(예: 프론트엔드가 백엔드 안에 끼임). 의도적 중첩은 `parent`로만. `depends_on`은
+  단방향(화살표=데이터 흐름)이고, 양쪽이 서로 `depends_on`하면 **양방향 ⇄ 화살표 하나**로 그려진다(상호 의존 자동 감지).
+- **Use-cases(경로 오버레이)** ← `workflows-coSherpa/docs/concept/flow.md`(이용자 시나리오)에서 **모든 상황 + 엣지케이스를
+  빠짐없이** 옮긴다. 엣지 누락 방지는 `checklist.md`의 BEHAVIORAL 슬롯 + ①의 residual-enumeration이 1차 보장 — 그
+  결과를 표로 굳힌다. 각 step의 `component`는 Components의 `id`와 일치, `phase`는 ④의 이슈 번호를 가리킨다.
+  유스케이스는 정적 지도 **위의 경로**다(모델 A) — 연속된 두 step은 Components의 `depends_on` 연결과 **일치**해야 한다.
+  대시보드는 일치하는 정적 화살표를 하이라이트하고, 지도에 없는 hop은 **점선 경고**로 띄운다 — 경고가 뜨면
+  토폴로지(`depends_on`)나 유스케이스를 고쳐 정합시킨다(왕복은 `depends_on` 상호 선언으로 ⇄ 표현).
+- 소스(flow.md·architecture.md)가 빈약해 표를 못 채우면 **조용히 지어내지 말고 중단·보고**(frozen 규율).
+
+검증: 작성 후 `bash workflows-coSherpa/dashboard/engines/roadmap.sh`로 대시보드를 생성해 service의 nodes·usecases가
+비어 있지 않은지(표가 파싱됐는지) 확인하고, `workflows-coSherpa/docs/spec/INDEX.md`에 service-flow 항목을 추가/유지한다.
+
 ---
 
 ## 완료
 - `workflows-coSherpa/docs/concept/checklist.md`의 그 기능을 **`FROZEN (날짜, freeze 완료 → issues NNN~MMM)`**로 표기.
-- 보고: "기능 X 동결 완료 → issues NNN~MMM. 다음: `/build workflows-coSherpa/docs/issues/<NNN>-*.md`로 계약화 후 구현." 사용자 언어로 간결히.
+- 보고: "기능 X 동결 완료 → issues NNN~MMM. **유스케이스·서비스 흐름은 ① 대시보드 「서비스 흐름」 탭, ②
+  `workflows-coSherpa/docs/spec/service-flow.md`(표), ③ `workflows-coSherpa/docs/concept/flow.md`(서술)에서 확인.** 다음:
+  `/build workflows-coSherpa/docs/issues/<NNN>-*.md`로 계약화 후 구현." 사용자 언어로 간결히.
 
 ## 동결 후 (일방향)
 - 새 기획거리 → `workflows-coSherpa/docs/findings/`(체크리스트 재오픈 아님).

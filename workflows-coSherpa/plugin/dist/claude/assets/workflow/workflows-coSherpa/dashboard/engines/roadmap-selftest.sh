@@ -136,6 +136,13 @@ spec: architecture
 | hook | Hook | backend | 4 | 1 | upload | 8 | webhook in |
 | store | Store | data | 9 | 3 | hook | 8 | storage |
 | mp | MP | external | 7 | 5 | hook | 1 | model |
+
+## Use-cases
+| uc | name | trigger | step | component | action | kind |
+| --- | --- | --- | --- | --- | --- | --- |
+| submit | Submit | user submits | 1 | upload | send | main |
+| submit | Submit | — | 2 | hook | receive | main |
+| submit | Submit | model down | 2 | mp | fallback | edge |
 EOF
 }
 
@@ -202,7 +209,7 @@ test_shading() {
   assert_has "$data" '"id":"003","title":"Ready","issueStatus":"ready-for-agent","gate":"green"'
 }
 
-# DATA.service contract: docs/spec/service-flow.md → {nodes,groups}.
+# DATA.service contract: docs/spec/service-flow.md → {nodes,groups,usecases}.
 test_service() {
   local tmp data
   tmp="$(portable_mktemp_dir)"
@@ -224,10 +231,18 @@ test_service() {
   assert_has "$data" '"key":"data","kind":"db","label":"Data","members":["store"],"pad":12,"labelTop":18'
   assert_has "$data" '"key":"frontend","kind":"fe","label":"Frontend","members":["upload"],"pad":12,"labelTop":18'
 
+  # Use-cases (## Use-cases table): grouped by uc, ordered steps, kind=main|edge.
+  # The use-case trigger = its first main row's trigger; an em-dash step trigger
+  # normalises to an empty cond; an edge row carries its condition as cond.
+  assert_has "$data" '"id":"submit","name":"Submit","trigger":"user submits","steps":['
+  assert_has "$data" '{"step":1,"component":"upload","action":"send","kind":"main","cond":"user submits"}'
+  assert_has "$data" '{"step":2,"component":"hook","action":"receive","kind":"main","cond":""}'
+  assert_has "$data" '{"step":2,"component":"mp","action":"fallback","kind":"edge","cond":"model down"}'
+
   # Graceful: no service-flow.md → empty service (dashboard shows guidance).
   rm -f "$tmp/docs/spec/service-flow.md"
   data="$(emit_fixture "$tmp")"
-  assert_has "$data" '"service":{"nodes":[],"groups":[]}'
+  assert_has "$data" '"service":{"nodes":[],"groups":[],"usecases":[]}'
 }
 
 # Generator-output validity (NOT render content). Guards the "generator emits

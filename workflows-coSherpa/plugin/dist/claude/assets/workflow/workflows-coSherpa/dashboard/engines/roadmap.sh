@@ -69,6 +69,10 @@ if [ -d "$SOURCE_ROOT/docs/issues" ]; then
 
     title="$(grep -m1 '^# ' "$f" 2>/dev/null | sed 's/^# *//')"
     [ -z "$title" ] && title="$slug"
+    # Strip a leading "<id>" badge ("001-", "001 - ", "001.") from the title so
+    # it isn't shown twice next to the dashboard's corner id badge. The issue
+    # file keeps its NNN- filename prefix; this is render-only.
+    title="$(printf '%s' "$title" | sed -E "s/^[[:space:]]*${id}[[:space:]]*[-:.)]?[[:space:]]*//")"
     issue_status="$(grep -m1 -iE '^[[:space:]]*Status:' "$f" 2>/dev/null | sed -E 's/^[[:space:]]*[Ss]tatus:[[:space:]]*//')"
     acc_total="$(grep -cE '^[[:space:]]*[-*] \[[ xX]\]' "$f" 2>/dev/null || true)"
     acc_done="$(grep -cE '^[[:space:]]*[-*] \[[xX]\]' "$f" 2>/dev/null || true)"
@@ -165,23 +169,35 @@ if [ "$ISSUE_COUNT" -eq 0 ]; then
 fi
 
 # ---- Service flow (docs/spec/service-flow.md) -> DATA.service ----
-# Optional contract doc for the "서비스 흐름" tab. Two markdown tables:
+# Contract doc for the "서비스 흐름" tab. Three markdown tables:
 #   ## Groups      | id | label | kind | parent |          (deploy boxes; parent = nesting)
 #   ## Components  | id | name | group | col | row | depends_on | phase | desc |
+#   ## Use-cases   | uc | name | trigger | step | component | action | kind |  (path overlays; kind=main|edge)
 # kind is DERIVED from a component's group (groupless -> user); a group's
 # members = its own components + every descendant group's components, so a
-# parent box (e.g. cloud) encloses its child boxes. Missing file or empty
-# tables ⇒ empty service ⇒ dashboard renders a graceful guidance state.
+# parent box (e.g. cloud) encloses its child boxes. col/row are absolute grid
+# coords and a group box = its members' bounding box, so keep each group's
+# components in a contiguous band that does NOT overlap a sibling group's band
+# (overlapping bands make unrelated boxes visually nest, e.g. frontend swallowed
+# by backend) — nest on purpose ONLY via `parent`. `depends_on` is one-way
+# (arrow source→target = data flow); declaring it BOTH ways (a depends_on b AND
+# b depends_on a) renders ONE bidirectional ⇄ arrow, not two overlapping curves.
+# Missing file or empty tables ⇒ empty service ⇒ dashboard renders a graceful
+# guidance state.
 SVC_FILE="$SOURCE_ROOT/docs/spec/service-flow.md"
 
 arch_table() {
-  # $1 = section name (Groups|Components). Emits one TAB-separated row per
-  # data row; header + separator rows skipped, cells trimmed. Same awk-on-'|'
-  # grain as the issue parser above.
+  # $1 = section name (Groups|Components|Use-cases). Emits one TAB-separated row
+  # per data row; the header row and its `---` separator are skipped (everything
+  # up to and including the separator row), cells trimmed. Generic over the first
+  # column name (id|uc|...) — the separator, not a fixed header keyword, marks
+  # where data begins. Same awk-on-'|' grain as the issue parser above.
   awk -v sec="$1" '
-    $0 ~ "^##[[:space:]]+" sec "([[:space:]]|$)" { insec=1; next }
+    $0 ~ "^##[[:space:]]+" sec "([[:space:]]|$)" { insec=1; seensep=0; next }
     insec && /^##[[:space:]]/ { insec=0 }
     insec && /^[[:space:]]*\|/ {
+      if ($0 ~ /^[[:space:]]*\|[[:space:]:|-]+\|[[:space:]]*$/) { seensep=1; next }  # --- separator
+      if (!seensep) next                                                            # header row(s)
       n = split($0, a, "|")
       row=""; first=""
       for (i = 2; i < n; i++) {
@@ -189,8 +205,7 @@ arch_table() {
         gsub(/^[[:space:]]+/, "", cell); gsub(/[[:space:]]+$/, "", cell)
         if (i == 2) { first = cell; row = cell } else { row = row "\t" cell }
       }
-      if (first == "id" || first == "") next        # header row
-      if (first ~ /^:?-+:?$/) next                   # --- separator row
+      if (first == "") next
       print row
     }
   ' "$SVC_FILE" 2>/dev/null
@@ -208,6 +223,7 @@ GROUP_ROWS=""
 COMP_ROWS=""
 SERVICE_NODES_JSON=""
 SERVICE_GROUPS_JSON=""
+SERVICE_USECASES_JSON=""
 
 if [ -f "$SVC_FILE" ]; then
   # Groups -> rows: gid|gkind|gparent|glabel
@@ -288,17 +304,42 @@ EOF2
   done <<EOF
 $GROUP_ROWS
 EOF
+
+  # Use-cases -> rows: uc|name|trigger|step|component|action|kind. Each row is
+  # one step of one use-case; kind=edge marks an edge-case branch (trigger holds
+  # its condition). Grouped by uc, rendered as a path overlay on the topology.
+  UC_ROWS=""
+  UC_IDS=""
+  while IFS=$'\t' read -r uc uname utrig ustep ucomp uact ukind; do
+    [ -z "$uc" ] && continue
+    case "$ukind" in edge|EDGE|Edge) ukind=edge ;; *) ukind=main ;; esac
+    case "$ustep" in ''|*[!0-9]*) ustep=0 ;; esac
+    UC_ROWS="${UC_ROWS}${uc}|${uname}|${utrig}|${ustep}|${ucomp}|${uact}|${ukind}"$'\n'
+    case " $UC_IDS " in *" $uc "*) ;; *) UC_IDS="$UC_IDS $uc" ;; esac
+  done <<EOF
+$(arch_table Use-cases)
+EOF
+
+  for uc in $UC_IDS; do
+    uname="$(printf '%s' "$UC_ROWS" | awk -F'|' -v u="$uc" '$1==u{print $2; exit}')"
+    utrig="$(printf '%s' "$UC_ROWS" | awk -F'|' -v u="$uc" '$1==u && $7=="main"{print $3; exit}')"
+    utrig="$(norm_dash "$utrig")"
+    steps_js=""
+    while IFS='|' read -r ruc rname rtrig rstep rcomp ract rkind; do
+      [ "$ruc" = "$uc" ] || continue
+      [ -n "$steps_js" ] && steps_js="$steps_js,"
+      steps_js="$steps_js{\"step\":${rstep:-0},\"component\":\"$(printf '%s' "$rcomp" | json_escape)\",\"action\":\"$(printf '%s' "$ract" | json_escape)\",\"kind\":\"$rkind\",\"cond\":\"$(printf '%s' "$(norm_dash "$rtrig")" | json_escape)\"}"
+    done <<EOF2
+$UC_ROWS
+EOF2
+    [ -n "$SERVICE_USECASES_JSON" ] && SERVICE_USECASES_JSON="$SERVICE_USECASES_JSON,"
+    SERVICE_USECASES_JSON="$SERVICE_USECASES_JSON{\"id\":\"$(printf '%s' "$uc" | json_escape)\",\"name\":\"$(printf '%s' "$uname" | json_escape)\",\"trigger\":\"$(printf '%s' "$utrig" | json_escape)\",\"steps\":[${steps_js}]}"
+  done
 fi
 
-SERVICE_JSON="{\"nodes\":[${SERVICE_NODES_JSON}],\"groups\":[${SERVICE_GROUPS_JSON}]}"
+SERVICE_JSON="{\"nodes\":[${SERVICE_NODES_JSON}],\"groups\":[${SERVICE_GROUPS_JSON}],\"usecases\":[${SERVICE_USECASES_JSON}]}"
 
-NEXT_TASK=""
-if [ -f "$SOURCE_ROOT/scripts/next-task.sh" ]; then
-  NEXT_TASK="$(portable_timeout 5 bash "$SOURCE_ROOT/scripts/next-task.sh" 2>/dev/null | head -3 | json_escape || true)"
-fi
-[ -z "$NEXT_TASK" ] && NEXT_TASK="No next-task output."
-
-DATA_JSON="{\"generatedAt\":\"$NOW\",\"demo\":$DEMO,\"activeGoal\":\"$(printf '%s' "$ACTIVE_GOAL" | json_escape)\",\"nextTask\":\"$NEXT_TASK\",\"readyCount\":$READY_COUNT,\"features\":[${FEATURES_JSON}],\"codeEdges\":[],\"service\":${SERVICE_JSON}}"
+DATA_JSON="{\"generatedAt\":\"$NOW\",\"demo\":$DEMO,\"activeGoal\":\"$(printf '%s' "$ACTIVE_GOAL" | json_escape)\",\"readyCount\":$READY_COUNT,\"features\":[${FEATURES_JSON}],\"codeEdges\":[],\"service\":${SERVICE_JSON}}"
 
 mkdir -p "$(dirname "$OUT")"
 cat > "$OUT" <<'HTML_HEAD'
@@ -350,7 +391,7 @@ cat > "$OUT" <<'HTML_HEAD'
   main{display:grid;grid-template-columns:minmax(0,1fr) 340px;height:calc(100vh - 150px)}
   #wrap.collapsed main{grid-template-columns:1fr}
   #wrap.collapsed aside{display:none}
-  .board{position:relative;overflow:hidden;padding:0;cursor:grab;user-select:none}
+  .board{position:relative;overflow:hidden;padding:0;cursor:grab;user-select:none;background:var(--surface)}
   .board.grabbing{cursor:grabbing}
   .empty{padding:40px 30px;color:var(--muted);font-size:14px;line-height:1.8}
   .flow{position:relative;transform-origin:0 0;will-change:transform}
@@ -415,6 +456,25 @@ cat > "$OUT" <<'HTML_HEAD'
   .d-link{color:var(--fe);font-weight:700}
   .d-warn{margin-top:10px;color:var(--warn);font-size:12px}
   .foot-note{padding:9px 22px;border-top:1px solid var(--line);background:var(--surface);color:var(--muted);font-size:11.5px}
+  /* use-case overlay (service view) */
+  .ucbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-top:10px}
+  .ucbar .uclbl{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-right:2px}
+  .ucchip{background:var(--panel2);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:12px;cursor:pointer;font-weight:600}
+  .ucchip:hover{color:var(--text);border-color:var(--muted)}
+  .ucchip.on{background:var(--be-bg);color:var(--text);border-color:var(--be)}
+  .node.dim{opacity:.2;filter:saturate(.3)}
+  .node.uc-on{box-shadow:0 0 0 1px var(--edge-hot),0 0 15px #14b8a655}
+  .edges path.dim{opacity:.1}
+  .edges path.uc-edge{fill:none}
+  .edges path.uc-edge.uc-main{stroke-width:3}
+  .edges path.uc-edge.uc-edge-case{stroke-dasharray:6 4;stroke-width:2.3}
+  .edges path.uc-edge.uc-missing{stroke-dasharray:2 3;stroke-width:2.4}
+  .edges path.uc-lit{opacity:1}
+  .uc-sec{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:13px 0 4px;font-weight:700}
+  .uc-step{font-size:12.5px;line-height:1.5;padding:5px 0;border-top:1px solid var(--line);display:flex;gap:8px}
+  .uc-step.edge{color:var(--warn)}
+  .uc-step .uc-n{min-width:18px;font-weight:800;color:var(--muted);flex:none}
+  .uc-cond{color:var(--muted)}
   @media (max-width:860px){main{grid-template-columns:1fr;height:auto} aside{border-left:0;border-top:1px solid var(--line)}}
 </style>
 </head>
@@ -438,14 +498,11 @@ cat > "$OUT" <<'HTML_HEAD'
     <div class="legend" id="legend"></div>
     <div class="sub" id="summary"></div>
   </div>
+  <div class="ucbar" id="ucbar" style="display:none"></div>
 </header>
 <main>
   <section class="board" id="board"></section>
   <aside>
-    <div id="roadmapExtras">
-      <h3>다음 할 일</h3>
-      <div class="cta"><div class="nextguide" id="nextGuide"></div></div>
-    </div>
     <h3 id="panelHead">선택한 모듈</h3>
     <div id="detail" class="detail"></div>
   </aside>
@@ -533,7 +590,7 @@ const VIEWS = {
       '<span><i class="dot fe"></i>프론트엔드</span><span><i class="dot be"></i>백엔드</span>' +
       '<span><i class="dot api"></i>외부 API</span><span><i class="dot db"></i>DB·저장</span>' +
       '<span><b style="color:var(--muted)">▭</b>큰 사각형 = 배포 경계</span>' +
-      '<span><b style="color:var(--muted)">→</b>데이터 흐름</span><span><b style="color:var(--muted)">┄</b>API 호출·저장</span>',
+      '<span><b style="color:var(--muted)">→</b>데이터 흐름</span><span><b style="color:var(--muted)">⇄</b>양방향</span><span><b style="color:var(--muted)">┄</b>API 호출·저장</span>',
     cls: n => n.kind,
     color: n => 'var(--' + (n.kind || 'user') + ')',
     face(n){
@@ -556,7 +613,7 @@ const VIEWS = {
 /* ===================== SHARED RENDERER ===================== */
 const NS = 'http://www.w3.org/2000/svg';
 let NW, NH, CGAP, RGAP;
-let selEl = null, edgeEls = [];
+let selEl = null, edgeEls = [], _nodeEls = {};
 
 function depthOf(n, idx, stack){
   if (n._d !== undefined) return n._d;
@@ -584,7 +641,7 @@ function makeFlow(W, H){
   flow.appendChild(svg); flow._svg = svg;
   return flow;
 }
-function addEdge(svg, a, b, side, color){
+function addEdge(svg, a, b, side, color, bidir){
   // Anchor on whichever of the 4 box sides faces the other box's center,
   // so an edge can leave a bottom-center and enter a top-center, etc.
   const acx = a._x + NW/2, acy = a._y + NH/2, bcx = b._x + NW/2, bcy = b._y + NH/2;
@@ -612,28 +669,35 @@ function addEdge(svg, a, b, side, color){
   path.dataset.from = a.id; path.dataset.to = b.id;
   svg.appendChild(path); edgeEls.push(path);
 
-  // Self-drawn open-V arrowhead: colour + stroke-width match the edge, and
-  // its angle = the curve's actual incoming tangent (c2 → end point). A
-  // shared SVG marker with context-stroke proved unreliable across browsers.
-  const ang = Math.atan2(y2 - c2y, x2 - c2x), L = 8, sp = Math.PI / 7;
-  const h1x = x2 - L * Math.cos(ang - sp), h1y = y2 - L * Math.sin(ang - sp);
-  const h2x = x2 - L * Math.cos(ang + sp), h2y = y2 - L * Math.sin(ang + sp);
-  const head = document.createElementNS(NS, 'path');
-  head.setAttribute('d', `M${h1x.toFixed(1)},${h1y.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} L${h2x.toFixed(1)},${h2y.toFixed(1)}`);
-  head.setAttribute('fill', 'none');
-  head.setAttribute('stroke-linecap', 'round');
-  head.setAttribute('stroke-linejoin', 'round');
-  if (side) head.style.strokeDasharray = 'none';
-  head.style.stroke = col;
-  head.dataset.base = col;
-  head.dataset.from = a.id; head.dataset.to = b.id;
-  svg.appendChild(head); edgeEls.push(head);
+  // Self-drawn open-V arrowhead(s): colour + stroke-width match the edge, angle
+  // = the curve's incoming tangent at that endpoint (a shared SVG marker with
+  // context-stroke proved unreliable across browsers). End head always; a second
+  // head at the start when `bidir` (reciprocal depends_on) → a ⇄ b.
+  const L = 8, sp = Math.PI / 7;
+  function arrow(tipx, tipy, cx, cy){
+    const ang = Math.atan2(tipy - cy, tipx - cx);
+    const hx1 = tipx - L * Math.cos(ang - sp), hy1 = tipy - L * Math.sin(ang - sp);
+    const hx2 = tipx - L * Math.cos(ang + sp), hy2 = tipy - L * Math.sin(ang + sp);
+    const head = document.createElementNS(NS, 'path');
+    head.setAttribute('d', `M${hx1.toFixed(1)},${hy1.toFixed(1)} L${tipx.toFixed(1)},${tipy.toFixed(1)} L${hx2.toFixed(1)},${hy2.toFixed(1)}`);
+    head.setAttribute('fill', 'none');
+    head.setAttribute('stroke-linecap', 'round');
+    head.setAttribute('stroke-linejoin', 'round');
+    if (side) head.style.strokeDasharray = 'none';
+    head.style.stroke = col;
+    head.dataset.base = col;
+    head.dataset.from = a.id; head.dataset.to = b.id;
+    svg.appendChild(head); edgeEls.push(head);
+  }
+  arrow(x2, y2, c2x, c2y);            // head into b (data a → b)
+  if (bidir) arrow(x1, y1, c1x, c1y); // head into a (data b → a)
 }
 function addNode(flow, cfg, n){
   const el = document.createElement('div');
   el.className = 'node ' + cfg.cls(n);
   el.style.left = n._x + 'px'; el.style.top = n._y + 'px'; el.style.width = NW + 'px'; el.style.height = NH + 'px';
   el.title = n.title ? (n.id + '  ' + n.title) : (n.nm || n.id);
+  el.dataset.nid = n.id; _nodeEls[n.id] = el;
   el.innerHTML = cfg.face(n);
   el.addEventListener('click', () => selectNode(cfg, n, el));
   el.addEventListener('mouseenter', () => setHot(n.id, true));
@@ -685,8 +749,7 @@ function draw(view){
   document.getElementById('legend').innerHTML = cfg.legend;
   document.getElementById('summary').textContent = cfg.summary();
   document.getElementById('panelHead').textContent = cfg.panelHead;
-  document.getElementById('roadmapExtras').style.display = (view === 'roadmap') ? '' : 'none';
-  board.innerHTML = ''; selEl = null; edgeEls = [];
+  board.innerHTML = ''; selEl = null; edgeEls = []; _nodeEls = {};
 
   if (!cfg.nodes || cfg.nodes.length === 0){
     const empty = document.createElement('div');
@@ -708,10 +771,21 @@ function draw(view){
     const lab = document.createElement('div'); lab.className = 'grp-label'; lab.textContent = g.label;
     box.appendChild(lab); flow.appendChild(box);
   });
+  const drawnPair = {};
   cfg.nodes.forEach(n => (n.deps || []).forEach(d => {
     const a = cfg.idx[d]; if (!a) return;          // dangling dep: no edge (flagged on node)
+    // Reciprocal depends_on (a ⇄ n) in the service topology → ONE bidirectional
+    // arrow (heads both ends) instead of two overlapping one-way curves; drawn
+    // once per pair. Roadmap (dag) deps are one-way (a cycle is a lint error),
+    // so this only fires for the service flow.
+    const recip = cfg.mode === 'boxes' && (a.deps || []).indexOf(n.id) >= 0;
+    if (recip){
+      const key = [n.id, d].sort().join('|');
+      if (drawnPair[key]) return;
+      drawnPair[key] = 1;
+    }
     // edge colour = the SOURCE node's status colour (the box it leaves).
-    addEdge(flow._svg, a, n, cfg.sideEdge ? cfg.sideEdge(n) : false, cfg.color ? cfg.color(a) : 'var(--edge)');
+    addEdge(flow._svg, a, n, cfg.sideEdge ? cfg.sideEdge(n) : false, cfg.color ? cfg.color(a) : 'var(--edge)', recip);
   }));
   cfg.nodes.forEach(n => addNode(flow, cfg, n));
   board.appendChild(flow);
@@ -720,19 +794,148 @@ function draw(view){
   fitView();
   const first = flow.querySelector('.node');
   if (cfg.nodes[0] && first) selectNode(cfg, cfg.nodes[0], first);
+  buildUcBar(view);
 }
 
-/* ===================== NEXT-TASK GUIDE (roadmap-scoped) ===================== */
-(function(){
-  const active = F.find(f => f.gate === 'active');
-  const readyF = F.filter(f => f.ready);
-  const label = f => f.id + ' ' + f.title;
-  const parts = [];
-  if (active) parts.push('진행 중인 ' + label(active) + ' 모듈을 완료');
-  if (readyF.length) parts.push('지금 시작 가능한 ' + readyF.map(label).join(', ') + ' 모듈을 병렬 착수');
-  const guide = document.getElementById('nextGuide');
-  if (guide) guide.textContent = parts.length ? parts.join(' + ') : (DATA.nextTask || '진행할 작업이 없습니다.');
-})();
+/* ===================== USE-CASE OVERLAY (service view) ===================== */
+/* Model A: a use-case is an ordered route OVER the static topology, not its own
+   arrow set. Selecting a chip dims non-participants and HIGHLIGHTS the existing
+   static edges the route uses (main = teal, edge-case = warn); a hop the route
+   needs but the topology doesn't declare is drawn as a dotted warning and flagged
+   in the panel. The numbered step order lives in the panel. */
+function ucCompIds(uc){
+  const ids = [];
+  (uc.steps || []).forEach(s => { if (s.component && ids.indexOf(s.component) < 0) ids.push(s.component); });
+  return ids;
+}
+function ucSteps(uc){
+  return (uc.steps || []).slice().sort((a, b) =>
+    (a.step - b.step) || ((a.kind === 'main' ? 0 : 1) - (b.kind === 'main' ? 0 : 1)));
+}
+function clearOverlay(){
+  if (!_flowEl) return;
+  _flowEl.querySelectorAll('.node.dim,.node.uc-on').forEach(n => n.classList.remove('dim', 'uc-on'));
+  const svg = _flowEl._svg;
+  svg.querySelectorAll('path.uc-edge').forEach(p => p.remove());            // drawn "missing" hops
+  svg.querySelectorAll('path.dim').forEach(p => p.classList.remove('dim'));
+  svg.querySelectorAll('path.uc-lit').forEach(p => {                        // restore highlighted static edges
+    p.classList.remove('uc-lit');
+    p.style.stroke = p.dataset.base || 'var(--edge)';
+    p.style.strokeWidth = '';
+  });
+}
+function drawUcEdge(svg, a, b, kind){
+  const acx = a._x + NW/2, acy = a._y + NH/2, bcx = b._x + NW/2, bcy = b._y + NH/2;
+  const dx = bcx - acx, dy = bcy - acy;
+  let x1, y1, x2, y2, c1x, c1y, c2x, c2y;
+  if (Math.abs(dx) >= Math.abs(dy)){
+    if (dx >= 0){ x1 = a._x + NW; y1 = acy; x2 = b._x;      y2 = bcy; }
+    else        { x1 = a._x;      y1 = acy; x2 = b._x + NW; y2 = bcy; }
+    const off = Math.max(26, Math.abs(x2 - x1) * 0.5), s = dx >= 0 ? 1 : -1;
+    c1x = x1 + off * s; c1y = y1; c2x = x2 - off * s; c2y = y2;
+  } else {
+    if (dy >= 0){ x1 = acx; y1 = a._y + NH; x2 = bcx; y2 = b._y; }
+    else        { x1 = acx; y1 = a._y;      x2 = bcx; y2 = b._y + NH; }
+    const off = Math.max(18, Math.abs(y2 - y1) * 0.5), s = dy >= 0 ? 1 : -1;
+    c1x = x1; c1y = y1 + off * s; c2x = x2; c2y = y2 - off * s;
+  }
+  const k = (kind === 'edge') ? 'edge-case' : kind;       // main | edge-case | missing
+  const col = (kind === 'main') ? 'var(--edge-hot)' : 'var(--warn)';
+  const cls = 'uc-edge uc-' + k;
+  const path = document.createElementNS(NS, 'path');
+  path.setAttribute('d', `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`);
+  path.setAttribute('class', cls); path.style.stroke = col;
+  svg.appendChild(path);
+  const ang = Math.atan2(y2 - c2y, x2 - c2x), L = 9, sp = Math.PI / 7;
+  const h1x = x2 - L*Math.cos(ang - sp), h1y = y2 - L*Math.sin(ang - sp);
+  const h2x = x2 - L*Math.cos(ang + sp), h2y = y2 - L*Math.sin(ang + sp);
+  const head = document.createElementNS(NS, 'path');
+  head.setAttribute('d', `M${h1x.toFixed(1)},${h1y.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} L${h2x.toFixed(1)},${h2y.toFixed(1)}`);
+  head.setAttribute('class', cls);
+  head.setAttribute('fill', 'none'); head.setAttribute('stroke-linecap', 'round'); head.setAttribute('stroke-linejoin', 'round');
+  head.style.stroke = col; head.style.strokeDasharray = 'none';
+  svg.appendChild(head);
+}
+// Light up an EXISTING static edge between A and B (either direction); returns
+// whether the connection exists on the map. Model A: a use-case highlights the
+// topology — it does not draw its own arrows for already-declared connections.
+function litEdge(A, B, kind){
+  let found = false;
+  const col = kind === 'edge' ? 'var(--warn)' : 'var(--edge-hot)';
+  const w = kind === 'edge' ? '2.4' : '3';
+  edgeEls.forEach(e => {
+    if ((e.dataset.from === A && e.dataset.to === B) || (e.dataset.from === B && e.dataset.to === A)){
+      found = true;
+      e.classList.remove('dim'); e.classList.add('uc-lit');
+      e.style.stroke = col; e.style.strokeWidth = w;
+    }
+  });
+  return found;
+}
+function applyUsecase(uc){
+  clearOverlay();
+  document.querySelectorAll('.ucchip').forEach(c => c.classList.toggle('on', c.dataset.uc === (uc ? uc.id : '')));
+  if (!uc){
+    if (SVC.nodes && SVC.nodes[0]){ const e0 = _nodeEls[SVC.nodes[0].id]; if (e0) selectNode(VIEWS.service, SVC.nodes[0], e0); }
+    return;
+  }
+  const idx = VIEWS.service.idx, svg = _flowEl._svg;
+  const nm = id => (idx[id] || {}).nm || id;
+  const on = {}; ucCompIds(uc).forEach(id => { on[id] = true; });
+  (SVC.nodes || []).forEach(n => {
+    const el = _nodeEls[n.id]; if (!el) return;
+    el.classList.add(on[n.id] ? 'uc-on' : 'dim');
+  });
+  svg.querySelectorAll('path:not(.uc-edge)').forEach(p => p.classList.add('dim'));
+  const steps = ucSteps(uc), mains = steps.filter(s => s.kind !== 'edge');
+  const mainComps = {}; mains.forEach(m => { mainComps[m.component] = true; });
+  const missing = [];                              // hops the route needs but the topology doesn't declare
+  function hop(A, B, kind){
+    if (litEdge(A, B, kind)) return;               // on the map → highlight the existing edge
+    if (idx[A] && idx[B]) drawUcEdge(svg, idx[A], idx[B], 'missing');   // not on the map → dotted warning
+    missing.push(nm(A) + ' → ' + nm(B));
+  }
+  for (let i = 1; i < mains.length; i++) hop(mains[i-1].component, mains[i].component, 'main');
+  steps.filter(s => s.kind === 'edge').forEach(e => {
+    if (mainComps[e.component]) return;            // in-place alternative at an on-path node → narrate only
+    let src = null; mains.forEach(m => { if (m.step <= e.step) src = m; });
+    if (!src && mains.length) src = mains[0];
+    if (src) hop(src.component, e.component, 'edge');
+  });
+  detail.innerHTML = ucPanel(uc, missing);
+}
+function ucPanel(uc, missing){
+  const idx = VIEWS.service.idx, nm = id => (idx[id] || {}).nm || id;
+  const steps = ucSteps(uc);
+  const mains = steps.filter(s => s.kind !== 'edge');
+  const edges = steps.filter(s => s.kind === 'edge');
+  const mh = mains.map((s, i) =>
+    `<div class="uc-step"><span class="uc-n">${i+1}</span><span><b>${escapeHtml(nm(s.component))}</b> — ${escapeHtml(s.action || '')}</span></div>`).join('');
+  const eh = edges.length
+    ? '<div class="uc-sec">엣지케이스</div>' + edges.map(e =>
+        `<div class="uc-step edge"><span class="uc-n">⤷</span><span><b>${escapeHtml(nm(e.component))}</b> — ${escapeHtml(e.action || '')}${e.cond ? ` <span class="uc-cond">(${escapeHtml(e.cond)})</span>` : ''}</span></div>`).join('')
+    : '';
+  const mw = (missing && missing.length)
+    ? `<div class="d-warn">⚠ 토폴로지에 없는 연결: ${missing.map(escapeHtml).join(', ')}<br>→ <code>depends_on</code>에 추가하거나 유스케이스를 고치세요 (지도에 점선으로 표시)</div>`
+    : '';
+  return `<div class="d-ph"><span>유스케이스</span><span class="d-status be">경로</span></div>` +
+         `<div class="d-title">${escapeHtml(uc.name || uc.id)}</div>` +
+         `<div class="d-desc">상황: ${escapeHtml(uc.trigger || '—')}</div>` +
+         `<div class="uc-sec">정상 흐름</div>${mh}${eh}${mw}`;
+}
+function buildUcBar(view){
+  const ucbar = document.getElementById('ucbar');
+  const ucs = (view === 'service') ? (SVC.usecases || []) : [];
+  if (!ucs.length){ ucbar.style.display = 'none'; ucbar.innerHTML = ''; return; }
+  ucbar.style.display = '';
+  ucbar.innerHTML = '<span class="uclbl">유스케이스</span>' +
+    '<span class="ucchip on" data-uc="">전체(정적)</span>' +
+    ucs.map(u => `<span class="ucchip" data-uc="${escapeHtml(u.id)}">${escapeHtml(u.name || u.id)}</span>`).join('');
+  ucbar.querySelectorAll('.ucchip').forEach(ch => ch.addEventListener('click', () => {
+    const id = ch.dataset.uc;
+    applyUsecase(id ? (SVC.usecases.find(u => u.id === id) || null) : null);
+  }));
+}
 
 /* ===================== CONTROLS ===================== */
 let curView = 'roadmap';
@@ -761,6 +964,7 @@ themeBtn.addEventListener('click', () => applyTheme(document.documentElement.dat
 
 document.getElementById('footNote').innerHTML =
   '두 탭은 <b>상호 연결</b> — 「서비스 흐름」에서 부품을 클릭하면 그게 어느 <b>개발 단계(Phase)</b>에서 만들어지는지 패널에 보입니다. ' +
+  '위쪽 <b>유스케이스 칩</b>을 누르면 그 경로가 <b>정적 지도 위에서 강조</b>됩니다(엣지케이스 = 빨강). 지도에 없는 연결은 <b style="color:var(--warn)">점선 경고</b>로 떠요. ' +
   '캔버스는 <b>드래그로 이동</b>·<b>휠로 확대/축소</b>·<b>⤢로 화면 맞춤</b>. ' +
   '「개발 로드맵」 = <code>docs/issues/</code> · 「서비스 흐름」 = <code>docs/spec/service-flow.md</code>.';
 

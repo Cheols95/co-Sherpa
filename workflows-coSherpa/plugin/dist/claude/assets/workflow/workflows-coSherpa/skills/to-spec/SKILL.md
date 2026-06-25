@@ -30,7 +30,7 @@ description: "workflows-coSherpa/docs/spec/가 아직 없을 때 PRD/ADR을 계�
 | 공개 타입/도메인 모델 | `workflows-coSherpa/docs/spec/domain-types.md` | 공유 인터페이스, enum, value object, DTO |
 | (이벤트 기반이면) 이벤트 계약 | `workflows-coSherpa/docs/spec/events.md` | 큐·웹훅·토픽 메시지 스키마 |
 | (필요시) 설정 계약 | `workflows-coSherpa/docs/spec/config.md` | env var, feature flag 키·타입·기본값 |
-| (대시보드 쓰면) 서비스 흐름 | `workflows-coSherpa/docs/spec/service-flow.md` | 로드맵 대시보드 「서비스 흐름」 탭이 파싱하는 Groups·Components 표(배포 경계·구성요소·`depends_on`·phase). 표 형식의 권위 출처는 `workflows-coSherpa/dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`이며, to-spec이 `workflows-coSherpa/docs/spec/data-schema.md` §서비스 흐름 입력 계약으로 옮긴다(없으면 생성) |
+| 서비스 흐름 (대시보드) | `workflows-coSherpa/docs/spec/service-flow.md` | 로드맵 대시보드 「서비스 흐름」 탭이 파싱하는 표 3종 — Groups·Components(배포 경계·구성요소·`depends_on`·phase) + **Use-cases**(상황별 이용자 경로·엣지케이스). 토폴로지 소스=`workflows-coSherpa/docs/concept/architecture.md`, Use-cases 소스=`workflows-coSherpa/docs/concept/flow.md`. 표 형식 권위=`workflows-coSherpa/dashboard/engines/roadmap.sh` 파서 주석 + `roadmap-selftest.sh`(여기서 재정의 금지). freeze 흐름에선 phase를 이슈와 잇기 위해 **맨 마지막(⑥)**에 합성 |
 
 **비계약 설계 = 모양·근거 설명. 강제력 약하고 변동 잦음 → `workflows-coSherpa/docs/spec/`에 넣지 말 것.**
 
@@ -122,5 +122,5 @@ related: [workflows-coSherpa/docs/prd/PRD.md, workflows-coSherpa/docs/adr/NNNN-*
 | Data schema | workflows-coSherpa/docs/spec/data-schema.md | DB tables, relations |
 | API contract | workflows-coSherpa/docs/spec/api-contract.md | HTTP endpoints, payloads, errors |
 | Domain types | workflows-coSherpa/docs/spec/domain-types.md | shared interfaces, enums, DTOs |
-| Service flow | workflows-coSherpa/docs/spec/service-flow.md | dashboard service-flow topology (Groups·Components) |
+| Service flow | workflows-coSherpa/docs/spec/service-flow.md | dashboard service-flow (Groups·Components·Use-cases) |
 ```

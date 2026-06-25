@@ -30,9 +30,10 @@ description: "workflows-coSherpa/docs/spec/가 이미 있을 때 계약 문서 �
 | 코드·문서 중 어느 쪽이 맞는지 모호 | **사용자에게 질문.** 임의 결정 금지 |
 | 계약 문서가 hollow shell(칸만 있고 내용 빔)이거나 품질 floor(검증가능·반례·구체엣지, `to-spec` §품질 floor 참조) 위반 | 채울 근거(우선순위: ①코드 → ②최신 accepted ADR → ③①②가 대체(supersede) 안 한 PRD 결정, 충돌 시 상위 우선)가 있으면 **직접 보강**, 없으면 **finding 또는 사용자 질문**. 단, 칸 내용이 `TODO(미결정)`이면 보강 대상이 아니다(to-spec이 사용자 결정 대기로 비운 칸) — 그대로 두고 finding/질문으로만 처리 |
 
-> 서비스 흐름 계약(`workflows-coSherpa/docs/spec/service-flow.md`)도 같은 규칙: 표가 실제 배포 토폴로지·최신 ADR과 어긋나면
-> 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding. (표 형식·권위 출처는 `workflows-coSherpa/skills/to-spec/SKILL.md`
-> 서비스 흐름 항목과 `workflows-coSherpa/docs/spec/README.md` 참조 — 코드 `architecture.md`와는 다른 문서.)
+> 서비스 흐름 계약(`workflows-coSherpa/docs/spec/service-flow.md`)도 같은 규칙: 표 3종(Groups·Components·**Use-cases**)이
+> 실제 배포 토폴로지·이용자 흐름·최신 ADR과 어긋나면 문서만 고치면 직접 갱신, 인프라/코드를 고쳐야 하면 finding.
+> Use-cases 드리프트의 서술 원본은 `workflows-coSherpa/docs/concept/flow.md`다. (표 형식·권위 출처는
+> `workflows-coSherpa/skills/to-spec/SKILL.md` 서비스 흐름 항목과 `workflows-coSherpa/docs/spec/README.md` 참조 — 코드 `architecture.md`와는 다른 문서.)
 
 ## 가드레일
 - **코드를 직접 고치지 않는다.** 테스트 없는 코드 변경은 TDD 엔진(`/build`)의 영역 — 여기선 finding으로 넘긴다.
