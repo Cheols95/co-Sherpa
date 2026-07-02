@@ -1,8 +1,8 @@
 # co-Sherpa Release Verification Report
 
-- generated_at: 2026-06-25T11:26:20Z
-- branch: main
-- commit: 5dd0491fca0156d79ce7a281dbc3b755a25b2bd9
+- generated_at: 2026-07-02T17:37:27Z
+- branch: feat/roadmap-bpmn-flow
+- commit: 21c73849416792dc5995b717f58bc67aac3556a5
 - plugin_id: cosherpa
 - display_name: co-Sherpa
 - harness_root: workflows-coSherpa/
@@ -11,7 +11,7 @@
 ## Workspace Status Before Release
 
 ```text
-clean
+ M dev/release-verification/release-report.md
 ```
 
 ## Command Results
