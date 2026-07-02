@@ -749,7 +749,9 @@ function setHot(id, on){
   edgeEls.forEach(e => {
     if (e.dataset.from === id || e.dataset.to === id){
       e.classList.toggle('hot', on);
-      e.style.stroke = on ? 'var(--edge-hot)' : (e.dataset.base || 'var(--edge)');
+      // On leave, restore the use-case overlay colour (dataset.lit) when this edge
+      // is currently lit by an active use-case; otherwise the static base colour.
+      e.style.stroke = on ? 'var(--edge-hot)' : (e.dataset.lit || e.dataset.base || 'var(--edge)');
     }
   });
 }
@@ -999,6 +1001,7 @@ function clearOverlay(){
     p.classList.remove('uc-lit');
     p.style.stroke = p.dataset.base || 'var(--edge)';
     p.style.strokeWidth = '';
+    delete p.dataset.lit;
   });
 }
 function drawUcEdge(svg, a, b, kind){
@@ -1037,7 +1040,7 @@ function litEdge(A, B, kind){
     if ((e.dataset.from === A && e.dataset.to === B) || (e.dataset.from === B && e.dataset.to === A)){
       found = true;
       e.classList.remove('dim'); e.classList.add('uc-lit');
-      e.style.stroke = col; e.style.strokeWidth = w;
+      e.style.stroke = col; e.style.strokeWidth = w; e.dataset.lit = col;   // remember overlay colour so hover-leave can restore it
     }
   });
   return found;
