@@ -207,11 +207,16 @@ if [ "$ISSUE_COUNT" -eq 0 ]; then
 fi
 
 # ---- Service flow (docs/spec/service-flow.md) -> DATA.service ----
-# Contract doc for the "서비스 흐름" tab. Three markdown tables:
+# Contract doc for the "서비스 흐름" tab. Up to four markdown tables:
 #   ## Groups      | id | label | kind | parent |          (deploy boxes; parent = nesting)
 #   ## Components  | id | name | group | col | row | depends_on | phase | desc |
+#   ## Flow        | from | to | label | kind |             (BPMN sequence flows; kind=normal|conditional)
 #   ## Use-cases   | uc | name | trigger | step | component | action | kind |  (path overlays; kind=main|edge)
-# kind is DERIVED from a component's group (groupless -> user); a group's
+# A component whose `group` cell is the reserved word `gateway` renders as a
+# decision diamond and `event` as a start/end circle (both belong to no group).
+# The Flow table, when present, is the edge source (labelled arrows); without it
+# the view falls back to depends_on. kind is DERIVED from a component's group
+# (groupless -> user); a group's
 # members = its own components + every descendant group's components, so a
 # parent box (e.g. cloud) encloses its child boxes. col/row are absolute grid
 # coords and a group box = its members' bounding box, so keep each group's
@@ -262,6 +267,7 @@ COMP_ROWS=""
 SERVICE_NODES_JSON=""
 SERVICE_GROUPS_JSON=""
 SERVICE_USECASES_JSON=""
+SERVICE_EDGES_JSON=""
 
 if [ -f "$SVC_FILE" ]; then
   # Groups -> rows: gid|gkind|gparent|glabel
@@ -277,12 +283,16 @@ EOF
   while IFS=$'\t' read -r cid cname cgroup ccol crow cdeps cphase cdesc; do
     [ -z "$cid" ] && continue
     cgroup="$(norm_dash "$cgroup")"
-    if [ -z "$cgroup" ]; then
-      kind="user"
-    else
-      kind="$(printf '%s' "$GROUP_ROWS" | awk -F'|' -v g="$cgroup" '$1==g{print $2; exit}')"
-      [ -z "$kind" ] && kind="user"
-    fi
+    # Reserved group values `gateway`/`event` mark a logical BPMN node (a decision
+    # diamond / a start-end circle); it belongs to no deploy group. Otherwise kind
+    # is derived from the named group, defaulting to `user` when groupless/unknown.
+    case "$(printf '%s' "$cgroup" | tr '[:upper:]' '[:lower:]')" in
+      gateway) kind="gateway"; cgroup="" ;;
+      event)   kind="event";   cgroup="" ;;
+      "")      kind="user" ;;
+      *)       kind="$(printf '%s' "$GROUP_ROWS" | awk -F'|' -v g="$cgroup" '$1==g{print $2; exit}')"
+               [ -z "$kind" ] && kind="user" ;;
+    esac
     case "$ccol" in ''|*[!0-9]*) ccol=0 ;; esac
     case "$crow" in ''|*[!0-9]*) crow=0 ;; esac
     cdeps="$(printf '%s' "$cdeps" | tr ',' ' ')"
@@ -373,9 +383,26 @@ EOF2
     [ -n "$SERVICE_USECASES_JSON" ] && SERVICE_USECASES_JSON="$SERVICE_USECASES_JSON,"
     SERVICE_USECASES_JSON="$SERVICE_USECASES_JSON{\"id\":\"$(printf '%s' "$uc" | json_escape)\",\"name\":\"$(printf '%s' "$uname" | json_escape)\",\"trigger\":\"$(printf '%s' "$utrig" | json_escape)\",\"steps\":[${steps_js}]}"
   done
+
+  # Flow -> rows: from|to|label|kind. Directed, labelled BPMN sequence flows. When
+  # this table is present it REPLACES depends_on as the service view's edge source:
+  # `label` prints on the arrow, `kind` (normal|conditional) is carried through.
+  while IFS=$'\t' read -r efrom eto elabel ekind; do
+    [ -z "$efrom" ] && continue
+    [ -z "$eto" ] && continue
+    case "$(printf '%s' "$ekind" | tr '[:upper:]' '[:lower:]')" in
+      conditional) ekind=conditional ;;
+      *) ekind=normal ;;
+    esac
+    elabel="$(norm_dash "$elabel")"
+    [ -n "$SERVICE_EDGES_JSON" ] && SERVICE_EDGES_JSON="$SERVICE_EDGES_JSON,"
+    SERVICE_EDGES_JSON="$SERVICE_EDGES_JSON{\"from\":\"$(printf '%s' "$efrom" | json_escape)\",\"to\":\"$(printf '%s' "$eto" | json_escape)\",\"label\":\"$(printf '%s' "$elabel" | json_escape)\",\"kind\":\"$ekind\"}"
+  done <<EOF
+$(arch_table Flow)
+EOF
 fi
 
-SERVICE_JSON="{\"nodes\":[${SERVICE_NODES_JSON}],\"groups\":[${SERVICE_GROUPS_JSON}],\"usecases\":[${SERVICE_USECASES_JSON}]}"
+SERVICE_JSON="{\"nodes\":[${SERVICE_NODES_JSON}],\"groups\":[${SERVICE_GROUPS_JSON}],\"usecases\":[${SERVICE_USECASES_JSON}],\"edges\":[${SERVICE_EDGES_JSON}]}"
 
 DATA_JSON="{\"generatedAt\":\"$NOW\",\"demo\":$DEMO,\"activeGoal\":\"$(printf '%s' "$ACTIVE_GOAL" | json_escape)\",\"readyCount\":$READY_COUNT,\"features\":[${FEATURES_JSON}],\"codeEdges\":[],\"service\":${SERVICE_JSON}}"
 
@@ -456,7 +483,10 @@ cat > "$OUT" <<'HTML_HEAD'
   .node .nfoot{display:flex;gap:6px;align-items:center;font-size:11px;color:var(--muted);white-space:nowrap}
   /* service node internals */
   .node .ph{font-size:10.5px;font-weight:700;color:var(--muted)}
-  .node .nm{font-size:13.5px;font-weight:700;line-height:1.22;margin:3px 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .node .nm{font-size:13.5px;font-weight:700;line-height:1.22;margin:3px 0 6px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  /* service task boxes centre their content vertically (esp. name-only flow nodes) */
+  .node.user,.node.fe,.node.be,.node.api,.node.db{display:flex;flex-direction:column;justify-content:center}
+  .node.user .nm{margin:0}
   .node .foot{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);gap:6px}
   /* roadmap gate fills */
   .node.green{background:var(--green-bg);border-color:var(--green)}
@@ -470,6 +500,20 @@ cat > "$OUT" <<'HTML_HEAD'
   /* service kind fills */
   .node.user{background:var(--user-bg);border-color:var(--user)} .node.fe{background:var(--fe-bg);border-color:var(--fe)} .node.be{background:var(--be-bg);border-color:var(--be)}
   .node.api{background:var(--api-bg);border-color:var(--api)} .node.db{background:var(--db-bg);border-color:var(--db)}
+  /* BPMN logical nodes: a diamond gateway (decision) + an event circle (start/end).
+     Coloured like the edge, so they read as the flow's skeleton, not loud boxes;
+     the text label sits BELOW the shape (.shape-label). */
+  .node.gateway{background:none;border:0;padding:0;overflow:visible;box-shadow:none}
+  .node.gateway:hover{transform:none;box-shadow:none}
+  .node.gateway svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+  .node.gateway svg polygon{fill:var(--panel2);stroke:var(--edge);stroke-width:5;stroke-linejoin:round}
+  .node.gateway .gwx{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--edge);font-weight:800;font-size:15px;pointer-events:none}
+  .node.gateway.sel{outline:0} .node.gateway.sel svg polygon{stroke:var(--text)}
+  .node.gateway.uc-on svg polygon{stroke:var(--edge-hot)}
+  .node.event{background:var(--green-bg);border:2.5px solid var(--green);border-radius:50%;padding:0;overflow:visible}
+  .node.event:hover{transform:none} .node.event.sel{outline:0;border-color:var(--text)}
+  .shape-label{position:absolute;z-index:2;text-align:center;font-size:11px;font-weight:800;color:var(--muted);line-height:1.2;pointer-events:none}
+  .elabel{position:absolute;z-index:2;transform:translate(-50%,-50%);background:var(--surface);border:1px solid var(--line);color:var(--text);font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;pointer-events:none;box-shadow:0 1px 5px #0006}
   .node.ready{box-shadow:0 0 0 1px var(--ready),0 0 16px #14b8a644}
   .node.ready:hover{box-shadow:0 0 0 1px var(--ready),0 7px 20px #0008}
   @keyframes apulse{0%,100%{box-shadow:0 0 0 1px var(--active),0 0 8px #f59e0b22}50%{box-shadow:0 0 0 1px var(--active),0 0 20px #f59e0b55}}
@@ -582,7 +626,7 @@ function gateLabel(f){
   if (g === 'todo') return f.ready ? '착수 가능' : '착수 대기';
   return GATE_KO[g] || g;
 }
-const KIND_LABEL = { user: '사용자', fe: '프론트엔드', be: '백엔드 · n8n', api: '외부 API', db: '데이터 · 저장', infra: '인프라' };
+const KIND_LABEL = { user: '사용자', fe: '프론트엔드', be: '백엔드 · n8n', api: '외부 API', db: '데이터 · 저장', infra: '인프라', gateway: '분기', event: '시작·종료' };
 
 /* ===================== VIEW CONFIG ===================== */
 const VIEWS = {
@@ -639,7 +683,7 @@ const VIEWS = {
     }
   },
   service: {
-    mode: 'boxes', nodes: SVC.nodes || [], idx: buildIndex(SVC.nodes || []), groups: SVC.groups || [], panelHead: '선택한 구성요소',
+    mode: 'boxes', nodes: SVC.nodes || [], idx: buildIndex(SVC.nodes || []), groups: SVC.groups || [], edges: SVC.edges || [], panelHead: '선택한 구성요소',
     NW: 176, NH: 86, CGAP: 58, RGAP: 26,
     sideEdge: n => n.kind === 'api' || n.kind === 'db',
     summary(){
@@ -648,18 +692,35 @@ const VIEWS = {
     legend:
       '<span><i class="dot fe"></i>프론트엔드</span><span><i class="dot be"></i>백엔드</span>' +
       '<span><i class="dot api"></i>외부 API</span><span><i class="dot db"></i>DB·저장</span>' +
-      '<span><b style="color:var(--muted)">▭</b>큰 사각형 = 배포 경계</span>' +
-      '<span><b style="color:var(--muted)">→</b>데이터 흐름</span><span><b style="color:var(--muted)">⇄</b>양방향</span><span><b style="color:var(--muted)">┄</b>API 호출·저장</span>',
+      '<span><b style="color:var(--edge)">◇</b>분기(게이트웨이)</span>' +
+      '<span><b style="color:var(--green)">◯</b>시작·종료</span>' +
+      '<span><b style="color:var(--muted)">▭</b>배포 경계</span>' +
+      '<span><b style="color:var(--muted)">→</b>흐름</span><span><b style="color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:0 5px">라벨</b>조건 분기</span>',
     cls: n => n.kind,
-    color: n => 'var(--' + (n.kind || 'user') + ')',
+    color: n => (n.kind === 'gateway' || n.kind === 'event') ? 'var(--edge)' : 'var(--' + (n.kind || 'user') + ')',
     face(n){
-      return `<div class="ph">${KIND_LABEL[n.kind] || n.kind}</div><div class="nm">${escapeHtml(n.nm)}</div>` +
-             `<div class="foot"><span>개발: Phase ${escapeHtml(n.phase)}</span></div>`;
+      // A generic flow task (groupless → kind user) shows just its name — a clean
+      // BPMN box. An architecture component (fe/be/api/db/infra) additionally
+      // shows its kind and the dev Phase that builds it (the two-tab cross-link).
+      const gen = !n.kind || n.kind === 'user';
+      const kl = gen ? '' : `<div class="ph">${KIND_LABEL[n.kind] || n.kind}</div>`;
+      const ft = gen ? '' : `<div class="foot"><span>개발: Phase ${escapeHtml(n.phase)}</span></div>`;
+      return kl + `<div class="nm">${escapeHtml(n.nm)}</div>` + ft;
     },
     panel(n){
-      const outs = (SVC.nodes || []).filter(x => (x.deps || []).indexOf(n.id) >= 0).map(x => x.nm);
-      const ins = (n.deps && n.deps.length) ? n.deps.map(d => (this.idx[d] || {}).nm || d).join(', ') : '— (시작점 / 외부)';
-      const out = outs.length ? outs.join(', ') : '— (끝점 / 사용자에게 전달)';
+      // Prefer the ## Flow edges for in/out; fall back to depends_on when absent.
+      const E = SVC.edges || [];
+      let ins, out;
+      if (E.length){
+        const inn = E.filter(e => e.to === n.id).map(e => (this.idx[e.from] || {}).nm || e.from);
+        const outn = E.filter(e => e.from === n.id).map(e => (this.idx[e.to] || {}).nm || e.to);
+        ins = inn.length ? inn.join(', ') : '— (시작점)';
+        out = outn.length ? outn.join(', ') : '— (끝점)';
+      } else {
+        const outs = (SVC.nodes || []).filter(x => (x.deps || []).indexOf(n.id) >= 0).map(x => x.nm);
+        ins = (n.deps && n.deps.length) ? n.deps.map(d => (this.idx[d] || {}).nm || d).join(', ') : '— (시작점 / 외부)';
+        out = outs.length ? outs.join(', ') : '— (끝점 / 사용자에게 전달)';
+      }
       return `<div class="d-ph"><span>구성요소</span><span class="d-status ${n.kind}">${KIND_LABEL[n.kind] || n.kind}</span></div>` +
              `<div class="d-title">${escapeHtml(n.nm)}</div><div class="d-desc">${escapeHtml(n.desc)}</div>` +
              `<div class="d-rel"><b>받는 데이터(입력)</b><span>${escapeHtml(ins)}</span></div>` +
@@ -700,41 +761,61 @@ function makeFlow(W, H){
   flow.appendChild(svg); flow._svg = svg;
   return flow;
 }
-function addEdge(svg, a, b, side, color, bidir){
-  // Anchor on whichever of the 4 box sides faces the other box's center,
-  // so an edge can leave a bottom-center and enter a top-center, etc.
-  const acx = a._x + NW/2, acy = a._y + NH/2, bcx = b._x + NW/2, bcy = b._y + NH/2;
-  const dx = bcx - acx, dy = bcy - acy;
-  let x1, y1, x2, y2, c1x, c1y, c2x, c2y;
-  if (Math.abs(dx) >= Math.abs(dy)){
-    // horizontal-dominant → exit left/right side, enter opposite side
-    if (dx >= 0){ x1 = a._x + NW; y1 = acy; x2 = b._x;      y2 = bcy; }
-    else        { x1 = a._x;      y1 = acy; x2 = b._x + NW; y2 = bcy; }
-    const off = Math.max(26, Math.abs(x2 - x1) * 0.5), s = dx >= 0 ? 1 : -1;
-    c1x = x1 + off * s; c1y = y1; c2x = x2 - off * s; c2y = y2;
-  } else {
-    // vertical-dominant → exit top/bottom side, enter opposite side
-    if (dy >= 0){ x1 = acx; y1 = a._y + NH; x2 = bcx; y2 = b._y; }
-    else        { x1 = acx; y1 = a._y;      x2 = bcx; y2 = b._y + NH; }
-    const off = Math.max(18, Math.abs(y2 - y1) * 0.5), s = dy >= 0 ? 1 : -1;
-    c1x = x1; c1y = y1 + off * s; c2x = x2; c2y = y2 - off * s;
+// Box geometry per node: a normal box fills its NW×NH cell; a gateway renders as
+// a centred square diamond and an event as a centred circle, so an edge anchors on
+// the actual shape edge (the diamond's right vertex / the circle's rim), not the
+// cell edge. Shape centre = cell centre, so anchors line up with posBoxes.
+function geom(n){
+  const cx = n._x + NW/2, cy = n._y + NH/2;
+  if (n.kind === 'gateway'){ const s = Math.min(NW, NH) * 0.62; return { cx, cy, rw: s, rh: s }; }
+  if (n.kind === 'event'){   const s = Math.min(NW, NH) * 0.5;  return { cx, cy, rw: s, rh: s }; }
+  return { cx, cy, rw: NW, rh: NH };
+}
+// Orthogonal (elbow) path through right-angle corners, lightly rounded.
+function ortho(pts){
+  if (pts.length < 2) return `M${pts[0][0]},${pts[0][1]}`;
+  const r = 9; let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++){
+    const p0 = pts[i-1], p1 = pts[i], p2 = pts[i+1];
+    let ax = p1[0]-p0[0], ay = p1[1]-p0[1], la = Math.hypot(ax, ay) || 1;
+    let bx = p2[0]-p1[0], by = p2[1]-p1[1], lb = Math.hypot(bx, by) || 1;
+    const rr = Math.min(r, la/2, lb/2);
+    d += ` L${(p1[0]-ax/la*rr).toFixed(1)},${(p1[1]-ay/la*rr).toFixed(1)} Q${p1[0]},${p1[1]} ${(p1[0]+bx/lb*rr).toFixed(1)},${(p1[1]+by/lb*rr).toFixed(1)}`;
   }
+  const last = pts[pts.length-1];
+  return d + ` L${last[0]},${last[1]}`;
+}
+function edgeLabel(flow, x, y, text){
+  const el = document.createElement('div');
+  el.className = 'elabel'; el.textContent = text;
+  el.style.left = x + 'px'; el.style.top = y + 'px';
+  flow.appendChild(el);
+}
+// One orthogonal edge a→b. Leaves the source's right side, forks at the shared
+// junction `jx` (ONE per source, computed in draw() → every sibling branch splits
+// at the same vertical line), then enters the target's left side. `bidir` adds a
+// second arrowhead at the start; `label` prints a pill on the branch.
+function addEdge(svg, a, b, side, color, bidir, jx, label){
+  const ag = geom(a), bg = geom(b);
+  const sx = ag.cx + ag.rw/2, sy = ag.cy, tx = bg.cx - bg.rw/2, ty = bg.cy;
+  const straight = Math.abs(sy - ty) < 1;
+  const fx = (jx == null) ? sx + 30 : jx;
+  const pts = straight ? [[sx,sy],[tx,ty]] : [[sx,sy],[fx,sy],[fx,ty],[tx,ty]];
   const col = color || 'var(--edge)';
   const path = document.createElementNS(NS, 'path');
-  path.setAttribute('d', `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`);
+  path.setAttribute('d', ortho(pts));
   if (side) path.setAttribute('class', 'side');
   path.style.stroke = col;
   path.dataset.base = col;
   path.dataset.from = a.id; path.dataset.to = b.id;
   svg.appendChild(path); edgeEls.push(path);
 
-  // Self-drawn open-V arrowhead(s): colour + stroke-width match the edge, angle
-  // = the curve's incoming tangent at that endpoint (a shared SVG marker with
-  // context-stroke proved unreliable across browsers). End head always; a second
-  // head at the start when `bidir` (reciprocal depends_on) → a ⇄ b.
+  // Self-drawn open-V arrowhead(s): colour + stroke-width match the edge, angle =
+  // the incoming segment's direction. End head always; a second head at the start
+  // when `bidir` (reciprocal depends_on) → a ⇄ b.
   const L = 8, sp = Math.PI / 7;
-  function arrow(tipx, tipy, cx, cy){
-    const ang = Math.atan2(tipy - cy, tipx - cx);
+  function arrow(tipx, tipy, fromx, fromy){
+    const ang = Math.atan2(tipy - fromy, tipx - fromx);
     const hx1 = tipx - L * Math.cos(ang - sp), hy1 = tipy - L * Math.sin(ang - sp);
     const hx2 = tipx - L * Math.cos(ang + sp), hy2 = tipy - L * Math.sin(ang + sp);
     const head = document.createElementNS(NS, 'path');
@@ -748,20 +829,41 @@ function addEdge(svg, a, b, side, color, bidir){
     head.dataset.from = a.id; head.dataset.to = b.id;
     svg.appendChild(head); edgeEls.push(head);
   }
-  arrow(x2, y2, c2x, c2y);            // head into b (data a → b)
-  if (bidir) arrow(x1, y1, c1x, c1y); // head into a (data b → a)
+  const pen = pts[pts.length - 2];
+  arrow(tx, ty, pen[0], pen[1]);              // head into b (data a → b)
+  if (bidir) arrow(sx, sy, pts[1][0], pts[1][1]); // head into a (data b → a)
+  if (label) edgeLabel(svg.parentNode, straight ? (sx+tx)/2 : fx, straight ? sy - 13 : (sy+ty)/2, label);
 }
 function addNode(flow, cfg, n){
   const el = document.createElement('div');
-  el.className = 'node ' + cfg.cls(n);
-  el.style.left = n._x + 'px'; el.style.top = n._y + 'px'; el.style.width = NW + 'px'; el.style.height = NH + 'px';
   el.title = n.title ? (n.id + '  ' + n.title) : (n.nm || n.id);
   el.dataset.nid = n.id; _nodeEls[n.id] = el;
-  el.innerHTML = cfg.face(n);
   el.addEventListener('click', () => selectNode(cfg, n, el));
   el.addEventListener('mouseenter', () => setHot(n.id, true));
   el.addEventListener('mouseleave', () => setHot(n.id, false));
-  flow.appendChild(el);
+  if (n.kind === 'gateway' || n.kind === 'event'){
+    // Logical node: a centred diamond (decision) or circle (start/end event),
+    // sized/placed by geom() so edges meet its actual edge. The text label sits
+    // OUTSIDE the shape (below it), like BPMN.
+    const g = geom(n);
+    el.className = 'node ' + n.kind;
+    el.style.left = (g.cx - g.rw/2) + 'px'; el.style.top = (g.cy - g.rh/2) + 'px';
+    el.style.width = g.rw + 'px'; el.style.height = g.rh + 'px';
+    if (n.kind === 'gateway'){
+      el.innerHTML = '<svg viewBox="0 0 100 100"><polygon points="50,3 97,50 50,97 3,50"/></svg><span class="gwx">✕</span>';
+    }
+    flow.appendChild(el);
+    const lab = document.createElement('div');
+    lab.className = 'shape-label';
+    lab.textContent = n.nm || n.title || n.id;
+    lab.style.left = (g.cx - 80) + 'px'; lab.style.top = (g.cy + g.rh/2 + 3) + 'px'; lab.style.width = '160px';
+    flow.appendChild(lab);
+  } else {
+    el.className = 'node ' + cfg.cls(n);
+    el.style.left = n._x + 'px'; el.style.top = n._y + 'px'; el.style.width = NW + 'px'; el.style.height = NH + 'px';
+    el.innerHTML = cfg.face(n);
+    flow.appendChild(el);
+  }
 }
 function selectNode(cfg, n, el){
   if (selEl) selEl.classList.remove('sel');
@@ -830,22 +932,38 @@ function draw(view){
     const lab = document.createElement('div'); lab.className = 'grp-label'; lab.textContent = g.label;
     box.appendChild(lab); flow.appendChild(box);
   });
-  const drawnPair = {};
-  cfg.nodes.forEach(n => (n.deps || []).forEach(d => {
-    const a = cfg.idx[d]; if (!a) return;          // dangling dep: no edge (flagged on node)
-    // Reciprocal depends_on (a ⇄ n) in the service topology → ONE bidirectional
-    // arrow (heads both ends) instead of two overlapping one-way curves; drawn
-    // once per pair. Roadmap (dag) deps are one-way (a cycle is a lint error),
-    // so this only fires for the service flow.
-    const recip = cfg.mode === 'boxes' && (a.deps || []).indexOf(n.id) >= 0;
-    if (recip){
-      const key = [n.id, d].sort().join('|');
-      if (drawnPair[key]) return;
-      drawnPair[key] = 1;
-    }
-    // edge colour = the SOURCE node's status colour (the box it leaves).
-    addEdge(flow._svg, a, n, cfg.sideEdge ? cfg.sideEdge(n) : false, cfg.color ? cfg.color(a) : 'var(--edge)', recip);
-  }));
+  // Build the edge list, THEN draw. The service view prefers an explicit ## Flow
+  // table (directed, labelled BPMN sequence flows drawn neutral); otherwise (and
+  // always for the roadmap dag) edges come from depends_on, coloured by source.
+  const elist = [];
+  const useFlow = cfg.mode === 'boxes' && cfg.edges && cfg.edges.length;
+  if (useFlow){
+    cfg.edges.forEach(e => {
+      const a = cfg.idx[e.from], b = cfg.idx[e.to];
+      if (!a || !b) return;                        // dangling ref: skip
+      elist.push({ a, b, side: cfg.sideEdge ? cfg.sideEdge(b) : false, color: 'var(--edge)', bidir: false, label: e.label || '' });
+    });
+  } else {
+    const drawnPair = {};
+    cfg.nodes.forEach(n => (n.deps || []).forEach(d => {
+      const a = cfg.idx[d]; if (!a) return;         // dangling dep: no edge (flagged on node)
+      // Reciprocal depends_on (a ⇄ n) → ONE bidirectional arrow, drawn once.
+      const recip = cfg.mode === 'boxes' && (a.deps || []).indexOf(n.id) >= 0;
+      if (recip){ const key = [n.id, d].sort().join('|'); if (drawnPair[key]) return; drawnPair[key] = 1; }
+      elist.push({ a, b: n, side: cfg.sideEdge ? cfg.sideEdge(n) : false, color: cfg.color ? cfg.color(a) : 'var(--edge)', bidir: recip, label: '' });
+    }));
+  }
+  // One shared junction x per source: every sibling branch forks at the same
+  // vertical line (jx just past the source, clamped left of the nearest target).
+  const jxOf = {};
+  elist.forEach(e => {
+    const sx = geom(e.a).cx + geom(e.a).rw/2, tl = geom(e.b).cx - geom(e.b).rw/2;
+    const cur = jxOf[e.a.id];
+    if (!cur) jxOf[e.a.id] = { sx, minTx: tl };
+    else if (tl < cur.minTx) cur.minTx = tl;
+  });
+  Object.keys(jxOf).forEach(k => { const o = jxOf[k]; o.jx = Math.min(o.sx + 30, o.minTx - 16); });
+  elist.forEach(e => addEdge(flow._svg, e.a, e.b, e.side, e.color, e.bidir, jxOf[e.a.id].jx, e.label));
   cfg.nodes.forEach(n => addNode(flow, cfg, n));
   board.appendChild(flow);
   _flowEl = flow; _dim = dim;
@@ -884,32 +1002,25 @@ function clearOverlay(){
   });
 }
 function drawUcEdge(svg, a, b, kind){
-  const acx = a._x + NW/2, acy = a._y + NH/2, bcx = b._x + NW/2, bcy = b._y + NH/2;
-  const dx = bcx - acx, dy = bcy - acy;
-  let x1, y1, x2, y2, c1x, c1y, c2x, c2y;
-  if (Math.abs(dx) >= Math.abs(dy)){
-    if (dx >= 0){ x1 = a._x + NW; y1 = acy; x2 = b._x;      y2 = bcy; }
-    else        { x1 = a._x;      y1 = acy; x2 = b._x + NW; y2 = bcy; }
-    const off = Math.max(26, Math.abs(x2 - x1) * 0.5), s = dx >= 0 ? 1 : -1;
-    c1x = x1 + off * s; c1y = y1; c2x = x2 - off * s; c2y = y2;
-  } else {
-    if (dy >= 0){ x1 = acx; y1 = a._y + NH; x2 = bcx; y2 = b._y; }
-    else        { x1 = acx; y1 = a._y;      x2 = bcx; y2 = b._y + NH; }
-    const off = Math.max(18, Math.abs(y2 - y1) * 0.5), s = dy >= 0 ? 1 : -1;
-    c1x = x1; c1y = y1 + off * s; c2x = x2; c2y = y2 - off * s;
-  }
+  // Orthogonal "missing hop": the route needs a→b but the topology doesn't
+  // declare it, so draw a dotted elbow warning (same right→left elbow as addEdge).
+  const ag = geom(a), bg = geom(b);
+  const sx = ag.cx + ag.rw/2, sy = ag.cy, tx = bg.cx - bg.rw/2, ty = bg.cy;
+  const straight = Math.abs(sy - ty) < 1, fx = sx + 30;
+  const pts = straight ? [[sx,sy],[tx,ty]] : [[sx,sy],[fx,sy],[fx,ty],[tx,ty]];
   const k = (kind === 'edge') ? 'edge-case' : kind;       // main | edge-case | missing
   const col = (kind === 'main') ? 'var(--edge-hot)' : 'var(--warn)';
   const cls = 'uc-edge uc-' + k;
   const path = document.createElementNS(NS, 'path');
-  path.setAttribute('d', `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`);
+  path.setAttribute('d', ortho(pts));
   path.setAttribute('class', cls); path.style.stroke = col;
   svg.appendChild(path);
-  const ang = Math.atan2(y2 - c2y, x2 - c2x), L = 9, sp = Math.PI / 7;
-  const h1x = x2 - L*Math.cos(ang - sp), h1y = y2 - L*Math.sin(ang - sp);
-  const h2x = x2 - L*Math.cos(ang + sp), h2y = y2 - L*Math.sin(ang + sp);
+  const pen = pts[pts.length - 2];
+  const ang = Math.atan2(ty - pen[1], tx - pen[0]), L = 9, sp = Math.PI / 7;
+  const h1x = tx - L*Math.cos(ang - sp), h1y = ty - L*Math.sin(ang - sp);
+  const h2x = tx - L*Math.cos(ang + sp), h2y = ty - L*Math.sin(ang + sp);
   const head = document.createElementNS(NS, 'path');
-  head.setAttribute('d', `M${h1x.toFixed(1)},${h1y.toFixed(1)} L${x2.toFixed(1)},${y2.toFixed(1)} L${h2x.toFixed(1)},${h2y.toFixed(1)}`);
+  head.setAttribute('d', `M${h1x.toFixed(1)},${h1y.toFixed(1)} L${tx.toFixed(1)},${ty.toFixed(1)} L${h2x.toFixed(1)},${h2y.toFixed(1)}`);
   head.setAttribute('class', cls);
   head.setAttribute('fill', 'none'); head.setAttribute('stroke-linecap', 'round'); head.setAttribute('stroke-linejoin', 'round');
   head.style.stroke = col; head.style.strokeDasharray = 'none';

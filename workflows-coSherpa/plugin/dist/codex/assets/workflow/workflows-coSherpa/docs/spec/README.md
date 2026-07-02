@@ -12,6 +12,6 @@
 여기 **안** 들어가는 것 = 흐름·화면, **코드 아키텍처**(모듈 내부 구조) 같은 설계 산출물 → `workflows-coSherpa/docs/concept/`. 결정의 "왜" → `workflows-coSherpa/docs/adr/`.
 
 > 주의: 대시보드가 **파싱하는 서비스 운영 토폴로지**(클라우드·배포 흐름) + **이용자 유스케이스 흐름**은 설계가 아니라
-> 계약 → 여기 `service-flow.md`. 표 3종(Groups·Components·**Use-cases**)으로, `/freeze`가 맨 마지막에 `architecture.md`(토폴로지)
+> 계약 → 여기 `service-flow.md`. 표 4종(Groups·Components·**Flow**·**Use-cases**)으로, `/freeze`가 맨 마지막에 `architecture.md`(토폴로지)
 > 와 `concept/flow.md`(유스케이스)에서 합성한다. `workflows-coSherpa/docs/concept/architecture.md`(코드 모듈 구조)와는
 > 이름만 비슷한 **다른 문서**다. 표 형식 권위는 `workflows-coSherpa/dashboard/engines/roadmap.sh` 파서 주석.

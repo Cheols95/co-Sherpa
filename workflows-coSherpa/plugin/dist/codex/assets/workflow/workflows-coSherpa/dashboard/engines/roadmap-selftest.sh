@@ -182,6 +182,14 @@ spec: architecture
 | hook | Hook | backend | 4 | 1 | upload | 8 | webhook in |
 | store | Store | data | 9 | 3 | hook | 8 | storage |
 | mp | MP | external | 7 | 5 | hook | 1 | model |
+| gate | Decision | gateway | 6 | 1 | hook | — | route |
+
+## Flow
+| from | to | label | kind |
+| --- | --- | --- | --- |
+| hook | gate | — | normal |
+| gate | store | ok | conditional |
+| gate | mp | fallback | conditional |
 
 ## Use-cases
 | uc | name | trigger | step | component | action | kind |
@@ -286,6 +294,9 @@ test_service() {
   assert_has "$data" '"id":"hook","nm":"Hook","kind":"be","col":4,"row":1,"deps":["upload"]'
   assert_has "$data" '"id":"store","nm":"Store","kind":"db","col":9,"row":3,"deps":["hook"]'
   assert_has "$data" '"id":"mp","nm":"MP","kind":"api","col":7,"row":5,"deps":["hook"]'
+  # A component whose `group` cell is the reserved word `gateway` becomes a
+  # decision node (kind=gateway) belonging to no deploy group.
+  assert_has "$data" '"id":"gate","nm":"Decision","kind":"gateway","col":6,"row":1,"deps":["hook"]'
 
   # A parent group (referenced via `parent`) encloses every descendant group's
   # members and gets the larger pad/labelTop; leaf groups get the small pad.
@@ -302,10 +313,14 @@ test_service() {
   assert_has "$data" '{"step":2,"component":"hook","action":"receive","kind":"main","cond":""}'
   assert_has "$data" '{"step":2,"component":"mp","action":"fallback","kind":"edge","cond":"model down"}'
 
+  # Flow table (## Flow): directed labelled edges; an em-dash label → "", kind
+  # normalises to normal|conditional. Present ⇒ the service view's edge source.
+  assert_has "$data" '"edges":[{"from":"hook","to":"gate","label":"","kind":"normal"},{"from":"gate","to":"store","label":"ok","kind":"conditional"},{"from":"gate","to":"mp","label":"fallback","kind":"conditional"}]'
+
   # Graceful: no service-flow.md → empty service (dashboard shows guidance).
   rm -f "$tmp/docs/spec/service-flow.md"
   data="$(emit_fixture "$tmp")"
-  assert_has "$data" '"service":{"nodes":[],"groups":[],"usecases":[]}'
+  assert_has "$data" '"service":{"nodes":[],"groups":[],"usecases":[],"edges":[]}'
 }
 
 # Generator-output validity (NOT render content). Guards the "generator emits
